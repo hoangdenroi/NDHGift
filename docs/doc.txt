@@ -1,0 +1,16 @@
+run dự án : composer dev
+
+
+https://one.google.com/u/6/referral/redeem/68A9207W
+
+
+// ngrok run
+ngrok http 8000
+
+
+# /etc/supervisor/conf.d/ndh-queue.conf
+[program:ndh-queue-notifications]
+command=php /path/to/artisan queue:work redis --queue=notifications --sleep=3 --tries=3
+numprocs=1
+autostart=true
+autorestart=true
