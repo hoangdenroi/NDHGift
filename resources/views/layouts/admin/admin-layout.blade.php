@@ -165,11 +165,11 @@
         </div>
 
         <!-- Footer cố định dưới cùng (ngoài vùng scroll, giống header) -->
-        <x-shared.layouts.admin.footer />
+        <x-shared.component.app.footer.footer-index />
     </main>
 
     {{-- Toast Notifications Component --}}
-    <x-shared.layouts.toast />
+    <x-shared.ui.toast />
 
     {{-- Dispatch toast từ session flash (ví dụ: khi redirect thành công/thất bại) --}}
     @if(session('toast_message'))
@@ -208,7 +208,7 @@
                             detail: { type: 'error', title: 'Lỗi', message: @js(session('error')) }
                         }));
                     @endif
-                    };
+                        };
                 if (window.Alpine) setTimeout(showToast, 50);
                 else document.addEventListener('alpine:initialized', showToast);
             })();
@@ -229,7 +229,7 @@
                             }
                         }));
                     @endforeach
-                    };
+                        };
                 if (window.Alpine) setTimeout(showToast, 50);
                 else document.addEventListener('alpine:initialized', showToast);
             })();

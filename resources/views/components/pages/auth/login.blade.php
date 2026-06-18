@@ -90,8 +90,8 @@
 
             {{-- Đăng nhập bằng mạng xã hội (gắn remember param từ checkbox) --}}
             <div class="grid grid-cols-2 gap-3">
-                <a href="{{ route('social.login', ['provider' => 'google']) }}" id="google-login-btn"
-                    onclick="event.preventDefault(); const r = document.getElementById('remember_me').checked ? 1 : 0; window.location.href = this.href + '?remember=' + r;"
+                <a href="javascript:void(0)" id="google-login-btn"
+                    onclick="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', title: 'Thông báo', message: 'Tính năng đăng nhập qua Google đang được phát triển.' } }));"
                     class="flex items-center justify-center gap-2 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium text-sm">
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
                         <path
@@ -109,8 +109,8 @@
                     </svg>
                     Google
                 </a>
-                <a href="{{ route('social.login', ['provider' => 'facebook']) }}" id="facebook-login-btn"
-                    onclick="event.preventDefault(); const r = document.getElementById('remember_me').checked ? 1 : 0; window.location.href = this.href + '?remember=' + r;"
+                <a href="javascript:void(0)" id="facebook-login-btn"
+                    onclick="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', title: 'Thông báo', message: 'Tính năng đăng nhập qua Facebook đang được phát triển.' } }));"
                     class="flex items-center justify-center gap-2 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium text-sm">
                     <svg class="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
                         <path
@@ -132,7 +132,7 @@
 
             <p class="text-slate-600 dark:text-slate-400 text-sm mt-3">Quay lại
                 <a class="font-bold text-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
-                    href="{{ route('app.home') }}">trang chủ</a>
+                    href="{{ route('home') }}">trang chủ</a>
             </p>
         </div>
     </div>

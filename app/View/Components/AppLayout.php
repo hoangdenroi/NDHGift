@@ -11,10 +11,13 @@ class AppLayout extends Component
 
     public bool $hideFooterMobile;
 
-    public function __construct(string $title = 'NDHGift', bool $hideFooterMobile = false)
+    public bool $hideHeaderMobile;
+
+    public function __construct(string $title = 'NDHGift', bool $hideFooterMobile = false, bool $hideHeaderMobile = false)
     {
         $this->title = $title;
         $this->hideFooterMobile = $hideFooterMobile;
+        $this->hideHeaderMobile = $hideHeaderMobile;
     }
 
     /**

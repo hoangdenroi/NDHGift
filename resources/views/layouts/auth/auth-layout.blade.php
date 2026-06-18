@@ -80,7 +80,7 @@
     </div>
 
     {{-- Toast Notifications Component --}}
-    <x-shared.layouts.toast />
+    <x-shared.ui.toast />
 
     @stack('scripts')
 

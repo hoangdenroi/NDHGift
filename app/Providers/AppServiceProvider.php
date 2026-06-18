@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Services\AuditLogService;
-use App\View\Components\Layouts\AppLayout;
-use App\View\Components\Layouts\AuthLayout;
+use App\View\Components\AppLayout;
+use App\View\Components\AuthLayout;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
@@ -62,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
                 ->response(function (Request $request, array $headers) {
                     $retryAfter = $headers['Retry-After'] ?? 60;
 
-                    return response()->view('shared.errors.429', [
+                    return response()->view('errors.429', [
                         'message' => 'Hệ thống ghi nhận tần suất yêu cầu truy cập từ bạn đang quá nhanh. Hãy tạm nghỉ một lát.',
                         'seconds' => $retryAfter,
                     ], 429)->withHeaders($headers);
@@ -71,11 +71,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Giới hạn xác thực: 5 req/phút — chống brute-force login/register/reset password
         RateLimiter::for('auth', function (Request $request) {
-            return Limit::perMinute(5)->by(strtolower((string) $request->input('email')) . '|' . $request->ip())
+            return Limit::perMinute(5)->by(strtolower((string) $request->input('email')).'|'.$request->ip())
                 ->response(function (Request $request, array $headers) {
                     $retryAfter = $headers['Retry-After'] ?? 60;
 
-                    return response()->view('shared.errors.429', [
+                    return response()->view('errors.429', [
                         'message' => 'Bạn đã thực hiện quá nhiều lượt thử xác thực. Để bảo mật, hệ thống sẽ tạm khóa yêu cầu này.',
                         'seconds' => $retryAfter,
                     ], 429)->withHeaders($headers);

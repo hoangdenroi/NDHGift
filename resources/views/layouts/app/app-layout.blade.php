@@ -179,7 +179,7 @@
         x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 z-30 lg:hidden" x-cloak></div>
 
     <!-- Sidebar -->
-    <x-shared.layouts.app.nav />
+    <x-shared.component.app.navbar.navbar-index />
 
     <!-- Panel Thông báo -->
     {{-- <x-admin.panel-admin-content /> --}}
@@ -187,7 +187,7 @@
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative">
         <!-- Header -->
-        <x-shared.layouts.app.header :title="$title ?? 'Dashboard'" />
+        <x-shared.component.app.header.header-index :title="$title ?? 'Trang chủ'" />
 
         <!-- Scrollable Content -->
         <div id="app-scroll-container" class="flex-1 overflow-y-auto scroll-smooth flex flex-col">
@@ -199,13 +199,13 @@
 
             <!-- Footer nằm ở cuối vùng cuộn -->
             <div class="{{ ($hideFooterMobile ?? false) ? 'hidden md:block' : '' }}">
-                <x-shared.layouts.app.footer />
+                <x-shared.component.app.footer.footer-index />
             </div>
         </div>
     </main>
 
     {{-- Toast Notifications Component --}}
-    <x-shared.layouts.toast />
+    <x-shared.ui.toast />
 
     {{-- Dispatch toast từ session flash --}}
     @if(session('success') || session('error'))
@@ -222,7 +222,7 @@
                             detail: { type: 'error', title: 'Lỗi', message: @js(session('error')) }
                         }));
                     @endif
-                        };
+                                        };
                 if (window.Alpine) setTimeout(showToast, 50);
                 else document.addEventListener('alpine:initialized', showToast);
             })();
