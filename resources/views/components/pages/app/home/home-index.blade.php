@@ -1,3 +1,3 @@
-<x-app-layout title="Trang chủ - NDHGift">
-    <h1>Hello World</h1>
+<x-app-layout :title="__('Home Page - NDHGift')">
+    <h1>{{ __('Hello World') }}</h1>
 </x-app-layout>

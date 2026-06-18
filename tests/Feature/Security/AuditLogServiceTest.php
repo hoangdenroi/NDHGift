@@ -107,7 +107,7 @@ class AuditLogServiceTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $this->post('/login', [
+        $this->post('/en/login', [
             'email' => $user->email,
             'password' => 'password123',
         ]);
@@ -130,7 +130,7 @@ class AuditLogServiceTest extends TestCase
         $this->actingAs($user);
 
         // Thực hiện logout
-        $this->post('/logout');
+        $this->post('/en/logout');
 
         // Phải có audit log action = 'logout'
         $this->assertDatabaseHas('audit_logs', [

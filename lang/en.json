@@ -1,0 +1,87 @@
+{
+    "Home": "Home",
+    "Login": "Login",
+    "Log in": "Log in",
+    "Register": "Register",
+    "Sign Up": "Sign Up",
+    "Logout": "Logout",
+    "Log Out": "Log Out",
+    "Email": "Email",
+    "Password": "Password",
+    "New Password": "New Password",
+    "Confirm Password": "Confirm Password",
+    "Remember me": "Remember me",
+    "Forgot Password?": "Forgot Password?",
+    "Forgot Password": "Forgot Password",
+    "Reset Password": "Reset Password",
+    "Send Reset Link": "Send Reset Link",
+    "Verify Email": "Verify Email",
+    "Resend Verification Email": "Resend Verification Email",
+
+    "NDHGift": "NDHGift",
+    "Log in to start your experience.": "Log in to start your experience.",
+    "Or continue with": "Or continue with",
+    "Don't have an account?": "Don't have an account?",
+    "Sign up for free": "Sign up for free",
+    "Back to": "Back to",
+    "homepage": "homepage",
+
+    "Create Account": "Create Account",
+    "Enter your information to register a new account.": "Enter your information to register a new account.",
+    "Full Name": "Full Name",
+    "Already have an account?": "Already have an account?",
+    "Log in now": "Log in now",
+
+    "Password security requirements:": "Password security requirements:",
+    "Length 8 - 32 characters": "Length 8 - 32 characters",
+    "At least 1 lowercase letter (a-z)": "At least 1 lowercase letter (a-z)",
+    "At least 1 uppercase letter (A-Z)": "At least 1 uppercase letter (A-Z)",
+    "At least 1 number (0-9)": "At least 1 number (0-9)",
+    "At least 1 special character (!@#$%^&*)": "At least 1 special character (!@#$%^&*)",
+    "Passwords match": "Passwords match",
+    "Passwords do not match": "Passwords do not match",
+    "Password does not meet security requirements.": "Password does not meet security requirements.",
+
+    "Enter your email, we will send a password reset link.": "Enter your email, we will send a password reset link.",
+    "Remember your password?": "Remember your password?",
+    "Back to login": "Back to login",
+
+    "Enter a new password for your account.": "Enter a new password for your account.",
+
+    "Thank you for signing up! Please verify your email address by clicking the link we just sent.": "Thank you for signing up! Please verify your email address by clicking the link we just sent.",
+
+    "This is a secure area. Please confirm your password before continuing.": "This is a secure area. Please confirm your password before continuing.",
+    "Confirm": "Confirm",
+
+    "Google login feature is under development.": "Google login feature is under development.",
+    "Facebook login feature is under development.": "Facebook login feature is under development.",
+    "Google registration feature is under development.": "Google registration feature is under development.",
+    "Facebook registration feature is under development.": "Facebook registration feature is under development.",
+
+    "Notice": "Notice",
+    "Warning": "Warning",
+    "Error": "Error",
+    "Failed": "Failed",
+    "Success": "Success",
+    "Successful": "Successful",
+    "You need to log in to use this feature!": "You need to log in to use this feature!",
+    "A new verification link has been sent to your email.": "A new verification link has been sent to your email.",
+
+    "429 - Too Many Requests": "429 - Too Many Requests",
+    "You have sent too many requests. Please try again later.": "You have sent too many requests. Please try again later.",
+    "Retry after": "Retry after",
+    "seconds": "seconds",
+    "← Back to previous page": "← Back to previous page",
+
+    "The system has detected that your request frequency is too fast. Please take a short break.": "The system has detected that your request frequency is too fast. Please take a short break.",
+    "You have made too many authentication attempts. For security, the system will temporarily block this request.": "You have made too many authentication attempts. For security, the system will temporarily block this request.",
+
+    "Top up successful": "Top up successful",
+
+    "Home Page - NDHGift": "Home Page - NDHGift",
+    "Hello World": "Hello World",
+
+    "Your account has been locked or is inactive. Please contact the administrator.": "Your account has been locked or is inactive. Please contact the administrator.",
+
+    "Switch Language": "Switch Language"
+}

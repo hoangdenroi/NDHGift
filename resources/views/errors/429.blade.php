@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>429 - Quá nhiều yêu cầu</title>
+    <title>{{ __('429 - Too Many Requests') }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -58,11 +58,11 @@
 <body>
     <div class="container">
         <div class="error-code">429</div>
-        <p class="message">{{ $message ?? 'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.' }}</p>
+        <p class="message">{{ $message ?? __('You have sent too many requests. Please try again later.') }}</p>
         <div class="retry-info">
-            ⏱ Thử lại sau <strong>{{ $seconds ?? 60 }}</strong> giây
+            ⏱ {{ __('Retry after') }} <strong>{{ $seconds ?? 60 }}</strong> {{ __('seconds') }}
         </div>
-        <a href="{{ url()->previous() }}" class="back-link">← Quay lại trang trước</a>
+        <a href="{{ url()->previous() }}" class="back-link">{{ __('← Back to previous page') }}</a>
     </div>
 </body>
 </html>

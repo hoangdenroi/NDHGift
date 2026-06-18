@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="utf-8" />
@@ -179,7 +179,7 @@
         x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 z-30 lg:hidden" x-cloak></div>
 
     <!-- Sidebar -->
-    <x-shared.component.app.navbar.navbar-index />
+    {{-- <x-shared.component.app.navbar.navbar-index /> --}}
 
     <!-- Panel Thông báo -->
     {{-- <x-admin.panel-admin-content /> --}}
@@ -187,7 +187,7 @@
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative">
         <!-- Header -->
-        <x-shared.component.app.header.header-index :title="$title ?? 'Trang chủ'" />
+        <x-shared.component.app.header.header-index :title="$title ?? 'NDHGift'" />
 
         <!-- Scrollable Content -->
         <div id="app-scroll-container" class="flex-1 overflow-y-auto scroll-smooth flex flex-col">
@@ -214,15 +214,15 @@
                 const showToast = () => {
                     @if(session('success'))
                         window.dispatchEvent(new CustomEvent('toast', {
-                            detail: { type: 'success', title: 'Thành công', message: @js(session('success')) }
+                            detail: { type: 'success', title: @js(__('Successful')), message: @js(session('success')) }
                         }));
                     @endif
                     @if(session('error'))
                         window.dispatchEvent(new CustomEvent('toast', {
-                            detail: { type: 'error', title: 'Lỗi', message: @js(session('error')) }
+                            detail: { type: 'error', title: @js(__('Error')), message: @js(session('error')) }
                         }));
                     @endif
-                                        };
+                                                };
                 if (window.Alpine) setTimeout(showToast, 50);
                 else document.addEventListener('alpine:initialized', showToast);
             })();
@@ -243,7 +243,7 @@
                     .listen('BalanceUpdated', (e) => {
                         // Hiển thị toast thông báo nạp tiền thành công
                         window.dispatchEvent(new CustomEvent('toast', {
-                            detail: { type: 'success', title: 'Nạp tiền thành công', message: e.message }
+                            detail: { type: 'success', title: @js(__('Top up successful')), message: e.message }
                         }));
 
                         // Phát custom event để các component Alpine.js tự cập nhật số dư

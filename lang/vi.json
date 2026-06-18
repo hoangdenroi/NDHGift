@@ -1,0 +1,87 @@
+{
+    "Home": "Trang chủ",
+    "Login": "Đăng nhập",
+    "Log in": "Đăng Nhập",
+    "Register": "Đăng ký",
+    "Sign Up": "Đăng Ký",
+    "Logout": "Đăng xuất",
+    "Log Out": "Đăng Xuất",
+    "Email": "Email",
+    "Password": "Mật khẩu",
+    "New Password": "Mật khẩu mới",
+    "Confirm Password": "Xác nhận mật khẩu",
+    "Remember me": "Ghi nhớ đăng nhập",
+    "Forgot Password?": "Quên mật khẩu?",
+    "Forgot Password": "Quên Mật Khẩu",
+    "Reset Password": "Đặt Lại Mật Khẩu",
+    "Send Reset Link": "Gửi Liên Kết Đặt Lại",
+    "Verify Email": "Xác Minh Email",
+    "Resend Verification Email": "Gửi Lại Email Xác Minh",
+
+    "NDHGift": "NDHGift",
+    "Log in to start your experience.": "Đăng nhập để bắt đầu trải nghiệm.",
+    "Or continue with": "Hoặc tiếp tục với",
+    "Don't have an account?": "Chưa có tài khoản?",
+    "Sign up for free": "Đăng ký miễn phí",
+    "Back to": "Quay lại",
+    "homepage": "trang chủ",
+
+    "Create Account": "Tạo Tài Khoản",
+    "Enter your information to register a new account.": "Nhập thông tin để đăng ký tài khoản mới.",
+    "Full Name": "Họ tên",
+    "Already have an account?": "Đã có tài khoản?",
+    "Log in now": "Đăng nhập ngay",
+
+    "Password security requirements:": "Yêu cầu độ bảo mật mật khẩu:",
+    "Length 8 - 32 characters": "Độ dài 8 - 32 ký tự",
+    "At least 1 lowercase letter (a-z)": "Ít nhất 1 chữ thường (a-z)",
+    "At least 1 uppercase letter (A-Z)": "Ít nhất 1 chữ hoa (A-Z)",
+    "At least 1 number (0-9)": "Ít nhất 1 chữ số (0-9)",
+    "At least 1 special character (!@#$%^&*)": "Ít nhất 1 ký tự đặc biệt (!@#$%^&*)",
+    "Passwords match": "Mật khẩu trùng khớp",
+    "Passwords do not match": "Mật khẩu xác nhận không khớp",
+    "Password does not meet security requirements.": "Mật khẩu chưa đáp ứng đúng tiêu chuẩn bảo mật.",
+
+    "Enter your email, we will send a password reset link.": "Nhập email của bạn, chúng tôi sẽ gửi liên kết đặt lại mật khẩu.",
+    "Remember your password?": "Nhớ mật khẩu rồi?",
+    "Back to login": "Quay lại đăng nhập",
+
+    "Enter a new password for your account.": "Nhập mật khẩu mới cho tài khoản của bạn.",
+
+    "Thank you for signing up! Please verify your email address by clicking the link we just sent.": "Cảm ơn bạn đã đăng ký! Vui lòng xác minh địa chỉ email bằng cách bấm vào liên kết chúng tôi vừa gửi.",
+
+    "This is a secure area. Please confirm your password before continuing.": "Đây là khu vực bảo mật. Vui lòng xác nhận mật khẩu trước khi tiếp tục.",
+    "Confirm": "Xác Nhận",
+
+    "Google login feature is under development.": "Tính năng đăng nhập qua Google đang được phát triển.",
+    "Facebook login feature is under development.": "Tính năng đăng nhập qua Facebook đang được phát triển.",
+    "Google registration feature is under development.": "Tính năng đăng ký qua Google đang được phát triển.",
+    "Facebook registration feature is under development.": "Tính năng đăng ký qua Facebook đang được phát triển.",
+
+    "Notice": "Thông báo",
+    "Warning": "Cảnh báo",
+    "Error": "Lỗi",
+    "Failed": "Thất bại",
+    "Success": "Thành công",
+    "Successful": "Thành công",
+    "You need to log in to use this feature!": "Bạn cần đăng nhập để sử dụng tính năng này!",
+    "A new verification link has been sent to your email.": "Liên kết xác minh mới đã được gửi đến email của bạn.",
+
+    "429 - Too Many Requests": "429 - Quá nhiều yêu cầu",
+    "You have sent too many requests. Please try again later.": "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.",
+    "Retry after": "Thử lại sau",
+    "seconds": "giây",
+    "← Back to previous page": "← Quay lại trang trước",
+
+    "The system has detected that your request frequency is too fast. Please take a short break.": "Hệ thống ghi nhận tần suất yêu cầu truy cập từ bạn đang quá nhanh. Hãy tạm nghỉ một lát.",
+    "You have made too many authentication attempts. For security, the system will temporarily block this request.": "Bạn đã thực hiện quá nhiều lượt thử xác thực. Để bảo mật, hệ thống sẽ tạm khóa yêu cầu này.",
+
+    "Top up successful": "Nạp tiền thành công",
+
+    "Home Page - NDHGift": "Trang chủ - NDHGift",
+    "Hello World": "Xin chào Thế giới",
+
+    "Your account has been locked or is inactive. Please contact the administrator.": "Tài khoản của bạn đã bị khóa hoặc không hoạt động. Vui lòng liên hệ quản trị viên.",
+
+    "Switch Language": "Chuyển ngôn ngữ"
+}

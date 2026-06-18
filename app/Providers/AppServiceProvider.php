@@ -63,7 +63,7 @@ class AppServiceProvider extends ServiceProvider
                     $retryAfter = $headers['Retry-After'] ?? 60;
 
                     return response()->view('errors.429', [
-                        'message' => 'Hệ thống ghi nhận tần suất yêu cầu truy cập từ bạn đang quá nhanh. Hãy tạm nghỉ một lát.',
+                        'message' => __('The system has detected that your request frequency is too fast. Please take a short break.'),
                         'seconds' => $retryAfter,
                     ], 429)->withHeaders($headers);
                 });
@@ -76,7 +76,7 @@ class AppServiceProvider extends ServiceProvider
                     $retryAfter = $headers['Retry-After'] ?? 60;
 
                     return response()->view('errors.429', [
-                        'message' => 'Bạn đã thực hiện quá nhiều lượt thử xác thực. Để bảo mật, hệ thống sẽ tạm khóa yêu cầu này.',
+                        'message' => __('You have made too many authentication attempts. For security, the system will temporarily block this request.'),
                         'seconds' => $retryAfter,
                     ], 429)->withHeaders($headers);
                 });

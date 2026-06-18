@@ -17,9 +17,16 @@ return Application::configure(basePath: dirname(__DIR__))
         // Cấu hình Trust Proxies cho Cloudflare / Reverse Proxy
         $middleware->trustProxies(at: '*');
 
-        // Khi user chưa đăng nhập, redirect về trang login kèm query parameter để hiển thị thông báo
+        // Đăng ký middleware alias cho hệ thống đa ngôn ngữ
+        $middleware->alias([
+            'set.locale' => \App\Http\Middleware\SetLocale::class,
+        ]);
+
+        // Khi user chưa đăng nhập, redirect về trang login kèm locale prefix + query param thông báo
         $middleware->redirectGuestsTo(function () {
-            return route('login', ['auth_required' => 1]);
+            $locale = session('locale', config('localization.default_locale', 'en'));
+
+            return route('login', ['locale' => $locale, 'auth_required' => 1]);
         });
 
         // Web middleware stack — thêm Security Headers + kiểm tra tài khoản + throttle

@@ -25,9 +25,10 @@ class EnsureUserIsActiveTest extends TestCase
             'is_deleted' => false,
         ]);
 
-        $response = $this->actingAs($user)->get('/');
+        // Sử dụng route có locale prefix thay vì root URL '/'
+        $response = $this->actingAs($user)->get('/en');
 
-        // User active → truy cập được (200 hoặc redirect bình thường, không bị ép logout)
+        // User active → truy cập được (200)
         $response->assertOk();
     }
 
@@ -38,10 +39,10 @@ class EnsureUserIsActiveTest extends TestCase
             'is_deleted' => false,
         ]);
 
-        $response = $this->actingAs($user)->get('/');
+        $response = $this->actingAs($user)->get('/en');
 
-        // User suspended → bị redirect về login
-        $response->assertRedirect(route('login'));
+        // User suspended → bị redirect về login với locale tương ứng
+        $response->assertRedirect(route('login', ['locale' => 'en']));
         // Session phải bị hủy → không còn đăng nhập
         $this->assertGuest();
     }
@@ -53,9 +54,9 @@ class EnsureUserIsActiveTest extends TestCase
             'is_deleted' => true,
         ]);
 
-        $response = $this->actingAs($user)->get('/');
+        $response = $this->actingAs($user)->get('/en');
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('login', ['locale' => 'en']));
         $this->assertGuest();
     }
 
@@ -66,16 +67,16 @@ class EnsureUserIsActiveTest extends TestCase
             'is_deleted' => false,
         ]);
 
-        $response = $this->actingAs($user)->get('/');
+        $response = $this->actingAs($user)->get('/en');
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('login', ['locale' => 'en']));
         $this->assertGuest();
     }
 
     public function test_guest_khong_bi_anh_huong(): void
     {
-        // Guest (chưa đăng nhập) → middleware không can thiệp
-        $response = $this->get('/');
+        // Guest (chưa đăng nhập) truy cập trang chủ /en thì trả về 200
+        $response = $this->get('/en');
 
         $response->assertOk();
     }

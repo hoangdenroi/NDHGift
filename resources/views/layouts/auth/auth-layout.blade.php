@@ -92,7 +92,7 @@
                     window.dispatchEvent(new CustomEvent('toast', {
                         detail: {
                             type: '{{ session('toast_type', 'info') }}',
-                            title: '{{ session('toast_type') === 'warning' ? 'Cảnh báo' : (session('toast_type') === 'error' ? 'Lỗi' : (session('toast_type') === 'success' ? 'Thành công' : 'Thông báo')) }}',
+                            title: '{{ session('toast_type') === 'warning' ? __('Warning') : (session('toast_type') === 'error' ? __('Error') : (session('toast_type') === 'success' ? __('Successful') : __('Notice'))) }}',
                             message: '{!! addslashes(session('toast_message')) !!}',
                             link: '{{ session('toast_link', '') }}' || null,
                             linkText: '{{ session('toast_link_text', '') }}' || null
@@ -113,8 +113,8 @@
                     window.dispatchEvent(new CustomEvent('toast', {
                         detail: {
                             type: 'warning',
-                            title: 'Cảnh báo',
-                            message: 'Bạn cần đăng nhập để sử dụng tính năng này!'
+                            title: '{{ __('Warning') }}',
+                            message: '{{ __('You need to log in to use this feature!') }}'
                         }
                     }));
                 };
@@ -133,7 +133,7 @@
                         window.dispatchEvent(new CustomEvent('toast', {
                             detail: {
                                 type: 'error',
-                                title: 'Thất bại',
+                                title: '{{ __('Failed') }}',
                                 message: '{!! addslashes($error) !!}'
                             }
                         }));
@@ -150,7 +150,7 @@
         @php
             $statusMsg = session('status');
             if ($statusMsg === 'verification-link-sent') {
-                $statusMsg = 'Liên kết xác minh mới đã được gửi đến email của bạn.';
+                $statusMsg = __('A new verification link has been sent to your email.');
             } else {
                 $statusMsg = __($statusMsg);
             }
@@ -161,7 +161,7 @@
                     window.dispatchEvent(new CustomEvent('toast', {
                         detail: {
                             type: 'success',
-                            title: 'Thành công',
+                            title: '{{ __('Successful') }}',
                             message: '{!! addslashes($statusMsg) !!}'
                         }
                     }));

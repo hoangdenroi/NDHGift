@@ -6,19 +6,14 @@
             {{-- Tiêu đề & Home --}}
             <div class="flex flex-col items-center mb-8">
                 <div class="relative w-full flex items-center justify-center mb-2">
-                    {{-- <a href="{{ route('app.home') }}"
-                        class="absolute left-0 flex items-center justify-center text-primary hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-4xl">home</span>
-                    </a> --}}
                     <h1 class="text-slate-900 dark:text-white text-3xl font-bold leading-tight tracking-tight">
-                        NDHShop
+                        {{ __('NDHGift') }}
                     </h1>
                 </div>
                 <p class="text-slate-500 dark:text-slate-400 text-base font-normal text-center">
-                    Đăng nhập để bắt đầu trải nghiệm.
+                    {{ __('Log in to start your experience.') }}
                 </p>
             </div>
-
 
             {{-- Form đăng nhập --}}
             <form method="POST" action="{{ route('login') }}" class="space-y-5">
@@ -27,7 +22,7 @@
                 {{-- Email --}}
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300"
-                        for="email">Email</label>
+                        for="email">{{ __('Email') }}</label>
                     <div class="relative">
                         <span
                             class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">mail</span>
@@ -36,17 +31,16 @@
                             id="email" name="email" type="email" value="{{ old('email') }}"
                             placeholder="email@example.com" required autofocus autocomplete="username" />
                     </div>
-
                 </div>
 
                 {{-- Mật khẩu --}}
                 <div class="space-y-1.5">
                     <div class="flex items-center justify-between">
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="password">Mật
-                            khẩu</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                            for="password">{{ __('Password') }}</label>
                         @if (Route::has('password.request'))
                             <a class="text-sm font-semibold text-primary hover:text-blue-600 dark:hover:text-blue-400"
-                                href="{{ route('password.request') }}">Quên mật khẩu?</a>
+                                href="{{ route('password.request') }}">{{ __('Forgot Password?') }}</a>
                         @endif
                     </div>
                     <div class="relative">
@@ -62,7 +56,6 @@
                             <span class="material-symbols-outlined text-[20px]">visibility</span>
                         </button>
                     </div>
-
                 </div>
 
                 {{-- Ghi nhớ đăng nhập --}}
@@ -70,28 +63,28 @@
                     <input id="remember_me" type="checkbox" name="remember"
                         class="rounded border-slate-300 dark:border-slate-600 text-primary shadow-sm focus:ring-primary dark:bg-slate-800"
                         checked>
-                    <span class="ms-2 text-sm text-slate-600 dark:text-slate-400">Ghi nhớ đăng nhập</span>
+                    <span class="ms-2 text-sm text-slate-600 dark:text-slate-400">{{ __('Remember me') }}</span>
                 </div>
 
                 {{-- Nút đăng nhập --}}
                 <button type="submit"
                     class="w-full flex items-center justify-center h-12 bg-primary hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-[0.98]">
-                    Đăng Nhập
+                    {{ __('Log in') }}
                 </button>
             </form>
 
             {{-- Đường phân cách --}}
             <div class="relative flex items-center py-6">
                 <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-                <span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium uppercase tracking-wider">Hoặc tiếp
-                    tục với</span>
+                <span
+                    class="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium uppercase tracking-wider">{{ __('Or continue with') }}</span>
                 <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
             </div>
 
-            {{-- Đăng nhập bằng mạng xã hội (gắn remember param từ checkbox) --}}
+            {{-- Đăng nhập bằng mạng xã hội --}}
             <div class="grid grid-cols-2 gap-3">
                 <a href="javascript:void(0)" id="google-login-btn"
-                    onclick="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', title: 'Thông báo', message: 'Tính năng đăng nhập qua Google đang được phát triển.' } }));"
+                    onclick="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', title: '{{ __("Notice") }}', message: '{{ __("Google login feature is under development.") }}' } }));"
                     class="flex items-center justify-center gap-2 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium text-sm">
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
                         <path
@@ -110,7 +103,7 @@
                     Google
                 </a>
                 <a href="javascript:void(0)" id="facebook-login-btn"
-                    onclick="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', title: 'Thông báo', message: 'Tính năng đăng nhập qua Facebook đang được phát triển.' } }));"
+                    onclick="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', title: '{{ __("Notice") }}', message: '{{ __("Facebook login feature is under development.") }}' } }));"
                     class="flex items-center justify-center gap-2 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium text-sm">
                     <svg class="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
                         <path
@@ -125,14 +118,13 @@
         <div
             class="bg-slate-50 dark:bg-slate-800/50 px-8 py-5 text-center border-t border-slate-100 dark:border-slate-800">
             <p class="text-slate-600 dark:text-slate-400 text-sm">
-                Chưa có tài khoản?
+                {{ __("Don't have an account?") }}
                 <a class="font-bold text-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
-                    href="{{ route('register') }}">Đăng ký miễn phí</a>
+                    href="{{ route('register') }}">{{ __('Sign up for free') }}</a>
             </p>
-
-            <p class="text-slate-600 dark:text-slate-400 text-sm mt-3">Quay lại
+            <p class="text-slate-600 dark:text-slate-400 text-sm mt-3">{{ __('Back to') }}
                 <a class="font-bold text-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
-                    href="{{ route('home') }}">trang chủ</a>
+                    href="{{ route('home') }}">{{ __('homepage') }}</a>
             </p>
         </div>
     </div>

@@ -8,29 +8,26 @@
                     <span class="material-symbols-outlined text-primary text-3xl">mark_email_unread</span>
                 </div>
                 <h1 class="text-slate-900 dark:text-white text-3xl font-bold leading-tight tracking-tight mb-2">
-                    Xác Minh Email
+                    {{ __('Verify Email') }}
                 </h1>
                 <p class="text-slate-500 dark:text-slate-400 text-sm font-normal">
-                    Cảm ơn bạn đã đăng ký! Vui lòng xác minh địa chỉ email bằng cách bấm vào liên kết chúng tôi vừa gửi.
+                    {{ __('Thank you for signing up! Please verify your email address by clicking the link we just sent.') }}
                 </p>
             </div>
-
 
             {{-- Các nút hành động --}}
             <div class="space-y-3">
                 <form method="POST" action="{{ route('verification.send') }}">
                     @csrf
-                    <button type="submit"
-                        class="w-full flex items-center justify-center h-12 bg-primary hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-[0.98]">
-                        Gửi Lại Email Xác Minh
+                    <button type="submit" class="w-full flex items-center justify-center h-12 bg-primary hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-[0.98]">
+                        {{ __('Resend Verification Email') }}
                     </button>
                 </form>
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit"
-                        class="w-full flex items-center justify-center h-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-[0.98]">
-                        Đăng Xuất
+                    <button type="submit" class="w-full flex items-center justify-center h-12 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-[0.98]">
+                        {{ __('Log Out') }}
                     </button>
                 </form>
             </div>
