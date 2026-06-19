@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
  * Thiết kế tập trung cho nền tảng tạo trang quà tặng:
  * - Thông tin cá nhân + xác thực (email, phone, Google/Facebook OAuth)
  * - Ví nội bộ (balance) để thanh toán template premium
- * - Cá nhân hóa trải nghiệm (theme, ngôn ngữ, thông báo)
+ * - Cá nhân hóa trải nghiệm (settings json: theme, ngôn ngữ, thông báo)
  * - Bảo mật (status, soft delete, tracking login)
  */
 return new class extends Migration
@@ -37,16 +37,14 @@ return new class extends Migration
             $table->string('facebook_id')->nullable()->unique()->comment('Facebook OAuth ID');
 
             // === VÍ NỘI BỘ — thanh toán template premium ===
-            $table->decimal('balance', 19, 2)->default(0);
+            $table->decimal('balance', 19, 4)->default(0);
 
             // === PHÂN QUYỀN & TRẠNG THÁI ===
             $table->string('role', 20)->default('user')->index();
             $table->string('status', 20)->default('active')->index();
 
-            // === CÁ NHÂN HÓA ===
-            $table->json('theme')->nullable()->comment('Cấu hình giao diện (dark mode, màu sắc)');
-            $table->json('notification')->nullable()->comment('Cấu hình thông báo (email, push)');
-            $table->string('language', 10)->default('vi');
+            // === CÁ NHÂN HÓA & CÀI ĐẶT ===
+            $table->json('settings')->nullable()->comment('Cài đặt người dùng (theme, notifications, language)');
 
             // === BẢO MẬT & TRACKING ===
             $table->timestamp('last_change_password_at')->nullable();

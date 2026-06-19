@@ -1,6 +1,7 @@
 <x-auth-layout>
     {{-- Card đăng ký --}}
-    <div class="w-full max-w-md bg-white dark:bg-[#151c2b] rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 overflow-hidden">
+    <div
+        class="w-full max-w-md bg-white dark:bg-[#151c2b] rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 overflow-hidden">
         <div class="p-8 sm:p-10">
             {{-- Tiêu đề --}}
             <div class="text-center mb-8">
@@ -31,23 +32,49 @@
                 @submit="if (isTouched && !isValid) { $event.preventDefault(); window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __("Error") }}', message: '{{ __("Password does not meet security requirements.") }}' } })); }">
                 @csrf
 
-                {{-- Họ tên --}}
-                <div class="space-y-1.5">
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="name">{{ __('Full Name') }}</label>
+                {{-- Tên đăng nhập (Username) --}}
+                {{-- <div class="space-y-1.5">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="username">{{
+                        __('Username') }}</label>
                     <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">person</span>
-                        <input class="form-input block w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-primary focus:ring-primary pl-10 h-12 sm:text-sm"
-                            id="name" name="name" type="text" value="{{ old('name') }}" placeholder="Nguyễn Văn A"
-                            required autofocus autocomplete="name" />
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">alternate_email</span>
+                        <input
+                            class="form-input block w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-primary focus:ring-primary pl-10 h-12 sm:text-sm"
+                            id="username" name="username" type="text" value="{{ old('username') }}"
+                            placeholder="nguyenvana" required autofocus autocomplete="username" />
                     </div>
+                    @error('username')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div> --}}
+
+                {{-- Họ tên (Full Name) --}}
+                <div class="space-y-1.5">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                        for="fullname">{{ __('Full Name') }}</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">person</span>
+                        <input
+                            class="form-input block w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-primary focus:ring-primary pl-10 h-12 sm:text-sm"
+                            id="fullname" name="fullname" type="text" value="{{ old('fullname') }}"
+                            placeholder="Nguyễn Văn A" required autocomplete="name" />
+                    </div>
+                    {{-- @error('fullname')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror --}}
                 </div>
 
                 {{-- Email --}}
                 <div class="space-y-1.5">
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="email">{{ __('Email') }}</label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                        for="email">{{ __('Email') }}</label>
                     <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">mail</span>
-                        <input class="form-input block w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-primary focus:ring-primary pl-10 h-12 sm:text-sm"
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">mail</span>
+                        <input
+                            class="form-input block w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-primary focus:ring-primary pl-10 h-12 sm:text-sm"
                             id="email" name="email" type="email" value="{{ old('email') }}"
                             placeholder="email@example.com" required autocomplete="username" />
                     </div>
@@ -55,13 +82,17 @@
 
                 {{-- Mật khẩu --}}
                 <div class="space-y-1.5">
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="password">{{ __('Password') }}</label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                        for="password">{{ __('Password') }}</label>
                     <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">lock</span>
-                        <input class="form-input block w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-primary focus:ring-primary pl-10 pr-10 h-12 sm:text-sm"
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">lock</span>
+                        <input
+                            class="form-input block w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-primary focus:ring-primary pl-10 pr-10 h-12 sm:text-sm"
                             id="password" name="password" type="password" x-model="password" @input="isTouched = true"
                             placeholder="••••••••" required autocomplete="new-password" />
-                        <button type="button" class="absolute right-3 top-0 h-full flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                        <button type="button"
+                            class="absolute right-3 top-0 h-full flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                             onclick="const input = document.getElementById('password'); const icon = this.querySelector('span'); if(input.type === 'password') { input.type = 'text'; icon.textContent = 'visibility_off'; } else { input.type = 'password'; icon.textContent = 'visibility'; }">
                             <span class="material-symbols-outlined text-[20px]">visibility</span>
                         </button>
@@ -77,27 +108,32 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
                             <div class="flex items-center gap-1.5 transition-colors duration-200"
                                 :class="hasMinLength && password.length <= 32 ? 'text-green-500 dark:text-green-400' : (password.length > 32 ? 'text-red-500 dark:text-red-400' : 'text-slate-400 dark:text-slate-500')">
-                                <span class="material-symbols-outlined text-[16px]" x-text="hasMinLength && password.length <= 32 ? 'check_circle' : (password.length > 32 ? 'error' : 'cancel')"></span>
+                                <span class="material-symbols-outlined text-[16px]"
+                                    x-text="hasMinLength && password.length <= 32 ? 'check_circle' : (password.length > 32 ? 'error' : 'cancel')"></span>
                                 <span>{{ __('Length 8 - 32 characters') }}</span>
                             </div>
                             <div class="flex items-center gap-1.5 transition-colors duration-200"
                                 :class="hasLowercase ? 'text-green-500 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'">
-                                <span class="material-symbols-outlined text-[16px]" x-text="hasLowercase ? 'check_circle' : 'cancel'"></span>
+                                <span class="material-symbols-outlined text-[16px]"
+                                    x-text="hasLowercase ? 'check_circle' : 'cancel'"></span>
                                 <span>{{ __('At least 1 lowercase letter (a-z)') }}</span>
                             </div>
                             <div class="flex items-center gap-1.5 transition-colors duration-200"
                                 :class="hasUppercase ? 'text-green-500 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'">
-                                <span class="material-symbols-outlined text-[16px]" x-text="hasUppercase ? 'check_circle' : 'cancel'"></span>
+                                <span class="material-symbols-outlined text-[16px]"
+                                    x-text="hasUppercase ? 'check_circle' : 'cancel'"></span>
                                 <span>{{ __('At least 1 uppercase letter (A-Z)') }}</span>
                             </div>
                             <div class="flex items-center gap-1.5 transition-colors duration-200"
                                 :class="hasNumber ? 'text-green-500 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'">
-                                <span class="material-symbols-outlined text-[16px]" x-text="hasNumber ? 'check_circle' : 'cancel'"></span>
+                                <span class="material-symbols-outlined text-[16px]"
+                                    x-text="hasNumber ? 'check_circle' : 'cancel'"></span>
                                 <span>{{ __('At least 1 number (0-9)') }}</span>
                             </div>
                             <div class="flex items-center gap-1.5 transition-colors duration-200"
                                 :class="hasSpecial ? 'text-green-500 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'">
-                                <span class="material-symbols-outlined text-[16px]" x-text="hasSpecial ? 'check_circle' : 'cancel'"></span>
+                                <span class="material-symbols-outlined text-[16px]"
+                                    x-text="hasSpecial ? 'check_circle' : 'cancel'"></span>
                                 <span>{{ __('At least 1 special character (!@#$%^&*)') }}</span>
                             </div>
                         </div>
@@ -106,25 +142,32 @@
 
                 {{-- Xác nhận mật khẩu --}}
                 <div class="space-y-1.5">
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" for="password_confirmation">{{ __('Confirm Password') }}</label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                        for="password_confirmation">{{ __('Confirm Password') }}</label>
                     <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">lock</span>
-                        <input class="form-input block w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-primary focus:ring-primary pl-10 pr-10 h-12 sm:text-sm"
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">lock</span>
+                        <input
+                            class="form-input block w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-primary focus:ring-primary pl-10 pr-10 h-12 sm:text-sm"
                             id="password_confirmation" name="password_confirmation" type="password"
                             x-model="password_confirmation" @input="isConfirmTouched = true" placeholder="••••••••"
                             required autocomplete="new-password" />
-                        <button type="button" class="absolute right-3 top-0 h-full flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                        <button type="button"
+                            class="absolute right-3 top-0 h-full flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                             onclick="const input = document.getElementById('password_confirmation'); const icon = this.querySelector('span'); if(input.type === 'password') { input.type = 'text'; icon.textContent = 'visibility_off'; } else { input.type = 'password'; icon.textContent = 'visibility'; }">
                             <span class="material-symbols-outlined text-[20px]">visibility</span>
                         </button>
                     </div>
 
                     <!-- Password Confirmation Status -->
-                    <div x-show="isConfirmTouched && password_confirmation.length > 0" x-cloak class="mt-1.5 transition-all duration-300">
+                    <div x-show="isConfirmTouched && password_confirmation.length > 0" x-cloak
+                        class="mt-1.5 transition-all duration-300">
                         <div class="flex items-center gap-1.5 text-[12px]"
                             :class="isConfirmed ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'">
-                            <span class="material-symbols-outlined text-[16px]" x-text="isConfirmed ? 'check_circle' : 'error'"></span>
-                            <span x-text="isConfirmed ? '{{ __("Passwords match") }}' : '{{ __("Passwords do not match") }}'"></span>
+                            <span class="material-symbols-outlined text-[16px]"
+                                x-text="isConfirmed ? 'check_circle' : 'error'"></span>
+                            <span
+                                x-text="isConfirmed ? '{{ __("Passwords match") }}' : '{{ __("Passwords do not match") }}'"></span>
                         </div>
                     </div>
                 </div>
@@ -140,7 +183,8 @@
             {{-- Đường phân cách --}}
             <div class="relative flex items-center py-6">
                 <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-                <span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium uppercase tracking-wider">{{ __('Or continue with') }}</span>
+                <span
+                    class="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium uppercase tracking-wider">{{ __('Or continue with') }}</span>
                 <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
             </div>
 
@@ -150,10 +194,18 @@
                     onclick="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', title: '{{ __("Notice") }}', message: '{{ __("Google registration feature is under development.") }}' } }));"
                     class="flex items-center justify-center gap-2 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium text-sm">
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                        <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                            fill="#4285F4" />
+                        <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            fill="#34A853" />
+                        <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                            fill="#FBBC05" />
+                        <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                            fill="#EA4335" />
                     </svg>
                     Google
                 </a>
@@ -161,7 +213,8 @@
                     onclick="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', title: '{{ __("Notice") }}', message: '{{ __("Facebook registration feature is under development.") }}' } }));"
                     class="flex items-center justify-center gap-2 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium text-sm">
                     <svg class="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        <path
+                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                     </svg>
                     Facebook
                 </a>
@@ -169,7 +222,8 @@
         </div>
 
         {{-- Footer card --}}
-        <div class="bg-slate-50 dark:bg-slate-800/50 px-8 py-5 text-center border-t border-slate-100 dark:border-slate-800">
+        <div
+            class="bg-slate-50 dark:bg-slate-800/50 px-8 py-5 text-center border-t border-slate-100 dark:border-slate-800">
             <p class="text-slate-600 dark:text-slate-400 text-sm">
                 {{ __('Already have an account?') }}
                 <a class="font-bold text-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors"

@@ -33,9 +33,7 @@ class User extends Authenticatable
         'google_id',
         'facebook_id',
         'status',
-        'theme',
-        'notification',
-        'language',
+        'settings',
         'last_change_password_at',
         'last_login_at',
     ];
@@ -64,8 +62,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'balance' => 'decimal:4',
             'is_deleted' => 'boolean',
-            'theme' => 'array',
-            'notification' => 'array',
+            'settings' => 'array',
             'metadata' => 'array',
         ];
     }

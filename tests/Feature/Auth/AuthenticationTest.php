@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
@@ -27,7 +29,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('home', ['locale' => 'en'], false));
+        $response->assertRedirect(route('app.home.index', ['locale' => 'en'], false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void

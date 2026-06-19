@@ -34,7 +34,6 @@ class UserTest extends TestCase
             'role' => 'user',
             'status' => 'active',
             'is_deleted' => false,
-            'language' => 'vi',
         ]);
 
         // Unitcode tự động sinh ULID 26 ký tự
@@ -260,18 +259,20 @@ class UserTest extends TestCase
             'fullname' => 'Test',
             'email' => 'cast@example.com',
             'password' => 'password',
-            'theme' => ['mode' => 'dark'],
-            'notification' => ['email' => true, 'push' => false],
+            'settings' => [
+                'language' => 'en',
+                'theme' => ['mode' => 'dark'],
+                'notifications' => ['email' => true],
+            ],
         ]);
 
         $user = $user->fresh();
 
         // JSON cast thành array
-        $this->assertIsArray($user->theme);
-        $this->assertSame('dark', $user->theme['mode']);
-
-        $this->assertIsArray($user->notification);
-        $this->assertTrue($user->notification['email']);
+        $this->assertIsArray($user->settings);
+        $this->assertSame('en', $user->settings['language']);
+        $this->assertSame('dark', $user->settings['theme']['mode']);
+        $this->assertTrue($user->settings['notifications']['email']);
 
         // Boolean cast
         $this->assertIsBool($user->is_deleted);

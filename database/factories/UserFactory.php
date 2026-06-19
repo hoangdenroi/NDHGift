@@ -37,6 +37,20 @@ class UserFactory extends Factory
             'status' => 'active',
             'balance' => 0,
             'is_deleted' => false,
+            'settings' => [
+                'language' => 'vi',
+                'theme' => [
+                    'mode' => 'auto',
+                    'primaryColor' => '#f97316',
+                    'headerColor' => 'default',
+                    'navbarColor' => 'default',
+                    'footerColor' => 'default',
+                ],
+                'notifications' => [
+                    'email' => false,
+                    'push' => true,
+                ],
+            ],
         ];
     }
 

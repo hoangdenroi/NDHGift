@@ -18,6 +18,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Cấu hình settings mặc định
+        $defaultSettings = [
+            'language' => 'vi',
+            'theme' => [
+                'mode' => 'auto',
+                'primaryColor' => '#f97316',
+                'headerColor' => 'default',
+                'navbarColor' => 'default',
+                'footerColor' => 'default',
+            ],
+            'notifications' => [
+                'email' => false,
+                'push' => true,
+            ],
+        ];
+
         // 1. Tạo tài khoản Admin hệ thống
         $admin = User::firstOrCreate(
             ['email' => 'admin@ndhgift.com'],
@@ -29,6 +45,7 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
                 'status' => 'active',
                 'balance' => 10000000.00, // Ví dụ khởi tạo số dư mặc định 10 triệu
+                'settings' => $defaultSettings,
             ]
         );
 
@@ -47,6 +64,7 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
                 'status' => 'active',
                 'balance' => 100000.00, // Số dư ban đầu 100k
+                'settings' => $defaultSettings,
             ]
         );
         $user->role = 'user';

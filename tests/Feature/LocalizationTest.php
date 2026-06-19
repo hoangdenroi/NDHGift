@@ -149,7 +149,7 @@ class LocalizationTest extends TestCase
         // Truy cập /en để middleware inject URL defaults
         $this->get('/en');
 
-        $url = route('home', ['locale' => 'en']);
+        $url = route('app.home.index', ['locale' => 'en']);
 
         $this->assertStringContainsString('/en', $url);
     }
