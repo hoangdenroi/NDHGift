@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Traits\HasUnitcode;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, HasUnitcode, Notifiable;
 
     /**
      * Các trường được phép gán hàng loạt.
@@ -20,10 +22,22 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'username',
+        'fullname',
         'email',
+        'unitcode',
+        'phone',
+        'avatar_url',
+        'balance',
         'password',
+        'google_id',
+        'facebook_id',
         'status',
+        'theme',
+        'notification',
+        'language',
+        'last_change_password_at',
+        'last_login_at',
     ];
 
     /**
@@ -45,15 +59,21 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_change_password_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'balance' => 'decimal:4',
             'is_deleted' => 'boolean',
+            'theme' => 'array',
+            'notification' => 'array',
+            'metadata' => 'array',
         ];
     }
 
     // ===== SCOPES =====
 
     /**
-     * Scope: chỉ lấy user đang hoạt động.
+     * Scope: chỉ lấy user đang hoạt động (chưa bị khóa, chưa xóa mềm).
      */
     public function scopeActive($query)
     {
@@ -61,7 +81,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Scope: chỉ lấy user đã bị khóa.
+     * Scope: chỉ lấy user đã bị tạm khóa.
      */
     public function scopeSuspended($query)
     {
@@ -90,5 +110,21 @@ class User extends Authenticatable
         $this->deleted_at = null;
 
         return $this->save();
+    }
+
+    /**
+     * Kiểm tra tài khoản có đang hoạt động bình thường.
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 'active' && ! $this->is_deleted;
+    }
+
+    /**
+     * Kiểm tra có phải admin không.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 }
