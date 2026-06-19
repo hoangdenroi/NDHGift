@@ -178,8 +178,7 @@
         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 z-30 lg:hidden" x-cloak></div>
 
-    <!-- Sidebar -->
-    {{-- <x-shared.component.app.navbar.navbar-index /> --}}
+    <!-- Sidebar (Sử dụng sidebar hoặc navbar tùy cấu hình) -->
 
     <!-- Panel Thông báo -->
     {{-- <x-admin.panel-admin-content /> --}}
@@ -191,7 +190,7 @@
 
         <!-- Scrollable Content -->
         <div id="app-scroll-container" class="flex-1 overflow-y-auto scroll-smooth flex flex-col">
-            <div class="flex-1 p-6">
+            <div class="flex-1 p-6 pb-24 lg:pb-6">
                 <div class="flex flex-col gap-6 max-w-[1400px] mx-auto">
                     {{ $slot }}
                 </div>
@@ -254,6 +253,9 @@
             }
         </script>
     @endif
+
+    <!-- Bottom Navbar dành cho mobile/tablet -->
+    <x-shared.component.app.navbar.navbar-index />
 
     @stack('scripts')
 </body>
