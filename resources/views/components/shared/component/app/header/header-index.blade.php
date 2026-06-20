@@ -85,46 +85,40 @@
                             <a target="_blank" href="#"
                                 class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                                 <span class="material-symbols-outlined text-[18px] text-app-muted">admin_panel_settings</span>
-                                Trang quản trị
+                                {{ __('Admin Panel') }}
                             </a>
                         @endif
-                        <a href="#"
+                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                             <span class="material-symbols-outlined text-[18px] text-app-muted">person</span>
-                            Hồ sơ
+                            {{ __('Profile') }}
                         </a>
 
-                        <a href="#"
+                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?tab=billing"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                             <span class="material-symbols-outlined text-[18px] text-app-muted">receipt</span>
-                            Hóa đơn
+                            {{ __('Billing') }}
                         </a>
 
-                        <a href="#"
+                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?tab=security"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                             <span class="material-symbols-outlined text-[18px] text-app-muted">lock</span>
-                            Bảo mật
+                            {{ __('Security') }}
                         </a>
 
-                        <a href="#"
+                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?tab=setting"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                             <span class="material-symbols-outlined text-[18px] text-app-muted">settings</span>
-                            Cài đặt
+                            {{ __('Settings') }}
                         </a>
                     </div>
 
                     <div class="border-t border-app-border py-1 rounded-b-xl">
-                        <a href="#"
+                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?tab=term"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                             <span class="material-symbols-outlined text-[18px] text-app-muted">menu_book</span>
-                            Điều khoản & Dịch vụ
+                            {{ __('Terms & Services') }}
                         </a>
-
-                        {{-- <a href="#"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
-                            <span class="material-symbols-outlined text-[18px] text-app-muted">code_xml</span>
-                            Tài liệu API
-                        </a> --}}
                     </div>
 
                     <div class="border-t border-app-border py-1 rounded-b-xl">
@@ -133,7 +127,7 @@
                             <button type="submit"
                                 class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors w-full text-left">
                                 <span class="material-symbols-outlined text-[18px]">logout</span>
-                                Đăng xuất
+                                {{ __('Log Out') }}
                             </button>
                         </form>
                     </div>
@@ -143,7 +137,7 @@
             <div class="flex items-center gap-2">
                 <a href="{{ route('login') }}"
                     class="px-4 py-2 text-sm font-medium text-app-text hover:bg-app-surface rounded-lg transition-colors">
-                    Đăng nhập
+                    {{ __('Log in') }}
                 </a>
             </div>
         @endauth

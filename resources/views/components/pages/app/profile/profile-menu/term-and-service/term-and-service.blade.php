@@ -6,37 +6,37 @@
             <span class="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
         <div>
-            <h2 class="text-base font-bold text-app-text">Điều khoản sử dụng dịch vụ</h2>
-            <p class="text-sm text-app-muted mt-0.5">Cập nhật lần cuối: 20/06/2026</p>
+            <h2 class="text-base font-bold text-app-text">{{ __('Terms of Service') }}</h2>
+            <p class="text-sm text-app-muted mt-0.5">{{ __('Last updated: June 20, 2026') }}</p>
         </div>
     </div>
     
     <div class="p-6 space-y-5 text-sm text-app-muted leading-relaxed max-h-[500px] overflow-y-auto scrollbar-thin">
-        <p class="text-app-text font-semibold">Chào mừng bạn đến với nền tảng tạo trang quà tặng NDHGift. Khi sử dụng dịch vụ của chúng tôi, bạn đồng ý tuân thủ các điều khoản sau đây:</p>
+        <p class="text-app-text font-semibold">{{ __('Welcome to the NDHGift gift page creation platform. By using our service, you agree to comply with the following terms:') }}</p>
         
         <div class="space-y-2">
-            <h3 class="font-bold text-app-text">1. Quyền sở hữu tài khoản</h3>
-            <p>Mỗi tài khoản được tạo trên NDHGift là quyền sở hữu cá nhân của người dùng. Bạn có trách nhiệm bảo mật mật khẩu tài khoản và chịu trách nhiệm cho tất cả các hoạt động xảy ra dưới tài khoản của mình.</p>
+            <h3 class="font-bold text-app-text">{{ __('1. Account Ownership') }}</h3>
+            <p>{{ __('Each account created on NDHGift is the personal property of the user. You are responsible for maintaining the confidentiality of your account password and are responsible for all activities that occur under your account.') }}</p>
         </div>
         
         <div class="space-y-2">
-            <h3 class="font-bold text-app-text">2. Sử dụng dịch vụ hợp pháp</h3>
-            <p>Bạn cam kết chỉ sử dụng dịch vụ để tạo các nội dung trang quà tặng lành mạnh, hợp pháp, không vi phạm bản quyền thương hiệu, không chèn các mã độc hoặc liên kết lừa đảo. Mọi trang quà tặng có nội dung vi phạm sẽ bị khóa vĩnh viễn không cần báo trước.</p>
+            <h3 class="font-bold text-app-text">{{ __('2. Lawful Use of Service') }}</h3>
+            <p>{{ __('You commit to only using the service to create healthy, lawful gift page content, not violating trademark copyrights, and not inserting malicious code or phishing links. Any gift page with violating content will be permanently locked without prior notice.') }}</p>
         </div>
         
         <div class="space-y-2">
-            <h3 class="font-bold text-app-text">3. Giao dịch và số dư ví</h3>
-            <p>Số dư ví tài khoản NDHGift được sử dụng để mua các template quà tặng premium trên nền tảng. Các giao dịch mua template sau khi hoàn tất thành công sẽ không được hoàn tiền trừ khi có lỗi kỹ thuật nghiêm trọng phát sinh từ phía hệ thống.</p>
+            <h3 class="font-bold text-app-text">{{ __('3. Transactions and Wallet Balance') }}</h3>
+            <p>{{ __('NDHGift account wallet balance is used to purchase premium gift templates on the platform. Template purchase transactions after successful completion will not be refunded unless severe technical errors occur from the system side.') }}</p>
         </div>
         
         <div class="space-y-2">
-            <h3 class="font-bold text-app-text">4. Thay đổi điều khoản</h3>
-            <p>NDHGift có quyền cập nhật, thay đổi hoặc bổ sung các điều khoản sử dụng này bất kỳ lúc nào để phù hợp với quy định pháp luật và nâng cao chất lượng dịch vụ. Các thay đổi sẽ có hiệu lực ngay khi được đăng tải lên trang web này.</p>
+            <h3 class="font-bold text-app-text">{{ __('4. Changes to Terms') }}</h3>
+            <p>{{ __('NDHGift reserves the right to update, modify or supplement these terms of use at any time to comply with legal regulations and improve service quality. Changes will take effect immediately upon being posted on this website.') }}</p>
         </div>
         
         <div class="space-y-2">
-            <h3 class="font-bold text-app-text">5. Giới hạn trách nhiệm</h3>
-            <p>Chúng tôi không chịu trách nhiệm đối với bất kỳ thiệt hại trực tiếp hay gián tiếp nào phát sinh từ việc sử dụng hoặc không thể sử dụng dịch vụ do các nguyên nhân khách quan như lỗi đường truyền internet của bên thứ ba hoặc thiên tai.</p>
+            <h3 class="font-bold text-app-text">{{ __('5. Limitation of Liability') }}</h3>
+            <p>{{ __('We are not responsible for any direct or indirect damages arising from the use or inability to use the service due to objective causes such as internet transmission errors of third parties or natural disasters.') }}</p>
         </div>
     </div>
 </div>

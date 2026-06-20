@@ -1,7 +1,7 @@
 @php
     $languages = [
-        ['code' => 'vi', 'short' => 'VN', 'name' => 'Tiếng Việt'],
-        ['code' => 'en', 'short' => 'US', 'name' => 'Tiếng Anh'],
+        ['code' => 'vi', 'short' => 'VN', 'name' => __('Vietnamese')],
+        ['code' => 'en', 'short' => 'US', 'name' => __('English')],
         // ['code' => 'zh', 'short' => 'CN', 'name' => 'Tiếng Trung'],
         // ['code' => 'ja', 'short' => 'JP', 'name' => 'Tiếng Nhật'],
     ];

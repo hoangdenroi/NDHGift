@@ -6,26 +6,26 @@
     // Định nghĩa danh sách các tab chính trên mobile navbar
     $navItems = [
         [
-            'name' => 'Trang chủ',
+            'name' => __('Home'),
             'route' => route('app.home.index', ['locale' => $locale]),
             'icon' => 'home',
             'active' => request()->routeIs('app.home.index*'),
         ],
         [
-            'name' => 'Quà tặng',
+            'name' => __('Gifts'),
             'route' => route('app.gift.index', ['locale' => $locale]),
             'icon' => 'redeem',
             'active' => request()->routeIs('app.gift.index*'),
         ],
         // Nút giữa (hình tròn to chứa dấu cộng) sẽ được render riêng
         [
-            'name' => 'Hỗ trợ',
+            'name' => __('Support'),
             'route' => route('app.support.index', ['locale' => $locale]),
             'icon' => 'forum',
             'active' => request()->routeIs('app.support.index*'),
         ],
         [
-            'name' => 'Hồ sơ',
+            'name' => __('Profile'),
             'route' => route('app.profile.index', ['locale' => $locale]),
             'icon' => 'person',
             'active' => request()->routeIs('app.profile.index*'),
@@ -75,7 +75,7 @@
                 <!-- Nút tròn gradient chính bên trong (To gần full vòng tròn ngoài, chừa viền đen mỏng 3px) -->
                 <a href="#"
                     class="w-[calc(100%-6px)] h-[calc(100%-6px)] rounded-full bg-gradient-to-tr from-primary via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-inner transition-all duration-300 hover:scale-105 active:scale-95 group"
-                    aria-label="Tạo mới / Thêm hành động">
+                    aria-label="{{ __('Create New / Add Action') }}">
                     <!-- Icon dấu cộng chuyển động xoay nhẹ khi hover -->
                     <span
                         class="material-symbols-outlined text-[28px] sm:text-[32px] font-bold transition-transform duration-300 group-hover:rotate-90">

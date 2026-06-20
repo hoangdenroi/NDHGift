@@ -82,8 +82,8 @@
         {{-- Header --}}
         <div
             class="px-4 py-3 border-b border-app-border flex items-center justify-between rounded-t-xl bg-inherit relative z-10">
-            <h3 class="font-bold text-app-text text-[15px]">Thông báo</h3>
-            <button @click="openAllNotifications()" class="text-sm text-app-muted hover:text-app-text transition-colors">Xem tất cả</button>
+            <h3 class="font-bold text-app-text text-[15px]">{{ __('Notifications') }}</h3>
+            <button @click="openAllNotifications()" class="text-sm text-app-muted hover:text-app-text transition-colors">{{ __('See all') }}</button>
         </div>
 
         {{-- Danh sách thông báo --}}
@@ -112,7 +112,7 @@
         <div x-show="notifications.length === 0"
             class="flex flex-col items-center justify-center py-8 px-4 text-app-muted">
             <span class="material-symbols-outlined text-[40px] mb-2 opacity-50">notifications_off</span>
-            <p class="text-sm font-medium">Bạn chưa có thông báo mới nào!</p>
+            <p class="text-sm font-medium">{{ __('You do not have any new notifications!') }}</p>
         </div>
     </div>
 
@@ -147,14 +147,14 @@
         <div class="flex items-center justify-between px-5 py-4 border-b border-app-border bg-app-surface shrink-0">
             <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-[22px] text-primary">notifications</span>
-                <h2 class="text-base font-bold text-app-text">Tất cả thông báo</h2>
+                <h2 class="text-base font-bold text-app-text">{{ __('All Notifications') }}</h2>
                 <span x-show="unreadCount > 0" x-cloak
                     class="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-rose-500 text-[11px] font-bold text-white"
                     x-text="unreadCount"></span>
             </div>
             <button @click="closeAllNotifications()"
                 class="flex items-center justify-center size-9 rounded-lg hover:bg-app-surface/80 text-app-muted hover:text-app-text transition-colors"
-                aria-label="Đóng">
+                aria-label="{{ __('Close') }}">
                 <span class="material-symbols-outlined text-[22px]">close</span>
             </button>
         </div>
@@ -191,8 +191,8 @@
             <div x-show="notifications.length === 0"
                 class="flex flex-col items-center justify-center h-full py-20 px-6 text-app-muted">
                 <span class="material-symbols-outlined text-[56px] mb-3 opacity-40">notifications_off</span>
-                <p class="text-base font-semibold mb-1">Không có thông báo</p>
-                <p class="text-sm opacity-70">Bạn chưa có thông báo mới nào!</p>
+                <p class="text-base font-semibold mb-1">{{ __('No notifications') }}</p>
+                <p class="text-sm opacity-70">{{ __('You do not have any new notifications!') }}</p>
             </div>
         </div>
     </div>

@@ -2,12 +2,12 @@
     {{-- Trigger thông báo từ session thông qua sự kiện toast của hệ thống --}}
     @if(session('success'))
         <div x-data
-            x-init="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', title: 'Thành công', message: '{{ session('success') }}' } }))">
+            x-init="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', title: '{{ __('Success') }}', message: '{{ session('success') }}' } }))">
         </div>
     @endif
     @if($errors->any())
         <div x-data
-            x-init="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: '{{ $errors->first() }}' } }))">
+            x-init="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ $errors->first() }}' } }))">
         </div>
     @endif
 
@@ -32,8 +32,8 @@
 
         {{-- Header tĩnh chuẩn của trang Profile --}}
         <div class="flex flex-col gap-2">
-            <h1 class="text-2xl font-bold text-app-text">Hồ sơ</h1>
-            <p class="text-app-muted text-sm">Cập nhật thông tin cá nhân và cài đặt hiển thị</p>
+            <h1 class="text-2xl font-bold text-app-text">{{ __('Profile') }}</h1>
+            <p class="text-app-muted text-sm">{{ __('Update personal information and display settings') }}</p>
         </div>
 
         @auth
@@ -51,12 +51,12 @@
                                                             if (file) {
                                                                 const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
                                                                 if (!validTypes.includes(file.type)) {
-                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: 'Vui lòng chọn file hình ảnh hợp lệ (jpeg, png, jpg, gif).' } }));
+                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Please select a valid image file (jpeg, png, jpg, gif).') }}' } }));
                                                                     event.target.value = '';
                                                                     return;
                                                                 }
                                                                 if (file.size > 2 * 1024 * 1024) {
-                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: 'Kích thước ảnh không được vượt quá 2MB.' } }));
+                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Image size must not exceed 2MB.') }}' } }));
                                                                     event.target.value = '';
                                                                     return;
                                                                 }
@@ -69,7 +69,7 @@
                                                         }
                                                     }" x-init="() => {
                                                         @error('avatar_file')
-                                                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi tải ảnh', message: @js($message) } }));
+                                                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Upload Error') }}', message: @js($message) } }));
                                                         @enderror
                                                     }">
                             <div @click="$dispatch('open-modal', 'avatar-modal')"
@@ -96,7 +96,7 @@
                             {{-- Modal phóng to ảnh đại diện sử dụng component hệ thống --}}
                             <x-shared.ui.modal name="avatar-modal" maxWidth="lg">
                                 <div class="relative p-6 flex flex-col items-center gap-6">
-                                    <h4 class="text-xl font-bold text-app-text">Ảnh đại diện</h4>
+                                    <h4 class="text-xl font-bold text-app-text">{{ __('Profile Picture') }}</h4>
                                     {{-- Nút Đóng (dấu X) ở bên phải --}}
                                     <button type="button" @click="$dispatch('close-modal', 'avatar-modal')"
                                         class="absolute top-5 right-5 text-gray-400 hover:text-white hover:scale-110 active:scale-95 transition-all flex items-center justify-center size-9">
@@ -122,7 +122,7 @@
                                         @click="$refs.avatarInput.click(); $dispatch('close-modal', 'avatar-modal')"
                                         class="h-11 px-8 bg-[#f97316] hover:bg-[#ea580c] text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-orange-500/20 active:scale-[0.97] flex items-center justify-center gap-2">
                                         <span class="material-symbols-outlined text-[20px]">photo_camera</span>
-                                        Thay đổi ảnh đại diện
+                                        {{ __('Change avatar') }}
                                     </button>
                                 </div>
                             </x-shared.ui.modal>
@@ -133,18 +133,18 @@
                         </div>
                         <div class="w-full flex flex-col gap-2 pt-2 border-t border-app-border">
                             <div class="flex items-center justify-between text-sm">
-                                <span class="text-app-muted">Số dư</span>
+                                <span class="text-app-muted">{{ __('Balance') }}</span>
                                 <span
                                     class="text-app-text font-semibold">{{ number_format($user->balance, 0, ',', '.') }}đ</span>
                             </div>
                             <div class="flex items-center justify-between text-sm">
-                                <span class="text-app-muted">Mã tài khoản</span>
+                                <span class="text-app-muted">{{ __('Account ID') }}</span>
                                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
                                     {{ $user->unitcode }}
                                 </span>
                             </div>
                             <div class="flex items-center justify-between text-sm">
-                                <span class="text-app-muted">Ngày tạo</span>
+                                <span class="text-app-muted">{{ __('Created Date') }}</span>
                                 <span class="text-app-text">{{ $user->created_at->format('d/m/Y') }}</span>
                             </div>
                         </div>
@@ -161,7 +161,7 @@
                             </span>
                             <span
                                 class="text-[11px] font-semibold text-app-text mt-1.5 group-hover:text-primary transition-colors duration-300">
-                                Đổi voucher
+                                {{ __('Redeem Voucher') }}
                             </span>
                         </a>
 
@@ -174,7 +174,7 @@
                             </span>
                             <span
                                 class="text-[11px] font-semibold text-app-text mt-1.5 group-hover:text-primary transition-colors duration-300">
-                                Lịch sử
+                                {{ __('History') }}
                             </span>
                         </a>
 
@@ -187,7 +187,7 @@
                              </span>
                              <span
                                  class="text-[11px] font-semibold text-app-text mt-1.5 group-hover:text-red-500 transition-colors duration-300">
-                                 Đăng xuất
+                                 {{ __('Log Out') }}
                              </span>
                          </button>
 
@@ -205,19 +205,19 @@
                                  </div>
 
                                  <div>
-                                     <h4 class="text-lg font-bold text-app-text">Xác nhận đăng xuất</h4>
-                                     <p class="text-sm text-app-muted mt-1.5">Bạn có chắc chắn muốn đăng xuất khỏi tài khoản NDHGift hiện tại?</p>
+                                     <h4 class="text-lg font-bold text-app-text">{{ __('Confirm Log Out') }}</h4>
+                                     <p class="text-sm text-app-muted mt-1.5">{{ __('Are you sure you want to log out of your current NDHGift account?') }}</p>
                                  </div>
 
                                  {{-- Nút hành động --}}
                                  <div class="flex items-center gap-3 w-full mt-2">
                                      <button type="button" @click="$dispatch('close-modal', 'logout-confirm-modal')"
                                          class="flex-1 h-10 px-4 bg-app-main border border-app-border text-app-text hover:bg-primary/5 hover:border-primary/30 font-semibold text-sm rounded-xl transition-all active:scale-[0.98]">
-                                         Hủy bỏ
+                                         {{ __('Cancel') }}
                                      </button>
                                      <button type="submit" form="logout-form"
                                          class="flex-1 h-10 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-red-500/15 active:scale-[0.98]">
-                                         Đăng xuất
+                                         {{ __('Log Out') }}
                                      </button>
                                  </div>
                              </div>
@@ -232,8 +232,8 @@
                     <div x-show="activeAction === 'menu'"
                         class="bg-app-surface border border-app-border rounded-xl overflow-hidden divide-y divide-app-border shadow-sm animate-fade-in">
                         <div class="px-6 py-4">
-                            <h1 class="text-lg font-bold text-app-text">Danh sách chức năng</h1>
-                            <p class="text-sm text-app-muted mt-0.5">Tổng hợp các chức năng liên quan đến tài khoản</p>
+                            <h1 class="text-lg font-bold text-app-text">{{ __('Function List') }}</h1>
+                            <p class="text-sm text-app-muted mt-0.5">{{ __('Summary of functions related to account') }}</p>
                         </div>
 
                         {{-- Chỉnh sửa thông tin --}}
@@ -246,7 +246,7 @@
                                 </span>
                                 <span
                                     class="text-[15px] font-semibold text-app-text group-hover:text-primary transition-colors duration-300">
-                                    Chỉnh sửa thông tin
+                                    {{ __('Edit Profile') }}
                                 </span>
                             </div>
                             <span
@@ -265,7 +265,7 @@
                                 </span>
                                 <span
                                     class="text-[15px] font-semibold text-app-text group-hover:text-primary transition-colors duration-300">
-                                    Hóa đơn
+                                    {{ __('Billing') }}
                                 </span>
                             </div>
                             <span
@@ -284,7 +284,7 @@
                                 </span>
                                 <span
                                     class="text-[15px] font-semibold text-app-text group-hover:text-primary transition-colors duration-300">
-                                    Cài đặt
+                                    {{ __('Settings') }}
                                 </span>
                             </div>
                             <span
@@ -303,7 +303,7 @@
                                 </span>
                                 <span
                                     class="text-[15px] font-semibold text-app-text group-hover:text-primary transition-colors duration-300">
-                                    Điều khoản và dịch vụ
+                                    {{ __('Terms & Services') }}
                                 </span>
                             </div>
                             <span
@@ -322,7 +322,7 @@
                                 </span>
                                 <span
                                     class="text-[15px] font-semibold text-app-text group-hover:text-primary transition-colors duration-300">
-                                    Chính sách quyền riêng tư
+                                    {{ __('Privacy Policy') }}
                                 </span>
                             </div>
                             <span
@@ -341,7 +341,7 @@
                                 </span>
                                 <span
                                     class="text-[15px] font-semibold text-app-text group-hover:text-primary transition-colors duration-300">
-                                    Trợ giúp
+                                    {{ __('Help') }}
                                 </span>
                             </div>
                             <span
@@ -390,10 +390,9 @@
                     <span class="material-symbols-outlined text-primary text-4xl">account_circle</span>
                 </div>
                 <div class="space-y-1.5">
-                    <h3 class="text-lg font-bold text-app-text">Chào mừng khách hàng</h3>
+                    <h3 class="text-lg font-bold text-app-text">{{ __('Welcome Customer') }}</h3>
                     <p class="text-sm text-app-muted leading-relaxed">
-                        Vui lòng đăng nhập hoặc tạo tài khoản mới để xem thông tin cá nhân và sử dụng các dịch vụ của
-                        NDHGift.
+                        {{ __('Please log in or register a new account to view your personal profile and use NDHGift services.') }}
                     </p>
                 </div>
                 <div class="flex items-center gap-4 w-full mt-2">
@@ -401,14 +400,14 @@
                     <a href="{{ route('login', ['locale' => app()->getLocale()]) }}"
                         class="flex-1 h-11 bg-primary hover:bg-primary/90 text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-primary/20 flex items-center justify-center gap-2 active:scale-[0.98]">
                         <span class="material-symbols-outlined text-[20px]">login</span>
-                        Đăng nhập
+                        {{ __('Log in') }}
                     </a>
 
                     {{-- Nút Đăng ký --}}
                     <a href="{{ route('register', ['locale' => app()->getLocale()]) }}"
                         class="flex-1 h-11 bg-app-surface border border-app-border hover:border-primary/50 hover:bg-primary/5 text-app-text font-semibold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 active:scale-[0.98]">
                         <span class="material-symbols-outlined text-[20px]">person_add</span>
-                        Đăng ký
+                        {{ __('Register') }}
                     </a>
                 </div>
             </div>

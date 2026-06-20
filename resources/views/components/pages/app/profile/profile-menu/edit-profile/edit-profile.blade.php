@@ -6,8 +6,8 @@
             <span class="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
         <div>
-            <h2 class="text-base font-bold text-app-text">Thông tin cá nhân</h2>
-            <p class="text-sm text-app-muted mt-0.5">Cập nhật thông tin hiển thị và liên hệ của bạn</p>
+            <h2 class="text-base font-bold text-app-text">{{ __('Personal Information') }}</h2>
+            <p class="text-sm text-app-muted mt-0.5">{{ __('Update your display information and contact details') }}</p>
         </div>
     </div>
     
@@ -16,7 +16,7 @@
         @csrf
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div class="space-y-1.5">
-                <label class="block text-sm font-medium text-app-text">Họ và tên</label>
+                <label class="block text-sm font-medium text-app-text">{{ __('Full Name') }}</label>
                 <input type="text" name="fullname" value="{{ old('fullname', $user->fullname ?? '') }}" required
                     class="w-full h-11 px-4 rounded-xl border border-app-border bg-app-main text-app-text placeholder:text-app-muted text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none" />
                 @error('fullname')
@@ -25,15 +25,15 @@
             </div>
             
             <div class="space-y-1.5">
-                <label class="block text-sm font-medium text-app-text">Email</label>
+                <label class="block text-sm font-medium text-app-text">{{ __('Email') }}</label>
                 <input type="email" value="{{ $user->email ?? '' }}" disabled
                     class="w-full h-11 px-4 rounded-xl border border-app-border bg-app-main text-app-muted text-sm cursor-not-allowed outline-none" />
             </div>
             
             <div class="space-y-1.5">
-                <label class="block text-sm font-medium text-app-text">Số điện thoại</label>
+                <label class="block text-sm font-medium text-app-text">{{ __('Phone Number') }}</label>
                 <input type="tel" name="phone" value="{{ old('phone', $user->phone ?? '') }}"
-                    placeholder="Nhập số điện thoại"
+                    placeholder="{{ __('Enter phone number') }}"
                     class="w-full h-11 px-4 rounded-xl border border-app-border bg-app-main text-app-text placeholder:text-app-muted text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none" />
                 @error('phone')
                     <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
@@ -41,15 +41,15 @@
             </div>
             
             <div class="space-y-1.5 flex flex-col justify-end pb-1">
-                <label class="block text-sm font-medium text-app-text">Ảnh đại diện</label>
-                <p class="text-xs text-app-muted">Để thay đổi ảnh đại diện, vui lòng bấm trực tiếp vào hình ảnh Avatar ở cột bên trái.</p>
+                <label class="block text-sm font-medium text-app-text">{{ __('Profile Picture') }}</label>
+                <p class="text-xs text-app-muted">{{ __('To change your profile picture, please click directly on the Avatar image on the left column.') }}</p>
             </div>
         </div>
         
         <div class="flex items-center gap-3 pt-2">
             <button type="submit"
                 class="h-10 px-6 bg-primary hover:bg-primary/90 text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98]">
-                Lưu thay đổi
+                {{ __('Save Changes') }}
             </button>
         </div>
     </form>

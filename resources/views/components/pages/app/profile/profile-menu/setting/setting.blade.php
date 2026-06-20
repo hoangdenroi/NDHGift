@@ -77,23 +77,23 @@
             })
             .catch(() => {
                 window.dispatchEvent(new CustomEvent('toast', {
-                    detail: { type: 'error', title: 'Lỗi đồng bộ', message: 'Không thể đồng bộ cài đặt lên máy chủ.' }
+                    detail: { type: 'error', title: '{{ __('Sync Error') }}', message: '{{ __('Unable to sync settings to server.') }}' }
                 }));
             });
-        }, 500);
+        }, 1000);
     },
     setTheme(mode) {
         this.themeMode = mode;
         this.applyTheme();
         window.dispatchEvent(new CustomEvent('toast', {
-            detail: { type: 'success', title: 'Thành công', message: 'Đã cập nhật chế độ hiển thị.' }
+            detail: { type: 'success', title: '{{ __('Success') }}', message: '{{ __('Display mode updated.') }}' }
         }));
     },
     setAccentColor(color) {
         this.accentColor = color;
         this.applyTheme();
         window.dispatchEvent(new CustomEvent('toast', {
-            detail: { type: 'success', title: 'Thành công', message: 'Đã cập nhật màu chủ đạo.' }
+            detail: { type: 'success', title: '{{ __('Success') }}', message: '{{ __('Accent color updated.') }}' }
         }));
     }
 }" x-init="() => {
@@ -150,7 +150,7 @@
             activeSecurityCollapse = 'password';
             @foreach($errors->updatePassword->all() as $error)
                 window.dispatchEvent(new CustomEvent('toast', {
-                    detail: { type: 'error', title: 'Lỗi bảo mật', message: '{{ $error }}' }
+                    detail: { type: 'error', title: '{{ __('Security Error') }}', message: '{{ $error }}' }
                 }));
             @endforeach
         @endif
@@ -159,18 +159,18 @@
             activeSecurityCollapse = 'email';
             @foreach($errors->get('email') as $error)
                 window.dispatchEvent(new CustomEvent('toast', {
-                    detail: { type: 'error', title: 'Lỗi cập nhật', message: '{{ $error }}' }
+                    detail: { type: 'error', title: '{{ __('Update Error') }}', message: '{{ $error }}' }
                 }));
             @endforeach
         @endif
         @if(session('status') === 'password-updated')
             window.dispatchEvent(new CustomEvent('toast', {
-                detail: { type: 'success', title: 'Thành công', message: 'Mật khẩu đã được cập nhật thành công.' }
+                detail: { type: 'success', title: '{{ __('Success') }}', message: '{{ __('Password updated successfully.') }}' }
             }));
         @endif
         @if(session('success') && str_contains(session('success'), 'email'))
             window.dispatchEvent(new CustomEvent('toast', {
-                detail: { type: 'success', title: 'Thành công', message: '{{ session('success') }}' }
+                detail: { type: 'success', title: '{{ __('Success') }}', message: '{{ session('success') }}' }
             }));
         @endif
     }, 150);
@@ -187,32 +187,32 @@
             <!-- Tiêu đề Header thay đổi dựa trên Tab cài đặt đang hoạt động -->
             <template x-if="settingTab === 'menu'">
                 <div>
-                    <h2 class="text-base font-bold text-app-text">Cài đặt hệ thống</h2>
-                    <p class="text-sm text-app-muted mt-0.5">Tùy biến tài khoản và cấu hình trải nghiệm sử dụng</p>
+                    <h2 class="text-base font-bold text-app-text">{{ __('System Settings') }}</h2>
+                    <p class="text-sm text-app-muted mt-0.5">{{ __('Customize account and configure user experience') }}</p>
                 </div>
             </template>
             <template x-if="settingTab === 'theme'">
                 <div>
-                    <h2 class="text-base font-bold text-app-text">Chế độ hiển thị</h2>
-                    <p class="text-sm text-app-muted mt-0.5">Tùy chỉnh giao diện Sáng, Tối hoặc Tự động</p>
+                    <h2 class="text-base font-bold text-app-text">{{ __('Display Mode') }}</h2>
+                    <p class="text-sm text-app-muted mt-0.5">{{ __('Customize Light, Dark or Auto interface') }}</p>
                 </div>
             </template>
             <template x-if="settingTab === 'language'">
                 <div>
-                    <h2 class="text-base font-bold text-app-text">Ngôn ngữ hệ thống</h2>
-                    <p class="text-sm text-app-muted mt-0.5">Cấu hình ngôn ngữ hiển thị của ứng dụng</p>
+                    <h2 class="text-base font-bold text-app-text">{{ __('System Language') }}</h2>
+                    <p class="text-sm text-app-muted mt-0.5">{{ __('Configure display language of the application') }}</p>
                 </div>
             </template>
             <template x-if="settingTab === 'notifications'">
                 <div>
-                    <h2 class="text-base font-bold text-app-text">Cấu hình nhận thông báo</h2>
-                    <p class="text-sm text-app-muted mt-0.5">Quản lý các sự kiện nhận thông báo đẩy và email</p>
+                    <h2 class="text-base font-bold text-app-text">{{ __('Notification Settings') }}</h2>
+                    <p class="text-sm text-app-muted mt-0.5">{{ __('Manage push notification and email events') }}</p>
                 </div>
             </template>
             <template x-if="settingTab === 'security'">
                 <div>
-                    <h2 class="text-base font-bold text-app-text">Bảo mật tài khoản</h2>
-                    <p class="text-sm text-app-muted mt-0.5">Cập nhật mật khẩu, email đăng nhập của bạn</p>
+                    <h2 class="text-base font-bold text-app-text">{{ __('Account Security') }}</h2>
+                    <p class="text-sm text-app-muted mt-0.5">{{ __('Update your password and login email') }}</p>
                 </div>
             </template>
         </div>
@@ -233,10 +233,8 @@
                     </div>
                     <div>
                         <span
-                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors block">Giao
-                            diện</span>
-                        <span class="text-xs text-app-muted mt-0.5 block">Chọn chế độ hiển thị Sáng, Tối hoặc Tự
-                            động</span>
+                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors block">{{ __('Theme') }}</span>
+                        <span class="text-xs text-app-muted mt-0.5 block">{{ __('Select Light, Dark or Auto display mode') }}</span>
                     </div>
                 </div>
                 <span
@@ -253,9 +251,8 @@
                     </div>
                     <div>
                         <span
-                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors block">Ngôn
-                            ngữ</span>
-                        <span class="text-xs text-app-muted mt-0.5 block">Cấu hình ngôn ngữ hiển thị hệ thống</span>
+                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors block">{{ __('Language') }}</span>
+                        <span class="text-xs text-app-muted mt-0.5 block">{{ __('Configure system display language') }}</span>
                     </div>
                 </div>
                 <span
@@ -272,10 +269,8 @@
                     </div>
                     <div>
                         <span
-                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors block">Thông
-                            báo</span>
-                        <span class="text-xs text-app-muted mt-0.5 block">Cấu hình thông báo qua Email và thông báo
-                            đẩy</span>
+                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors block">{{ __('Notifications') }}</span>
+                        <span class="text-xs text-app-muted mt-0.5 block">{{ __('Configure email and push notifications') }}</span>
                     </div>
                 </div>
                 <span
@@ -292,10 +287,8 @@
                     </div>
                     <div>
                         <span
-                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors block">Bảo
-                            mật</span>
-                        <span class="text-xs text-app-muted mt-0.5 block">Đổi mật khẩu và cài đặt an toàn tài
-                            khoản</span>
+                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors block">{{ __('Security') }}</span>
+                        <span class="text-xs text-app-muted mt-0.5 block">{{ __('Change password and account security settings') }}</span>
                     </div>
                 </div>
                 <span
@@ -307,7 +300,7 @@
         <div x-show="settingTab === 'theme'" x-cloak class="space-y-6 animate-fade-in">
             {{-- Chế độ sáng/tối --}}
             <div class="space-y-3">
-                <h3 class="text-sm font-semibold text-app-text">Chế độ hiển thị</h3>
+                <h3 class="text-sm font-semibold text-app-text">{{ __('Display Mode') }}</h3>
                 <div class="grid grid-cols-3 gap-3">
                     <button @click="setTheme('light')"
                         :class="themeMode === 'light' ? 'ring-2 ring-primary border-primary bg-primary/5' : 'border-app-border hover:border-app-muted bg-app-main/10'"
@@ -315,7 +308,7 @@
                         <div class="size-12 rounded-full bg-amber-100 flex items-center justify-center shadow-sm">
                             <span class="material-symbols-outlined text-amber-500">light_mode</span>
                         </div>
-                        <span class="text-sm font-semibold text-app-text">Sáng</span>
+                        <span class="text-sm font-semibold text-app-text">{{ __('Light') }}</span>
                     </button>
                     <button @click="setTheme('dark')"
                         :class="themeMode === 'dark' ? 'ring-2 ring-primary border-primary bg-primary/5' : 'border-app-border hover:border-app-muted bg-app-main/10'"
@@ -323,7 +316,7 @@
                         <div class="size-12 rounded-full bg-slate-700 flex items-center justify-center shadow-sm">
                             <span class="material-symbols-outlined text-slate-300">dark_mode</span>
                         </div>
-                        <span class="text-sm font-semibold text-app-text">Tối</span>
+                        <span class="text-sm font-semibold text-app-text">{{ __('Dark') }}</span>
                     </button>
                     <button @click="setTheme('auto')"
                         :class="themeMode === 'auto' ? 'ring-2 ring-primary border-primary bg-primary/5' : 'border-app-border hover:border-app-muted bg-app-main/10'"
@@ -332,14 +325,14 @@
                             class="size-12 rounded-full bg-gradient-to-br from-amber-100 to-slate-700 flex items-center justify-center shadow-sm">
                             <span class="material-symbols-outlined text-white">contrast</span>
                         </div>
-                        <span class="text-sm font-semibold text-app-text">Tự động</span>
+                        <span class="text-sm font-semibold text-app-text">{{ __('Auto') }}</span>
                     </button>
                 </div>
             </div>
 
             {{-- Màu chủ đạo --}}
             <div class="space-y-3 pt-2">
-                <h3 class="text-sm font-semibold text-app-text">Màu chủ đạo</h3>
+                <h3 class="text-sm font-semibold text-app-text">{{ __('Accent Color') }}</h3>
                 <div class="flex flex-wrap gap-2.5">
                     <template x-for="color in colors" :key="color.hex">
                         <button @click="setAccentColor(color.hex)"
@@ -391,10 +384,8 @@
                     class="flex items-center justify-between p-4 rounded-xl border border-app-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer group bg-app-main/10 select-none gap-4">
                     <div class="flex flex-col gap-0.5 pr-4 flex-1">
                         <span
-                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">Thông
-                            báo qua Email</span>
-                        <span class="text-xs text-app-muted leading-relaxed">Nhận các thông báo cần thiết qua
-                            email(bảo mật, giao dịch, khuyến mãi,...).</span>
+                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">{{ __('Email Notifications') }}</span>
+                        <span class="text-xs text-app-muted leading-relaxed">{{ __('Receive necessary notifications via email (security, transactions, promotions,...).') }}</span>
                     </div>
                     <button type="button"
                         class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none items-center"
@@ -409,10 +400,8 @@
                     class="flex items-center justify-between p-4 rounded-xl border border-app-border hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer group bg-app-main/10 select-none gap-4">
                     <div class="flex flex-col gap-0.5 pr-4 flex-1">
                         <span
-                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">Thông
-                            báo đẩy (Push)</span>
-                        <span class="text-xs text-app-muted leading-relaxed">Nhận thông báo trực tiếp trên trình duyệt
-                            khi có sự kiện quan trọng(toast và thông báo từ trình duyệt).</span>
+                            class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">{{ __('Push Notifications') }}</span>
+                        <span class="text-xs text-app-muted leading-relaxed">{{ __('Receive notifications directly on your browser for important events.') }}</span>
                     </div>
                     <button type="button"
                         class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none items-center"
@@ -439,11 +428,10 @@
                             class="material-symbols-outlined text-[22px] text-app-muted group-hover:text-primary transition-colors">lock</span>
                         <div class="flex flex-col gap-0.5">
                             <span
-                                class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">Cập
-                                nhật mật khẩu</span>
-                            <span class="text-[11px] text-app-muted">Lần thay đổi gần nhất: <span
+                                class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">{{ __('Update Password') }}</span>
+                            <span class="text-[11px] text-app-muted">{{ __('Last changed:') }} <span
                                     class="text-app-text text-primary">{{
-    auth()->user()->last_change_password_at?->format('d/m/Y H:i') ?? 'Chưa từng thay đổi'}}</span></span>
+    auth()->user()->last_change_password_at?->format('d/m/Y H:i') ?? __('Never changed')}}</span></span>
                         </div>
                     </div>
                     <span class="material-symbols-outlined text-[20px] text-app-muted transition-transform duration-300"
@@ -467,12 +455,12 @@
 
                         <div>
                             <label for="update_password_current_password"
-                                class="block text-xs font-semibold text-app-text mb-1.5">Mật khẩu hiện tại</label>
+                                class="block text-xs font-semibold text-app-text mb-1.5">{{ __('Current Password') }}</label>
                             <div class="relative">
                                 <input id="update_password_current_password" name="current_password"
                                     :type="showCurrentPass ? 'text' : 'password'"
                                     class="w-full h-10 pl-3 pr-10 bg-app-main border border-app-border rounded-xl text-sm text-app-text focus:border-primary focus:ring-0 transition-colors outline-none"
-                                    autocomplete="current-password" required placeholder="Mật khẩu hiện tại" />
+                                    autocomplete="current-password" required placeholder="{{ __('Current Password') }}" />
                                 <button type="button" @click="showCurrentPass = !showCurrentPass"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-app-muted hover:text-app-text focus:outline-none transition-colors">
                                     <span class="material-symbols-outlined text-[20px] select-none block"
@@ -483,12 +471,12 @@
 
                         <div>
                             <label for="update_password_password"
-                                class="block text-xs font-semibold text-app-text mb-1.5">Mật khẩu mới</label>
+                                class="block text-xs font-semibold text-app-text mb-1.5">{{ __('New Password') }}</label>
                             <div class="relative">
                                 <input id="update_password_password" name="password"
                                     :type="showNewPass ? 'text' : 'password'"
                                     class="w-full h-10 pl-3 pr-10 bg-app-main border border-app-border rounded-xl text-sm text-app-text focus:border-primary focus:ring-0 transition-colors outline-none"
-                                    autocomplete="new-password" required placeholder="Mật khẩu mới" />
+                                    autocomplete="new-password" required placeholder="{{ __('New Password') }}" />
                                 <button type="button" @click="showNewPass = !showNewPass"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-app-muted hover:text-app-text focus:outline-none transition-colors">
                                     <span class="material-symbols-outlined text-[20px] select-none block"
@@ -499,12 +487,12 @@
 
                         <div>
                             <label for="update_password_password_confirmation"
-                                class="block text-xs font-semibold text-app-text mb-1.5">Xác nhận mật khẩu mới</label>
+                                class="block text-xs font-semibold text-app-text mb-1.5">{{ __('Confirm New Password') }}</label>
                             <div class="relative">
                                 <input id="update_password_password_confirmation" name="password_confirmation"
                                     :type="showConfirmPass ? 'text' : 'password'"
                                     class="w-full h-10 pl-3 pr-10 bg-app-main border border-app-border rounded-xl text-sm text-app-text focus:border-primary focus:ring-0 transition-colors outline-none"
-                                    autocomplete="new-password" required placeholder="Xác nhận mật khẩu mới" />
+                                    autocomplete="new-password" required placeholder="{{ __('Confirm New Password') }}" />
                                 <button type="button" @click="showConfirmPass = !showConfirmPass"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-app-muted hover:text-app-text focus:outline-none transition-colors">
                                     <span class="material-symbols-outlined text-[20px] select-none block"
@@ -516,7 +504,7 @@
                         <div class="pt-2">
                             <button type="submit"
                                 class="h-10 px-5 bg-primary hover:bg-primary/90 text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2">
-                                Lưu mật khẩu
+                                {{ __('Save Password') }}
                             </button>
                         </div>
                     </form>
@@ -532,8 +520,7 @@
                     <div class="flex items-center gap-3">
                         <span
                             class="material-symbols-outlined text-[22px] text-app-muted group-hover:text-primary transition-colors">mail</span>
-                        <span class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">Cập
-                            nhật email</span>
+                        <span class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">{{ __('Update Email') }}</span>
                     </div>
                     <span class="material-symbols-outlined text-[20px] text-app-muted transition-transform duration-300"
                         :class="activeSecurityCollapse === 'email' ? 'rotate-90 text-primary' : ''">chevron_right</span>
@@ -555,17 +542,17 @@
 
                         <div>
                             <label for="update_email_address"
-                                class="block text-xs font-semibold text-app-text mb-1.5">Địa chỉ Email mới</label>
+                                class="block text-xs font-semibold text-app-text mb-1.5">{{ __('New Email Address') }}</label>
                             <input id="update_email_address" name="email" type="email"
                                 value="{{ old('email', auth()->user()->email) }}"
                                 class="w-full h-10 px-3 bg-app-main border border-app-border rounded-xl text-sm text-app-text focus:border-primary focus:ring-0 transition-colors outline-none"
-                                required placeholder="Địa chỉ email mới" />
+                                required placeholder="{{ __('New Email Address') }}" />
                         </div>
 
                         <div class="pt-2">
                             <button type="submit"
                                 class="h-10 px-5 bg-primary hover:bg-primary/90 text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2">
-                                Lưu email
+                                {{ __('Save Email') }}
                             </button>
                         </div>
                     </form>

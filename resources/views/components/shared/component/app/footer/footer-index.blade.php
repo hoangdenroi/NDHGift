@@ -8,18 +8,15 @@
                 <ul class="flex flex-col gap-3 text-xs sm:text-sm text-app-muted">
                     <li class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-lg opacity-70">account_circle</span>
-                        <span>Người đại diện: <span class="font-bold text-app-text">Nguyễn Đức
-                                Hoàng</span></span>
+                        <span>{{ __('Representative:') }} <span class="font-bold text-app-text">Nguyễn Đức Hoàng</span></span>
                     </li>
                     <li class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-lg opacity-70">receipt_long</span>
-                        <span>Mã số thuế: <span class="font-bold text-app-text">Đang cập
-                                nhật</span></span>
+                        <span>{{ __('Tax code:') }} <span class="font-bold text-app-text">{{ __('Updating') }}</span></span>
                     </li>
                     <li class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-lg opacity-70">location_on</span>
-                        <span>Địa chỉ: <span class="font-bold text-app-text">Hà Nội, Việt
-                                Nam</span></span>
+                        <span>{{ __('Address:') }} <span class="font-bold text-app-text">{{ __('Ha Noi, Viet Nam') }}</span></span>
                     </li>
                 </ul>
             </div>
@@ -41,7 +38,7 @@
         <!-- Column 2: Contact & Socials -->
         <div class="flex flex-col gap-4">
             <div>
-                <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-app-text mb-4">Liên hệ</h3>
+                <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-app-text mb-4">{{ __('Contact') }}</h3>
                 <ul class="flex flex-col gap-3 text-xs sm:text-sm text-app-muted">
                     <li class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-lg opacity-70">call</span>
@@ -106,12 +103,10 @@
         <!-- Column 3: Optional Widget/Area -->
         <div class="flex flex-col gap-4">
             <div>
-                <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-app-text mb-4">Đăng ký nhận
-                    tin mới nhất</h3>
+                <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-app-text mb-4">{{ __('Subscribe to our newsletter') }}</h3>
                 <div class="flex flex-col gap-4">
                     <p class="text-xs text-app-muted leading-relaxed">
-                        Nhận các bài viết mới về thiết kế, sản phẩm và mã giảm giá hàng tháng trực tiếp qua email của
-                        bạn.
+                        {{ __('Receive the latest articles on design, products, and monthly discount codes directly to your email.') }}
                     </p>
                     <form x-data="{
                             email: '',
@@ -140,13 +135,13 @@
                                         if(data.errors) {
                                             this.errorMsg = Object.values(data.errors)[0][0];
                                         } else {
-                                            this.errorMsg = data.message || 'Lỗi hệ thống';
+                                            this.errorMsg = data.message || '{{ __('System error') }}';
                                         }
                                     }
                                 })
                                 .catch(err => {
                                     this.loading = false;
-                                    this.errorMsg = 'Có lỗi xảy ra.';
+                                    this.errorMsg = '{{ __('Something went wrong.') }}';
                                 });
                             }
                         }" @submit.prevent="submit" class="flex flex-col gap-2">
@@ -161,13 +156,13 @@
                         <div class="relative group">
                             <span
                                 class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-app-muted group-focus-within:text-primary transition-colors">email</span>
-                            <input x-model="email" required type="email" placeholder="Email của bạn..."
+                            <input x-model="email" required type="email" placeholder="{{ __('Your email...') }}"
                                 class="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-app-main border border-app-border transition-all rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed text-app-text">
                         </div>
                         <button :disabled="loading" type="submit"
                             class="w-full py-2.5 px-4 bg-app-text text-app-main text-xs font-bold uppercase tracking-widest rounded-xl hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                            <span x-show="!loading">Đăng ký</span>
-                            <span x-show="loading">Đang chờ...</span>
+                            <span x-show="!loading">{{ __('Subscribe') }}</span>
+                            <span x-show="loading">{{ __('Subscribing...') }}</span>
                         </button>
                     </form>
                 </div>

@@ -6,8 +6,8 @@
             <span class="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
         <div>
-            <h2 class="text-base font-bold text-app-text">Lịch sử hóa đơn</h2>
-            <p class="text-sm text-app-muted mt-0.5">Danh sách các hóa đơn giao dịch của bạn</p>
+            <h2 class="text-base font-bold text-app-text">{{ __('Invoice History') }}</h2>
+            <p class="text-sm text-app-muted mt-0.5">{{ __('List of your transaction invoices') }}</p>
         </div>
     </div>
     
@@ -16,15 +16,15 @@
             <span class="material-symbols-outlined text-3xl">receipt_long</span>
         </div>
         <div class="space-y-1">
-            <h3 class="text-base font-bold text-app-text">Không tìm thấy hóa đơn nào</h3>
+            <h3 class="text-base font-bold text-app-text">{{ __('No invoices found') }}</h3>
             <p class="text-sm text-app-muted max-w-sm">
-                Bạn chưa thực hiện bất kỳ giao dịch thanh toán hoặc mua template premium nào trên hệ thống NDHGift.
+                {{ __('You have not made any payment transactions or purchased any premium templates on NDHGift yet.') }}
             </p>
         </div>
         <a href="{{ route('app.home.index', ['locale' => app()->getLocale()]) }}" 
             class="mt-2 h-10 px-5 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2">
             <span class="material-symbols-outlined text-[18px]">explore</span>
-            Khám phá template ngay
+            {{ __('Explore templates now') }}
         </a>
     </div>
 </div>
