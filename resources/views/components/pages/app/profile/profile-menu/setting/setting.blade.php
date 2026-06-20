@@ -21,6 +21,7 @@
     showCurrentPass: false,
     showNewPass: false,
     showConfirmPass: false,
+    saveTimeouts: {},
     colors: [
         { hex: '#0d59f2', bg: 'bg-[#0d59f2]', ring: 'ring-[#0d59f2]' },
         { hex: '#3b82f6', bg: 'bg-blue-500', ring: 'ring-blue-500' },
@@ -57,24 +58,29 @@
         this.saveSettings('theme', { mode: this.themeMode, primaryColor: this.accentColor });
     },
     saveSettings(key, value) {
-        fetch('/api/v1/settings', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ key, value })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error();
-            return response.json();
-        })
-        .catch(() => {
-            window.dispatchEvent(new CustomEvent('toast', {
-                detail: { type: 'error', title: 'Lỗi đồng bộ', message: 'Không thể đồng bộ cài đặt lên máy chủ.' }
-            }));
-        });
+        if (this.saveTimeouts[key]) {
+            clearTimeout(this.saveTimeouts[key]);
+        }
+        this.saveTimeouts[key] = setTimeout(() => {
+            fetch('/api/v1/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ key, value })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error();
+                return response.json();
+            })
+            .catch(() => {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { type: 'error', title: 'Lỗi đồng bộ', message: 'Không thể đồng bộ cài đặt lên máy chủ.' }
+                }));
+            });
+        }, 500);
     },
     setTheme(mode) {
         this.themeMode = mode;
