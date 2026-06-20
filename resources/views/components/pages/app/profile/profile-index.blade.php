@@ -139,7 +139,7 @@
                             </div>
                             <div class="flex items-center justify-between text-sm">
                                 <span class="text-app-muted">{{ __('Account ID') }}</span>
-                                <div class="flex items-center gap-1.5" x-data="{ 
+                                <div class="flex items-center gap-1.5 notranslate" translate="no" x-data="{ 
                                     copied: false,
                                     copyId() {
                                         navigator.clipboard.writeText('{{ $user->unitcode }}');
@@ -147,10 +147,8 @@
                                         setTimeout(() => this.copied = false, 2000);
                                     }
                                 }">
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary select-all">
-                                        {{ $user->unitcode }}
-                                    </span>
-                                    <button @click="copyId" class="text-app-muted hover:text-primary transition-colors flex items-center justify-center outline-none focus:outline-none" title="{{ __('Copy Account ID') }}">
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary select-all">{{ $user->unitcode }}</span>
+                                    <button @click="copyId" class="text-app-muted hover:text-primary transition-colors flex items-center justify-center outline-none focus:outline-none shrink-0" title="{{ __('Copy Account ID') }}">
                                         <span class="material-symbols-outlined text-[16px] select-none" x-text="copied ? 'check' : 'content_copy'"></span>
                                     </button>
                                 </div>
