@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\App\gift\GiftController;
+use App\Http\Controllers\App\home\HomeController;
+use App\Http\Controllers\App\profile\ProfileController;
+use App\Http\Controllers\App\support\SupportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,9 +35,17 @@ Route::prefix('{locale}')
     ->where(['locale' => '[a-z]{2}'])
     ->middleware('set.locale')
     ->group(function () {
-        Route::get('/', function () {
-            return view('components.pages.app.home.home-index');
-        })->name('home');
+        Route::get('/', [HomeController::class, 'index'])->name('app.home.index');
+
+        Route::prefix('apps')->group(function () {
+            Route::get('/gift', [GiftController::class, 'index'])->name('app.gift.index');
+
+            Route::get('/support', [SupportController::class, 'index'])->name('app.support.index');
+
+            Route::middleware('auth')->group(function () {
+                Route::get('/profile', [ProfileController::class, 'index'])->name('app.profile.index');
+            });
+        });
 
         Route::middleware('auth')->group(function () {
             // Các route yêu cầu đăng nhập sẽ được thêm tại đây

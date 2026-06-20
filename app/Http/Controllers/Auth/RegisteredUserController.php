@@ -33,18 +33,34 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            // 'username' => ['required', 'string', 'lowercase', 'alpha_dash', 'min:3', 'max:50', 'unique:'.User::class],
             'fullname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Tự động sinh username từ email nếu không có trong request (tương thích với form UI mới)
+        $username = $request->input('username');
+        if (empty($username)) {
+            $username = strstr($request->email, '@', true);
+            // Loại bỏ các ký tự không hợp lệ cho username (chỉ cho phép alpha_dash)
+            $username = preg_replace('/[^a-zA-Z0-9_-]/', '', $username);
+            
+            // Xử lý trùng lặp username
+            $baseUsername = $username;
+            $counter = 1;
+            while (User::where('username', $username)->exists()) {
+                $username = $baseUsername . $counter;
+                $counter++;
+            }
+        }
+
         $user = User::create([
-            'username' => $request->username,
+            'username' => $username,
             'fullname' => $request->fullname,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'status' => 'active',
+            'last_login_at' => now(),
             'settings' => [
                 'language' => 'vi',
                 'theme' => [
