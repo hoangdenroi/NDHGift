@@ -58,18 +58,18 @@ class ProfileTest extends TestCase
         $response->assertSee('testuser@example.com');
         $response->assertSee('https://example.com/avatar.png');
 
-        // Kiểm tra các chỉ số thống kê (stats cứng)
-        $response->assertSee('2h 30m');
-        $response->assertSee('Total time');
-        $response->assertSee('7200 cal');
-        $response->assertSee('Burned');
-        $response->assertSee('2');
-        $response->assertSee('Done');
+        // Kiểm tra các nhãn thông tin trong profile-index.blade.php
+        $response->assertSee('Số dư');
+        $response->assertSee('Mã tài khoản');
+        $response->assertSee('Ngày tạo');
+        $response->assertSee('Thông tin cá nhân');
+        $response->assertSee('Họ và tên');
+        $response->assertSee('Số điện thoại');
+        $response->assertSee('Ảnh đại diện');
 
-        // Kiểm tra sự xuất hiện của các menu cài đặt (cứng)
-        $response->assertSee('Personal');
-        $response->assertSee('General');
-        $response->assertSee('Notification');
-        $response->assertSee('Help');
+        // Kiểm tra sự xuất hiện của 3 button mới thêm
+        $response->assertSee('Thông báo');
+        $response->assertSee('Voucher');
+        $response->assertSee('Lịch sử');
     }
 }

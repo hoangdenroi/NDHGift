@@ -1,150 +1,169 @@
 <x-app-layout :title="__('Profile - NDHGift')">
-    {{-- Khung bao ngoài của trang Profile --}}
-    <div class="w-full flex flex-col gap-6 md:gap-8 max-w-5xl mx-auto py-4 md:py-8 px-4">
-        
-        {{-- Tiêu đề trang --}}
-        <div class="flex items-center justify-between mb-2">
-            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                {{ __('Profile') }}
-            </h1>
-        </div>
-
-        {{-- Layout chính: Tự động chia 2 phần trái-phải trên desktop, và xếp dọc trên mobile --}}
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            {{-- PHẦN 1 (BÊN TRÁI): Thông tin cá nhân của User & Các chỉ số Thống kê --}}
-            <div class="lg:col-span-5 flex flex-col items-center bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl border border-slate-100 dark:border-slate-700/80 shadow-sm relative overflow-hidden">
-                {{-- Decorative background blobs --}}
-                <div class="absolute -right-12 -top-12 size-40 bg-primary/5 rounded-full blur-2xl"></div>
-                <div class="absolute -left-12 -bottom-12 size-40 bg-blue-400/5 rounded-full blur-2xl"></div>
-
-                {{-- Khung hiển thị Avatar --}}
-                <div class="relative group cursor-pointer mb-5">
-                    <div class="size-32 rounded-full overflow-hidden border-4 border-slate-50 dark:border-slate-700 shadow-md group-hover:scale-105 transition-transform duration-300">
-                        @if($user->avatar_url)
-                            <img src="{{ $user->avatar_url }}" alt="{{ $user->fullname ?? $user->username }}" class="w-full h-full object-cover">
-                        @else
-                            {{-- Avatar mặc định bằng ký tự đầu của tên --}}
-                            <div class="w-full h-full bg-gradient-to-tr from-primary/20 to-blue-400/20 flex items-center justify-center text-primary dark:text-blue-400 font-bold text-3xl">
-                                {{ strtoupper(substr($user->fullname ?? $user->username ?? 'U', 0, 1)) }}
-                            </div>
-                        @endif
-                    </div>
-                    
-                    {{-- Nút Edit Avatar (Hiện tại là cứng) --}}
-                    <button class="absolute bottom-1 right-1 size-9 bg-primary hover:bg-primary/90 text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white dark:border-slate-800 transition-all hover:scale-110">
-                        <span class="material-symbols-outlined !text-base">edit</span>
-                    </button>
-                </div>
-
-                {{-- Tên người dùng --}}
-                <h2 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-white text-center tracking-tight mb-1">
-                    {{ $user->fullname ?? $user->username }}
-                </h2>
-                
-                {{-- Email người dùng --}}
-                <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-8 font-medium">
-                    {{ $user->email }}
-                </p>
-
-                {{-- Các con số thống kê (Stats) - Cứng theo yêu cầu của ảnh --}}
-                <div class="grid grid-cols-3 gap-4 w-full pt-6 border-t border-slate-100 dark:border-slate-700/50">
-                    {{-- Thống kê 1: Total time --}}
-                    <div class="flex flex-col items-center text-center">
-                        <div class="size-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-2">
-                            <span class="text-lg">⏱️</span>
-                        </div>
-                        <span class="text-sm font-bold text-slate-900 dark:text-white leading-tight">2h 30m</span>
-                        <span class="text-[11px] text-slate-400 dark:text-slate-500 font-semibold mt-1 uppercase tracking-wider">{{ __('Total time') }}</span>
-                    </div>
-
-                    {{-- Thống kê 2: Burned --}}
-                    <div class="flex flex-col items-center text-center">
-                        <div class="size-10 rounded-full bg-red-50 dark:bg-red-950/20 flex items-center justify-center mb-2">
-                            <span class="text-lg">🔥</span>
-                        </div>
-                        <span class="text-sm font-bold text-slate-900 dark:text-white leading-tight">7200 cal</span>
-                        <span class="text-[11px] text-slate-400 dark:text-slate-500 font-semibold mt-1 uppercase tracking-wider">{{ __('Burned') }}</span>
-                    </div>
-
-                    {{-- Thống kê 3: Done --}}
-                    <div class="flex flex-col items-center text-center">
-                        <div class="size-10 rounded-full bg-amber-50 dark:bg-amber-950/20 flex items-center justify-center mb-2">
-                            <span class="text-lg">💪</span>
-                        </div>
-                        <span class="text-sm font-bold text-slate-900 dark:text-white leading-tight">2</span>
-                        <span class="text-[11px] text-slate-400 dark:text-slate-500 font-semibold mt-1 uppercase tracking-wider">{{ __('Done') }}</span>
-                    </div>
-                </div>
-            </div>
-
-            {{-- PHẦN 2 (BÊN PHẢI): Các mục Menu cài đặt --}}
-            <div class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/80 shadow-sm overflow-hidden">
-                <div class="divide-y divide-slate-100 dark:divide-slate-700/50">
-                    
-                    {{-- Menu Item 1: Personal --}}
-                    <a href="#" class="group flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
-                        <div class="flex items-center gap-4">
-                            <div class="size-10 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                                <span class="material-symbols-outlined !text-xl">person</span>
-                            </div>
-                            <span class="font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary transition-colors">
-                                {{ __('Personal') }}
-                            </span>
-                        </div>
-                        <span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 group-hover:translate-x-1 transition-all !text-lg">
-                            chevron_right
-                        </span>
-                    </a>
-
-                    {{-- Menu Item 2: General --}}
-                    <a href="#" class="group flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
-                        <div class="flex items-center gap-4">
-                            <div class="size-10 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                                <span class="material-symbols-outlined !text-xl">tune</span>
-                            </div>
-                            <span class="font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary transition-colors">
-                                {{ __('General') }}
-                            </span>
-                        </div>
-                        <span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 group-hover:translate-x-1 transition-all !text-lg">
-                            chevron_right
-                        </span>
-                    </a>
-
-                    {{-- Menu Item 3: Notification --}}
-                    <a href="#" class="group flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
-                        <div class="flex items-center gap-4">
-                            <div class="size-10 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                                <span class="material-symbols-outlined !text-xl">notifications</span>
-                            </div>
-                            <span class="font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary transition-colors">
-                                {{ __('Notification') }}
-                            </span>
-                        </div>
-                        <span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 group-hover:translate-x-1 transition-all !text-lg">
-                            chevron_right
-                        </span>
-                    </a>
-
-                    {{-- Menu Item 4: Help --}}
-                    <a href="#" class="group flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
-                        <div class="flex items-center gap-4">
-                            <div class="size-10 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                                <span class="material-symbols-outlined !text-xl">help</span>
-                            </div>
-                            <span class="font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary transition-colors">
-                                {{ __('Help') }}
-                            </span>
-                        </div>
-                        <span class="material-symbols-outlined text-slate-300 group-hover:text-slate-500 group-hover:translate-x-1 transition-all !text-lg">
-                            chevron_right
-                        </span>
-                    </a>
-                    
-                </div>
-            </div>
-
-        </div>
+    {{-- Header --}}
+    <div class="flex flex-col gap-2">
+        <h1 class="text-2xl font-bold text-app-text">Hồ sơ</h1>
+        <p class="text-app-muted text-sm">Cập nhật thông tin cá nhân và cài đặt hiển thị</p>
     </div>
-</x-app-layout>
+    {{-- Tab Hồ sơ: Avatar + Thông tin cơ bản + Form chỉnh sửa --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {{-- Cột trái: Avatar + Thông tin cơ bản --}}
+        <div class="lg:col-span-1 flex flex-col gap-4">
+            <div class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col items-center gap-4">
+                <div class="relative group" x-data="{
+                avatarPreview: '{{ $user->avatar_url }}',
+                loading: false,
+                handleFileChange(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                        if (!validTypes.includes(file.type)) {
+                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: 'Vui lòng chọn file hình ảnh hợp lệ (jpeg, png, jpg, gif).' } }));
+                            event.target.value = '';
+                            return;
+                        }
+                        if (file.size > 2 * 1024 * 1024) {
+                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: 'Kích thước ảnh không được vượt quá 2MB.' } }));
+                            event.target.value = '';
+                            return;
+                        }
+
+                        this.loading = true;
+                        this.avatarPreview = URL.createObjectURL(file);
+                        // Tự động submit form sau khi chọn ảnh
+                        document.getElementById('profile-form').submit();
+                    }
+                }
+            }" x-init="() => {
+                @error('avatar_file')
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi tải ảnh', message: @js($message) } }));
+                @enderror
+            }">
+                    <div class="size-24 rounded-full overflow-hidden border-4 border-app-border relative">
+                        <template x-if="avatarPreview">
+                            <img :src="avatarPreview" alt="Avatar" class="size-full object-cover"
+                                :class="{'opacity-50': loading}">
+                        </template>
+                        <template x-if="!avatarPreview">
+                            <div class="size-full bg-primary/10 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-primary text-4xl">person</span>
+                            </div>
+                        </template>
+
+                        {{-- Loading Spinner --}}
+                        <div x-show="loading" class="absolute inset-0 flex items-center justify-center bg-black/20">
+                            <span class="material-symbols-outlined text-white animate-spin">refresh</span>
+                        </div>
+                    </div>
+                    <label x-show="!loading"
+                        class="absolute inset-0 size-24 rounded-full bg-black/40 flex items-center justify-center opacity-0 lg:group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <span class="material-symbols-outlined text-white">photo_camera</span>
+                        <input type="file" name="avatar_file" form="profile-form" accept="image/*" class="hidden"
+                            @change="handleFileChange">
+                    </label>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-base font-bold text-app-text">{{ $user->fullname }}</h3>
+                    <p class="text-sm text-app-muted mt-0.5">{{ $user->email }}</p>
+                </div>
+                <div class="w-full flex flex-col gap-2 pt-2 border-t border-app-border">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-app-muted">Số dư</span>
+                        <span
+                            class="text-app-text font-semibold">{{ number_format($user->balance, 0, ',', '.') }}đ</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-app-muted">Mã tài khoản</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                            {{ $user->unitcode }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-app-muted">Ngày tạo</span>
+                        <span class="text-app-text">{{ $user->created_at->format('d/m/Y') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 3 Button chức năng nhanh dưới Avatar --}}
+            <div class="grid grid-cols-3 gap-4">
+                {{-- Nút Thông báo --}}
+                <a href="#" 
+                    class="flex flex-col items-center justify-center p-4 bg-app-surface border border-app-border rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 group shadow-sm">
+                    <span class="material-symbols-outlined text-[26px] text-app-muted group-hover:text-primary transition-colors duration-300">
+                        notifications
+                    </span>
+                    <span class="text-[11px] font-semibold text-app-text mt-1.5 group-hover:text-primary transition-colors duration-300">
+                        Thông báo
+                    </span>
+                </a>
+
+                {{-- Nút Voucher --}}
+                <a href="{{ route('app.gift.index', ['locale' => app()->getLocale()]) }}" 
+                    class="flex flex-col items-center justify-center p-4 bg-app-surface border border-app-border rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 group shadow-sm">
+                    <span class="material-symbols-outlined text-[26px] text-app-muted group-hover:text-primary transition-colors duration-300">
+                        redeem
+                    </span>
+                    <span class="text-[11px] font-semibold text-app-text mt-1.5 group-hover:text-primary transition-colors duration-300">
+                        Voucher
+                    </span>
+                </a>
+
+                {{-- Nút Lịch sử --}}
+                <a href="#" 
+                    class="flex flex-col items-center justify-center p-4 bg-app-surface border border-app-border rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 group shadow-sm">
+                    <span class="material-symbols-outlined text-[26px] text-app-muted group-hover:text-primary transition-colors duration-300">
+                        history
+                    </span>
+                    <span class="text-[11px] font-semibold text-app-text mt-1.5 group-hover:text-primary transition-colors duration-300">
+                        Lịch sử
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        {{-- Cột phải: Form chỉnh sửa hồ sơ --}}
+        <div class="lg:col-span-2">
+            <div class="bg-app-surface border border-app-border rounded-xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-app-border">
+                    <h2 class="text-base font-bold text-app-text">Thông tin cá nhân</h2>
+                    <p class="text-sm text-app-muted mt-0.5">Cập nhật thông tin hiển thị của bạn</p>
+                </div>
+                <form id="profile-form" method="POST" action="#" enctype="multipart/form-data" class="p-6 space-y-5">
+                    @csrf
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-app-text">Họ và tên</label>
+                            <input type="text" name="name" value="{{ old('name', $user->name) }}"
+                                class="w-full h-11 px-4 rounded-xl border border-app-border bg-app-main text-app-text placeholder:text-app-muted text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-colors" />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-app-text">Email</label>
+                            <input type="email" value="{{ $user->email }}" disabled
+                                class="w-full h-11 px-4 rounded-xl border border-app-border bg-app-main text-app-muted text-sm cursor-not-allowed" />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-app-text">Số điện thoại</label>
+                            <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}"
+                                placeholder="Nhập số điện thoại"
+                                class="w-full h-11 px-4 rounded-xl border border-app-border bg-app-main text-app-text placeholder:text-app-muted text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-colors" />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-app-text">Ảnh đại diện</label>
+                            <p class="text-sm text-app-muted">Sử dụng ảnh đại diện mặc định hoặc click vào ảnh đại diện
+                                để
+                                tải lên</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 pt-2">
+                        <button type="submit"
+                            class="h-10 px-6 bg-primary hover:bg-primary/90 text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98]">
+                            Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</x-app-layout>
