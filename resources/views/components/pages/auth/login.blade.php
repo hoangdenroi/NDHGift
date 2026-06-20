@@ -124,7 +124,7 @@
             </p>
             <p class="text-slate-600 dark:text-slate-400 text-sm mt-3">{{ __('Back to') }}
                 <a class="font-bold text-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
-                    href="{{ route('home') }}">{{ __('homepage') }}</a>
+                    href="{{ route('app.home.index') }}">{{ __('homepage') }}</a>
             </p>
         </div>
     </div>

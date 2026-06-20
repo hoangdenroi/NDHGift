@@ -35,7 +35,7 @@
 - Luôn sử dụng Tailwind CSS để style cho các component (Button, Input, Modal, Tooltip,...), luôn sử dụng màu theme của hệ thống tránh lệch màu
 - sử dụng các cấu hình có sẵn ở views/components/shared/ui để đồng bộ style toàn hệ thống
 - Luôn sử dụng icon của google: https://fonts.google.com/icons.
--
+- Luôn tích hợp file lang vào các file views và blade component cho các chức năng mới.
 
 ## 5. Testing & Debugging
 

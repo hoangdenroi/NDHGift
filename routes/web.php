@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\App\gift\GiftController;
 use App\Http\Controllers\App\home\HomeController;
 use App\Http\Controllers\App\profile\ProfileController;
@@ -42,14 +44,19 @@ Route::prefix('{locale}')
 
             Route::get('/support', [SupportController::class, 'index'])->name('app.support.index');
 
-            Route::middleware('auth')->group(function () {
-                Route::get('/profile', [ProfileController::class, 'index'])->name('app.profile.index');
-            });
+            Route::get('/profile', [ProfileController::class, 'index'])->name('app.profile.index');
+
         });
 
-        Route::middleware('auth')->group(function () {
+        Route::middleware('auth')->prefix('apps')->group(function () {
             // Các route yêu cầu đăng nhập sẽ được thêm tại đây
+            Route::post('/profile', [ProfileController::class, 'update'])->name('app.profile.update');
         });
     });
+
+// --- API dùng Session Auth (không bị ảnh hưởng bởi locale prefix) ---
+Route::middleware('auth')->prefix('api')->group(function () {
+    Route::post('v1/settings', [ProfileController::class, 'updateSettings'])->name('api.settings.update');
+});
 
 require __DIR__.'/auth.php';

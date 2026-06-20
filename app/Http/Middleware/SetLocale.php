@@ -53,6 +53,18 @@ class SetLocale
         // Lưu vào session để ghi nhớ lựa chọn của user
         session(['locale' => $locale]);
 
+        // Đồng bộ ngôn ngữ vào settings của user nếu đã đăng nhập và giá trị khác biệt
+        if (auth()->check()) {
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+            $settings = $user->settings ?? [];
+            if (($settings['language'] ?? null) !== $locale) {
+                $settings['language'] = $locale;
+                $user->settings = $settings;
+                $user->save();
+            }
+        }
+
         // Inject locale vào URL defaults — để route() helper tự động gắn locale prefix
         URL::defaults(['locale' => $locale]);
 

@@ -9,7 +9,7 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link rel="shortcut icon" href="{{ asset('NDHGift.jpg') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('NDHGift.png') }}" type="image/x-icon">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
@@ -197,7 +197,7 @@
             </div>
 
             <!-- Footer nằm ở cuối vùng cuộn -->
-            <div class="{{ ($hideFooterMobile ?? false) ? 'hidden md:block' : '' }}">
+            <div class="{{ ($hideFooterMobile ?? false) ? 'hidden md:block' : '' }} pb-20 lg:pb-0">
                 <x-shared.component.app.footer.footer-index />
             </div>
         </div>
@@ -221,7 +221,7 @@
                             detail: { type: 'error', title: @js(__('Error')), message: @js(session('error')) }
                         }));
                     @endif
-                                                };
+                             };
                 if (window.Alpine) setTimeout(showToast, 50);
                 else document.addEventListener('alpine:initialized', showToast);
             })();

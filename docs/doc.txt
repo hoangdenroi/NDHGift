@@ -14,3 +14,9 @@ command=php /path/to/artisan queue:work redis --queue=notifications --sleep=3 --
 numprocs=1
 autostart=true
 autorestart=true
+
+
+php artisan lang:translate
+
+php artisan db:seed
+php artisan db:seed 2>&1

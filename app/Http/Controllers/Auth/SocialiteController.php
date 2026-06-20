@@ -66,11 +66,11 @@ class SocialiteController extends Controller
             } else {
                 // Chưa có tài khoản, tạo mới
                 $user = User::create([
-                    'username' => Str::slug($name, '_').'_'.Str::random(4),
+                    // 'username' => Str::slug($name, '_').'_'.Str::random(4),
                     'fullname' => $name,
                     'email' => $email,
                     $providerIdField => $socialId,
-                    'role' => 'user',
+                    // 'role' => 'user',
                     'status' => 'active',
                     'last_login_at' => now(),
                     'avatar_url' => $avatar,
