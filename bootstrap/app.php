@@ -12,14 +12,20 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            Route::middleware('web')
+                ->prefix('admin')
+                ->group(base_path('routes/admin.php'));
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // Cấu hình Trust Proxies cho Cloudflare / Reverse Proxy
         $middleware->trustProxies(at: '*');
 
-        // Đăng ký middleware alias cho hệ thống đa ngôn ngữ
+        // Đăng ký middleware alias cho hệ thống đa ngôn ngữ và phân quyền
         $middleware->alias([
             'set.locale' => \App\Http\Middleware\SetLocale::class,
+            'role' => \App\Http\Middleware\CheckRole::class,
         ]);
 
         // Khi user chưa đăng nhập, redirect về trang login kèm locale prefix + query param thông báo

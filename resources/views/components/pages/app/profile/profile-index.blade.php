@@ -55,34 +55,34 @@
                 <div class="lg:col-span-1 flex flex-col gap-4">
                     <div class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col items-center gap-4">
                         <div class="relative group cursor-pointer" x-data="{
-                                                                avatarPreview: '{{ $user->avatar_url }}',
-                                                                loading: false,
-                                                                handleFileChange(event) {
-                                                                    const file = event.target.files[0];
-                                                                    if (file) {
-                                                                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
-                                                                        if (!validTypes.includes(file.type)) {
-                                                                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Please select a valid image file (jpeg, png, jpg, gif).') }}' } }));
-                                                                            event.target.value = '';
-                                                                            return;
-                                                                        }
-                                                                        if (file.size > 2 * 1024 * 1024) {
-                                                                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Image size must not exceed 2MB.') }}' } }));
-                                                                            event.target.value = '';
-                                                                            return;
-                                                                        }
+                                                                    avatarPreview: '{{ $user->avatar_url }}',
+                                                                    loading: false,
+                                                                    handleFileChange(event) {
+                                                                        const file = event.target.files[0];
+                                                                        if (file) {
+                                                                            const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                                                                            if (!validTypes.includes(file.type)) {
+                                                                                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Please select a valid image file (jpeg, png, jpg, gif).') }}' } }));
+                                                                                event.target.value = '';
+                                                                                return;
+                                                                            }
+                                                                            if (file.size > 2 * 1024 * 1024) {
+                                                                                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Image size must not exceed 2MB.') }}' } }));
+                                                                                event.target.value = '';
+                                                                                return;
+                                                                            }
 
-                                                                        this.loading = true;
-                                                                        this.avatarPreview = URL.createObjectURL(file);
-                                                                        // Tự động submit form sau khi chọn ảnh
-                                                                        document.getElementById('profile-form').submit();
+                                                                            this.loading = true;
+                                                                            this.avatarPreview = URL.createObjectURL(file);
+                                                                            // Tự động submit form sau khi chọn ảnh
+                                                                            document.getElementById('profile-form').submit();
+                                                                        }
                                                                     }
-                                                                }
-                                                            }" x-init="() => {
-                                                                @error('avatar_file')
-                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Upload Error') }}', message: @js($message) } }));
-                                                                @enderror
-                                                            }">
+                                                                }" x-init="() => {
+                                                                    @error('avatar_file')
+                                                                        window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Upload Error') }}', message: @js($message) } }));
+                                                                    @enderror
+                                                                }">
                             <div @click="$dispatch('open-modal', 'avatar-modal')"
                                 class="size-24 rounded-full overflow-hidden border-4 border-app-border relative hover:border-primary/50 transition-colors">
                                 <template x-if="avatarPreview">
@@ -131,7 +131,7 @@
                                     {{-- Nút thay đổi ở dưới cùng ảnh --}}
                                     <button type="button"
                                         @click="$refs.avatarInput.click(); $dispatch('close-modal', 'avatar-modal')"
-                                        class="h-11 px-8 bg-[#f97316] hover:bg-[#ea580c] text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-orange-500/20 active:scale-[0.97] flex items-center justify-center gap-2">
+                                        class="h-11 px-8 bg-primary hover:bg-primary/90 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-orange-500/20 active:scale-[0.97] flex items-center justify-center gap-2">
                                         <span class="material-symbols-outlined text-[20px]">photo_camera</span>
                                         {{ __('Change avatar') }}
                                     </button>
@@ -151,13 +151,13 @@
                             <div class="flex items-center justify-between text-sm">
                                 <span class="text-app-muted">{{ __('Account ID') }}</span>
                                 <div class="flex items-center gap-1.5 notranslate" translate="no" x-data="{ 
-                                            copied: false,
-                                            copyId() {
-                                                navigator.clipboard.writeText('{{ $user->unitcode }}');
-                                                this.copied = true;
-                                                setTimeout(() => this.copied = false, 2000);
-                                            }
-                                        }">
+                                                copied: false,
+                                                copyId() {
+                                                    navigator.clipboard.writeText('{{ $user->unitcode }}');
+                                                    this.copied = true;
+                                                    setTimeout(() => this.copied = false, 2000);
+                                                }
+                                            }">
                                     <span
                                         class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary select-all">{{ $user->unitcode }}</span>
                                     <button @click="copyId"

@@ -66,7 +66,7 @@
         <div class="flex-1 flex justify-center items-center h-full relative">
             <!-- Vòng tròn đệm ngoài màu tối tạo chiều sâu và ôm lấy nút tròn (như ảnh vẽ khoanh đỏ) -->
             <div
-                class="absolute -top-6 sm:-top-7 w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full bg-neutral-900 dark:bg-neutral-950 flex items-center justify-center shadow-lg shadow-black/40 border border-neutral-800/50">
+                class="absolute -top-3 sm:-top-4 w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full bg-neutral-900 dark:bg-neutral-950 flex items-center justify-center shadow-lg shadow-black/40 border border-neutral-800/50">
                 <!-- Chấm xanh lá cây chỉ thị trạng thái / thông báo ở viền trên vòng tròn ngoài -->
                 {{-- <span
                     class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-neutral-900 dark:border-neutral-950 animate-pulse z-20"></span>

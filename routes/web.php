@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\App\about\AboutController;
 use App\Http\Controllers\App\gift\GiftController;
 use App\Http\Controllers\App\home\HomeController;
 use App\Http\Controllers\App\profile\ProfileController;
@@ -45,6 +46,8 @@ Route::prefix('{locale}')
             Route::get('/support', [SupportController::class, 'index'])->name('app.support.index');
 
             Route::get('/profile', [ProfileController::class, 'index'])->name('app.profile.index');
+
+            Route::get('/about', [AboutController::class, 'index'])->name('app.about.index');
 
         });
 

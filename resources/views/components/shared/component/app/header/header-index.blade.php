@@ -98,22 +98,22 @@
                     x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                     x-cloak
                     class="fixed top-[56px] right-3 w-[calc(100vw-24px)] max-w-[224px]
-                                                                                                    sm:absolute sm:top-full sm:left-auto sm:right-0 sm:translate-x-0 sm:mt-2 sm:w-56
-                                                                                                    bg-app-surface border border-app-border rounded-xl shadow-xl z-[200] origin-top">
+                                                                                                        sm:absolute sm:top-full sm:left-auto sm:right-0 sm:translate-x-0 sm:mt-2 sm:w-56
+                                                                                                        bg-app-surface border border-app-border rounded-xl shadow-xl z-[200] origin-top">
 
                     {{-- Mũi tên trỏ vào icon (tự động tính vị trí) --}}
                     <div x-ref="arrowOuter" x-effect="
-                                                                                            if(openProfile) {
-                                                                                                $nextTick(() => {
-                                                                                                    let btn = $el.closest('.relative').querySelector('.cursor-pointer');
-                                                                                                    let btnRect = btn.getBoundingClientRect();
-                                                                                                    let btnCenter = btnRect.left + btnRect.width / 2;
-                                                                                                    let dropLeft = $el.parentElement.getBoundingClientRect().left;
-                                                                                                    $refs.arrowOuter.style.left = (btnCenter - dropLeft - 9) + 'px';
-                                                                                                    $refs.arrowInner.style.left = (btnCenter - dropLeft - 7) + 'px';
-                                                                                                })
-                                                                                            }
-                                                                                        "
+                                                                                                if(openProfile) {
+                                                                                                    $nextTick(() => {
+                                                                                                        let btn = $el.closest('.relative').querySelector('.cursor-pointer');
+                                                                                                        let btnRect = btn.getBoundingClientRect();
+                                                                                                        let btnCenter = btnRect.left + btnRect.width / 2;
+                                                                                                        let dropLeft = $el.parentElement.getBoundingClientRect().left;
+                                                                                                        $refs.arrowOuter.style.left = (btnCenter - dropLeft - 9) + 'px';
+                                                                                                        $refs.arrowInner.style.left = (btnCenter - dropLeft - 7) + 'px';
+                                                                                                    })
+                                                                                                }
+                                                                                            "
                         class="absolute -top-[9px] w-0 h-0 border-l-[9px] border-l-transparent border-r-[9px] border-r-transparent border-b-[9px] border-b-app-border">
                     </div>
                     <div x-ref="arrowInner"
@@ -128,7 +128,7 @@
 
                     <div class="py-1">
                         @if (auth()->user()->role === 'admin')
-                            <a target="_blank" href="#"
+                            <a target="_blank" href="{{ route('admin.dashboard') }}"
                                 class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                                 <span class="material-symbols-outlined text-[18px] text-app-muted">admin_panel_settings</span>
                                 {{ __('Admin Panel') }}
