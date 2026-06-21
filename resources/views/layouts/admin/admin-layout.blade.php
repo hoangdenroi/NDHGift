@@ -138,7 +138,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body x-data="{ sidebarOpen: false, sidebarMini: false, isPanelOpen: false }"
+<body x-data="{ sidebarOpen: false, sidebarMini: localStorage.getItem('sidebarMini') === 'true', isPanelOpen: false }"
+    x-init="$watch('sidebarMini', value => localStorage.setItem('sidebarMini', value))"
     class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden flex h-screen w-full">
     <!-- Overlay backdrop khi sidebar mở trên mobile -->
     <div x-show="sidebarOpen" @click="sidebarOpen = false" x-transition:enter="transition ease-out duration-200"
@@ -147,7 +148,7 @@
         x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 z-30 lg:hidden" x-cloak></div>
 
     <!-- Sidebar -->
-    <x-shared.layouts.admin.nav />
+    <x-shared.component.admin.navbar.navbar-index />
 
     <!-- Panel Thông báo -->
     {{-- <x-admin.panel-admin-content /> --}}
@@ -155,7 +156,7 @@
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative">
         <!-- Header -->
-        <x-shared.layouts.admin.header :title="$title ?? 'Dashboard'" />
+        <x-shared.component.admin.header.header-index :title="$title ?? 'Dashboard'" />
 
         <!-- Scrollable Content -->
         <div class="flex-1 overflow-y-auto p-6 scroll-smooth">
@@ -165,7 +166,7 @@
         </div>
 
         <!-- Footer cố định dưới cùng (ngoài vùng scroll, giống header) -->
-        <x-shared.component.app.footer.footer-index />
+        <x-shared.component.admin.footer.footer-index />
     </main>
 
     {{-- Toast Notifications Component --}}
@@ -208,7 +209,7 @@
                             detail: { type: 'error', title: 'Lỗi', message: @js(session('error')) }
                         }));
                     @endif
-                        };
+                                            };
                 if (window.Alpine) setTimeout(showToast, 50);
                 else document.addEventListener('alpine:initialized', showToast);
             })();
@@ -229,7 +230,7 @@
                             }
                         }));
                     @endforeach
-                        };
+                                            };
                 if (window.Alpine) setTimeout(showToast, 50);
                 else document.addEventListener('alpine:initialized', showToast);
             })();
