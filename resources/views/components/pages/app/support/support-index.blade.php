@@ -30,8 +30,8 @@
                     <span class="material-symbols-outlined text-primary text-[22px]">edit_note</span>
                 </div>
                 <div>
-                    <h2 class="text-base font-bold text-app-text">Gửi tin nhắn</h2>
-                    <p class="text-xs text-app-muted">Điền thông tin bên dưới để liên hệ</p>
+                    <h2 class="text-base font-bold text-app-text">{{ __('Send Message') }}</h2>
+                    <p class="text-xs text-app-muted">{{ __('Fill in the information below to contact us') }}</p>
                 </div>
             </div>
 
@@ -42,12 +42,12 @@
                 <div>
                     <label for="contact-name"
                         class="block text-xs font-semibold text-app-muted uppercase tracking-wider mb-2">
-                        Họ và tên <span class="text-red-500">*</span>
+                        {{ __('Full Name') }} <span class="text-red-500">*</span>
                     </label>
                     <div class="relative group">
                         <span
                             class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-app-muted group-focus-within:text-primary transition-colors">person</span>
-                        <input id="contact-name" type="text" placeholder="Nguyễn Văn A"
+                        <input id="contact-name" type="text" placeholder="{{ __('Nguyen Van A') }}"
                             class="w-full pl-10 pr-4 py-3 text-sm bg-app-main border border-app-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-app-text placeholder:text-app-muted/50">
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                 <div>
                     <label for="contact-email"
                         class="block text-xs font-semibold text-app-muted uppercase tracking-wider mb-2">
-                        Email <span class="text-red-500">*</span>
+                        {{ __('Email') }} <span class="text-red-500">*</span>
                     </label>
                     <div class="relative group">
                         <span
@@ -70,20 +70,20 @@
                 <div>
                     <label for="contact-subject"
                         class="block text-xs font-semibold text-app-muted uppercase tracking-wider mb-2">
-                        Chủ đề
+                        {{ __('Subject') }}
                     </label>
                     <div class="relative group">
                         <span
                             class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-app-muted group-focus-within:text-primary transition-colors">topic</span>
                         <select id="contact-subject"
                             class="w-full pl-10 pr-4 py-3 text-sm bg-app-main border border-app-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-app-text appearance-none cursor-pointer">
-                            <option value="">-- Chọn chủ đề --</option>
-                            <option value="general">Câu hỏi chung</option>
-                            <option value="support">Hỗ trợ kỹ thuật</option>
-                            <option value="billing">Thanh toán & Hoá đơn</option>
-                            <option value="partnership">Hợp tác kinh doanh</option>
-                            <option value="feedback">Góp ý & Phản hồi</option>
-                            <option value="other">Khác</option>
+                            <option value="">{{ __('Select a subject') }}</option>
+                            <option value="general">{{ __('General Question') }}</option>
+                            <option value="support">{{ __('Technical Support') }}</option>
+                            <option value="billing">{{ __('Billing & Invoice') }}</option>
+                            <option value="partnership">{{ __('Business Partnership') }}</option>
+                            <option value="feedback">{{ __('Feedback & Suggestions') }}</option>
+                            <option value="other">{{ __('Other') }}</option>
                         </select>
                     </div>
                 </div>
@@ -92,12 +92,12 @@
                 <div>
                     <label for="contact-message"
                         class="block text-xs font-semibold text-app-muted uppercase tracking-wider mb-2">
-                        Nội dung <span class="text-red-500">*</span>
+                        {{ __('Content') }} <span class="text-red-500">*</span>
                     </label>
                     <div class="relative group">
                         <span
                             class="material-symbols-outlined absolute left-3 top-3 text-lg text-app-muted group-focus-within:text-primary transition-colors">chat</span>
-                        <textarea id="contact-message" rows="5" placeholder="Mô tả chi tiết vấn đề bạn cần hỗ trợ..."
+                        <textarea id="contact-message" rows="5" placeholder="{{ __('Describe your problem in detail...') }}"
                             class="w-full pl-10 pr-4 py-3 text-sm bg-app-main border border-app-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-app-text placeholder:text-app-muted/50 resize-none"></textarea>
                     </div>
                 </div>
@@ -106,13 +106,11 @@
                 <button type="submit"
                     class="w-full py-3 px-6 bg-primary hover:bg-primary/90 text-white text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">send</span>
-                    Gửi tin nhắn
+                    {{ __('Send Message') }}
                 </button>
 
                 <p class="text-[11px] text-app-muted text-center leading-relaxed">
-                    Bằng việc gửi tin nhắn, bạn đồng ý với
-                    <a href="#" class="text-primary hover:underline font-medium">Chính sách bảo mật</a>
-                    của chúng tôi.
+                    {!! __('By sending a message, you agree to our :privacy_policy.', ['privacy_policy' => '<a href="#" class="text-primary hover:underline font-medium">' . __('Privacy Policy') . '</a>']) !!}
                 </p>
             </form>
         </div>
@@ -128,8 +126,8 @@
                         <span class="material-symbols-outlined text-emerald-500 text-[22px]">contact_phone</span>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-app-text">Thông tin liên hệ</h2>
-                        <p class="text-xs text-app-muted">Liên lạc trực tiếp với chúng tôi</p>
+                        <h2 class="text-base font-bold text-app-text">{{ __('Contact Information') }}</h2>
+                        <p class="text-xs text-app-muted">{{ __('Contact us directly') }}</p>
                     </div>
                 </div>
 
@@ -143,8 +141,8 @@
                             <span class="material-symbols-outlined text-primary text-[20px]">location_on</span>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-1">Địa chỉ</p>
-                            <p class="text-sm font-bold text-app-text">Hà Nội, Việt Nam</p>
+                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-1">{{ __('Address') }}</p>
+                            <p class="text-sm font-bold text-app-text">{{ __('Ha Noi, Viet Nam') }}</p>
                         </div>
                     </div>
 
@@ -156,9 +154,9 @@
                             <span class="material-symbols-outlined text-emerald-500 text-[20px]">call</span>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-1">Hotline</p>
+                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-1">{{ __('Hotline') }}</p>
                             <p class="text-sm font-bold text-app-text">+84 388 937 608</p>
-                            <p class="text-xs text-app-muted mt-0.5">Hỗ trợ 24/7</p>
+                            <p class="text-xs text-app-muted mt-0.5">{{ __('Support 24/7') }}</p>
                         </div>
                     </a>
 
@@ -170,9 +168,9 @@
                             <span class="material-symbols-outlined text-blue-500 text-[20px]">mail</span>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-1">Email</p>
+                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-1">{{ __('Email') }}</p>
                             <p class="text-sm font-bold text-app-text">support&#64;ndhshop.com</p>
-                            <p class="text-xs text-app-muted mt-0.5">Phản hồi trong vòng 24h</p>
+                            <p class="text-xs text-app-muted mt-0.5">{{ __('Response within 24h') }}</p>
                         </div>
                     </a>
 
@@ -184,9 +182,9 @@
                             <span class="material-symbols-outlined text-amber-500 text-[20px]">schedule</span>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-1">Giờ làm việc
+                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-1">{{ __('Working Hours') }}
                             </p>
-                            <p class="text-sm font-bold text-app-text">Thứ 2 - Chủ nhật</p>
+                            <p class="text-sm font-bold text-app-text">{{ __('Monday - Sunday') }}</p>
                             <p class="text-xs text-app-muted mt-0.5">08:00 - 22:00 (GMT+7)</p>
                         </div>
                     </div>
@@ -200,8 +198,8 @@
                         <span class="material-symbols-outlined text-violet-500 text-[22px]">share</span>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-app-text">Theo dõi chúng tôi</h2>
-                        <p class="text-xs text-app-muted">Kết nối qua mạng xã hội</p>
+                        <h2 class="text-base font-bold text-app-text">{{ __('Follow Us') }}</h2>
+                        <p class="text-xs text-app-muted">{{ __('Connect via social networks') }}</p>
                     </div>
                 </div>
 
@@ -214,8 +212,8 @@
                             <span class="material-symbols-outlined text-blue-500 text-[18px]">group</span>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-sm font-bold text-app-text truncate">Facebook</p>
-                            <p class="text-[11px] text-app-muted truncate">Fanpage</p>
+                            <p class="text-sm font-bold text-app-text truncate">{{ __('Facebook') }}</p>
+                            <p class="text-[11px] text-app-muted truncate">{{ __('Fanpage') }}</p>
                         </div>
                     </a>
 
@@ -227,8 +225,8 @@
                             <span class="material-symbols-outlined text-blue-500 text-[18px]">chat</span>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-sm font-bold text-app-text truncate">Zalo</p>
-                            <p class="text-[11px] text-app-muted truncate">Chat trực tiếp</p>
+                            <p class="text-sm font-bold text-app-text truncate">{{ __('Zalo') }}</p>
+                            <p class="text-[11px] text-app-muted truncate">{{ __('Direct Chat') }}</p>
                         </div>
                     </a>
 
@@ -240,8 +238,8 @@
                             <span class="material-symbols-outlined text-sky-500 text-[18px]">send</span>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-sm font-bold text-app-text truncate">Telegram</p>
-                            <p class="text-[11px] text-app-muted truncate">Nhắn tin nhanh</p>
+                            <p class="text-sm font-bold text-app-text truncate">{{ __('Telegram') }}</p>
+                            <p class="text-[11px] text-app-muted truncate">{{ __('Quick Message') }}</p>
                         </div>
                     </a>
 
@@ -253,8 +251,8 @@
                             <span class="material-symbols-outlined text-violet-500 text-[18px]">link</span>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-sm font-bold text-app-text truncate">Beacons</p>
-                            <p class="text-[11px] text-app-muted truncate">Liên kết tổng hợp</p>
+                            <p class="text-sm font-bold text-app-text truncate">{{ __('Beacons') }}</p>
+                            <p class="text-[11px] text-app-muted truncate">{{ __('Bio Link') }}</p>
                         </div>
                     </a>
                 </div>

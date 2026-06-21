@@ -5,7 +5,7 @@
     <div class="flex items-center justify-between gap-4">
         <div class="flex flex-col gap-1">
             <h1 class="text-2xl font-bold text-app-text">{{ __('About') }}</h1>
-            <p class="text-app-muted text-sm">Tìm hiểu về nền tảng, sứ mệnh và giá trị cốt lõi của chúng tôi</p>
+            <p class="text-app-muted text-sm">{{ __('Learn about our platform, mission, and core values') }}</p>
         </div>
         <!-- Breadcrumbs chỉ hiển thị trên desktop -->
         <nav class="hidden md:flex items-center gap-1 text-xs font-semibold text-app-muted" aria-label="Breadcrumb">
@@ -31,17 +31,17 @@
                         <span class="material-symbols-outlined text-primary text-[22px]">info</span>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-app-text">Chúng tôi là ai?</h2>
-                        <p class="text-xs text-app-muted">Giới thiệu ngắn gọn về NDHGift</p>
+                        <h2 class="text-base font-bold text-app-text">{{ __('Who are we?') }}</h2>
+                        <p class="text-xs text-app-muted">{{ __('A brief introduction to NDHGift') }}</p>
                     </div>
                 </div>
 
                 <div class="space-y-4 text-sm text-app-text/90 leading-relaxed">
                     <p>
-                        <strong>NDHGift</strong> là nền tảng trực tuyến hàng đầu chuyên cung cấp các giải pháp quà tặng số, template thiệp điện tử, mã giảm giá và các chương trình tri ân khách hàng độc đáo. Chúng tôi mang đến cho người dùng một thư viện mẫu quà tặng phong phú, dễ dàng tùy biến để gửi trao những thông điệp yêu thương vào các dịp đặc biệt.
+                        <strong>NDHGift</strong> {{ __('is a leading online platform specializing in providing digital gift solutions, electronic card templates, discount codes, and unique customer gratitude programs. We bring users a rich library of gift templates, easily customizable to send messages of love on special occasions.') }}
                     </p>
                     <p>
-                        Với triết lý đặt trải nghiệm người dùng lên hàng đầu, NDHGift không ngừng phát triển và cập nhật các công nghệ mới nhằm đảm bảo tính an toàn, bảo mật cao và giao diện tương tác mượt mà nhất cho khách hàng.
+                        {{ __('With the philosophy of putting user experience first, NDHGift constantly develops and updates new technologies to ensure high safety, security and the smoothest interactive interface for customers.') }}
                     </p>
                 </div>
             </div>
@@ -53,8 +53,8 @@
                         <span class="material-symbols-outlined text-emerald-500 text-[22px]">rocket_launch</span>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-app-text">Sứ mệnh & Tầm nhìn</h2>
-                        <p class="text-xs text-app-muted">Định hướng phát triển tương lai</p>
+                        <h2 class="text-base font-bold text-app-text">{{ __('Mission & Vision') }}</h2>
+                        <p class="text-xs text-app-muted">{{ __('Future development orientation') }}</p>
                     </div>
                 </div>
 
@@ -63,10 +63,10 @@
                     <div class="p-4 rounded-xl bg-app-main border border-app-border hover:border-primary/30 transition-colors group">
                         <h3 class="text-sm font-bold text-app-text flex items-center gap-2 mb-2">
                             <span class="material-symbols-outlined text-primary text-lg transition-transform duration-300 group-hover:scale-110">flag</span>
-                            Sứ mệnh
+                            {{ __('Mission') }}
                         </h3>
                         <p class="text-xs text-app-muted leading-relaxed">
-                            Rút ngắn khoảng cách địa lý và kết nối những tâm hồn bằng những món quà tinh thần ý nghĩa, tinh tế và sáng tạo nhất trên không gian số.
+                            {{ __('Shortening geographical distances and connecting souls with the most meaningful, delicate and creative spiritual gifts in the digital space.') }}
                         </p>
                     </div>
 
@@ -74,32 +74,32 @@
                     <div class="p-4 rounded-xl bg-app-main border border-app-border hover:border-emerald-500/30 transition-colors group">
                         <h3 class="text-sm font-bold text-app-text flex items-center gap-2 mb-2">
                             <span class="material-symbols-outlined text-emerald-500 text-lg transition-transform duration-300 group-hover:scale-110">visibility</span>
-                            Tầm nhìn
+                            {{ __('Vision') }}
                         </h3>
                         <p class="text-xs text-app-muted leading-relaxed">
-                            Trở thành hệ sinh thái quà tặng trực tuyến lớn nhất Việt Nam, nơi người dùng có thể tìm thấy mọi mẫu thiệp và quà tặng số cho mọi sự kiện.
+                            {{ __('Become the largest online gift ecosystem in Vietnam, where users can find all templates of cards and digital gifts for every event.') }}
                         </p>
                     </div>
                 </div>
 
                 <div class="mt-6 space-y-3">
-                    <h3 class="text-sm font-bold text-app-text">Giá trị cốt lõi của chúng tôi</h3>
+                    <h3 class="text-sm font-bold text-app-text">{{ __('Our Core Values') }}</h3>
                     <div class="grid grid-cols-2 gap-3 text-xs">
                         <div class="flex items-center gap-2 p-2.5 rounded-lg bg-app-main border border-app-border hover:border-amber-300/30 transition-colors">
                             <span class="material-symbols-outlined text-amber-500 text-base">palette</span>
-                            <span class="font-semibold text-app-text">Sáng tạo không ngừng</span>
+                            <span class="font-semibold text-app-text">{{ __('Constant Creativity') }}</span>
                         </div>
                         <div class="flex items-center gap-2 p-2.5 rounded-lg bg-app-main border border-app-border hover:border-blue-300/30 transition-colors">
                             <span class="material-symbols-outlined text-blue-500 text-base">security</span>
-                            <span class="font-semibold text-app-text">Bảo mật tuyệt đối</span>
+                            <span class="font-semibold text-app-text">{{ __('Absolute Security') }}</span>
                         </div>
                         <div class="flex items-center gap-2 p-2.5 rounded-lg bg-app-main border border-app-border hover:border-violet-300/30 transition-colors">
                             <span class="material-symbols-outlined text-violet-500 text-base">face</span>
-                            <span class="font-semibold text-app-text">Khách hàng là trọng tâm</span>
+                            <span class="font-semibold text-app-text">{{ __('Customer Centricity') }}</span>
                         </div>
                         <div class="flex items-center gap-2 p-2.5 rounded-lg bg-app-main border border-app-border hover:border-emerald-300/30 transition-colors">
                             <span class="material-symbols-outlined text-emerald-500 text-base">bolt</span>
-                            <span class="font-semibold text-app-text">Tốc độ & Mượt mà</span>
+                            <span class="font-semibold text-app-text">{{ __('Speed & Smoothness') }}</span>
                         </div>
                     </div>
                 </div>
@@ -115,8 +115,8 @@
                         <span class="material-symbols-outlined text-violet-500 text-[22px]">leaderboard</span>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-app-text">Con số ấn tượng</h2>
-                        <p class="text-xs text-app-muted">Thành tựu đạt được của NDHGift</p>
+                        <h2 class="text-base font-bold text-app-text">{{ __('Impressive Numbers') }}</h2>
+                        <p class="text-xs text-app-muted">{{ __('Achievements of NDHGift') }}</p>
                     </div>
                 </div>
 
@@ -127,7 +127,7 @@
                             <span class="material-symbols-outlined text-primary text-[20px]">groups</span>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-0.5">Thành viên</p>
+                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-0.5">{{ __('Members') }}</p>
                             <p class="text-lg font-black text-app-text">10,000+</p>
                         </div>
                     </div>
@@ -138,7 +138,7 @@
                             <span class="material-symbols-outlined text-emerald-500 text-[20px]">featured_seasonal_and_gifts</span>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-0.5">Mẫu quà tặng</p>
+                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-0.5">{{ __('Gift Templates') }}</p>
                             <p class="text-lg font-black text-app-text">500+</p>
                         </div>
                     </div>
@@ -149,7 +149,7 @@
                             <span class="material-symbols-outlined text-blue-500 text-[20px]">handshake</span>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-0.5">Giao dịch</p>
+                            <p class="text-xs font-semibold text-app-muted uppercase tracking-wider mb-0.5">{{ __('Transactions') }}</p>
                             <p class="text-lg font-black text-app-text">50,000+</p>
                         </div>
                     </div>
@@ -163,16 +163,16 @@
                 <div class="absolute -left-10 -top-10 size-28 bg-white/10 rounded-full blur-xl select-none pointer-events-none"></div>
 
                 <div class="relative z-10 space-y-2">
-                    <h3 class="text-lg font-bold">Khám phá thế giới quà tặng</h3>
+                    <h3 class="text-lg font-bold">{{ __('Explore the world of gifts') }}</h3>
                     <p class="text-xs text-white/80 leading-relaxed">
-                        Hãy bắt đầu chọn một mẫu thiệp tuyệt vời nhất hoặc nhận những phần quà hấp dẫn từ NDHGift ngay hôm nay!
+                        {{ __('Start choosing the most wonderful card template or receive attractive gifts from NDHGift today!') }}
                     </p>
                 </div>
 
                 <a href="{{ route('app.gift.index', ['locale' => app()->getLocale()]) }}" 
                     class="relative z-10 w-full py-3 bg-white hover:bg-white/95 text-primary text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">explore</span>
-                    Bắt đầu ngay
+                    {{ __('Get Started') }}
                 </a>
             </div>
         </div>
