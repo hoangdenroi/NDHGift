@@ -31,9 +31,20 @@
     }" class="flex flex-col gap-6">
 
         {{-- Header tĩnh chuẩn của trang Profile --}}
-        <div class="flex flex-col gap-2">
-            <h1 class="text-2xl font-bold text-app-text">{{ __('Profile') }}</h1>
-            <p class="text-app-muted text-sm">{{ __('Update personal information and display settings') }}</p>
+        <div class="flex items-center justify-between gap-4">
+            <div class="flex flex-col gap-1">
+                <h1 class="text-2xl font-bold text-app-text">{{ __('Profile') }}</h1>
+                <p class="text-app-muted text-sm">{{ __('Update personal information and display settings') }}</p>
+            </div>
+            <!-- Breadcrumbs chỉ hiển thị trên desktop -->
+            <nav class="hidden md:flex items-center gap-1 text-xs font-semibold text-app-muted" aria-label="Breadcrumb">
+                <a href="{{ route('app.home.index', ['locale' => app()->getLocale()]) }}"
+                    class="hover:text-primary transition-colors">
+                    NDHGift
+                </a>
+                <span class="material-symbols-outlined text-[22px] text-app-muted/40 select-none">chevron_right</span>
+                <span class="text-app-text">{{ __('Profile') }}</span>
+            </nav>
         </div>
 
         @auth
@@ -44,34 +55,34 @@
                 <div class="lg:col-span-1 flex flex-col gap-4">
                     <div class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col items-center gap-4">
                         <div class="relative group cursor-pointer" x-data="{
-                                                        avatarPreview: '{{ $user->avatar_url }}',
-                                                        loading: false,
-                                                        handleFileChange(event) {
-                                                            const file = event.target.files[0];
-                                                            if (file) {
-                                                                const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
-                                                                if (!validTypes.includes(file.type)) {
-                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Please select a valid image file (jpeg, png, jpg, gif).') }}' } }));
-                                                                    event.target.value = '';
-                                                                    return;
-                                                                }
-                                                                if (file.size > 2 * 1024 * 1024) {
-                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Image size must not exceed 2MB.') }}' } }));
-                                                                    event.target.value = '';
-                                                                    return;
-                                                                }
+                                                                avatarPreview: '{{ $user->avatar_url }}',
+                                                                loading: false,
+                                                                handleFileChange(event) {
+                                                                    const file = event.target.files[0];
+                                                                    if (file) {
+                                                                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                                                                        if (!validTypes.includes(file.type)) {
+                                                                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Please select a valid image file (jpeg, png, jpg, gif).') }}' } }));
+                                                                            event.target.value = '';
+                                                                            return;
+                                                                        }
+                                                                        if (file.size > 2 * 1024 * 1024) {
+                                                                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Image size must not exceed 2MB.') }}' } }));
+                                                                            event.target.value = '';
+                                                                            return;
+                                                                        }
 
-                                                                this.loading = true;
-                                                                this.avatarPreview = URL.createObjectURL(file);
-                                                                // Tự động submit form sau khi chọn ảnh
-                                                                document.getElementById('profile-form').submit();
-                                                            }
-                                                        }
-                                                    }" x-init="() => {
-                                                        @error('avatar_file')
-                                                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Upload Error') }}', message: @js($message) } }));
-                                                        @enderror
-                                                    }">
+                                                                        this.loading = true;
+                                                                        this.avatarPreview = URL.createObjectURL(file);
+                                                                        // Tự động submit form sau khi chọn ảnh
+                                                                        document.getElementById('profile-form').submit();
+                                                                    }
+                                                                }
+                                                            }" x-init="() => {
+                                                                @error('avatar_file')
+                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Upload Error') }}', message: @js($message) } }));
+                                                                @enderror
+                                                            }">
                             <div @click="$dispatch('open-modal', 'avatar-modal')"
                                 class="size-24 rounded-full overflow-hidden border-4 border-app-border relative hover:border-primary/50 transition-colors">
                                 <template x-if="avatarPreview">
@@ -140,16 +151,20 @@
                             <div class="flex items-center justify-between text-sm">
                                 <span class="text-app-muted">{{ __('Account ID') }}</span>
                                 <div class="flex items-center gap-1.5 notranslate" translate="no" x-data="{ 
-                                    copied: false,
-                                    copyId() {
-                                        navigator.clipboard.writeText('{{ $user->unitcode }}');
-                                        this.copied = true;
-                                        setTimeout(() => this.copied = false, 2000);
-                                    }
-                                }">
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary select-all">{{ $user->unitcode }}</span>
-                                    <button @click="copyId" class="text-app-muted hover:text-primary transition-colors flex items-center justify-center outline-none focus:outline-none shrink-0" title="{{ __('Copy Account ID') }}">
-                                        <span class="material-symbols-outlined text-[16px] select-none" x-text="copied ? 'check' : 'content_copy'"></span>
+                                            copied: false,
+                                            copyId() {
+                                                navigator.clipboard.writeText('{{ $user->unitcode }}');
+                                                this.copied = true;
+                                                setTimeout(() => this.copied = false, 2000);
+                                            }
+                                        }">
+                                    <span
+                                        class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary select-all">{{ $user->unitcode }}</span>
+                                    <button @click="copyId"
+                                        class="text-app-muted hover:text-primary transition-colors flex items-center justify-center outline-none focus:outline-none shrink-0"
+                                        title="{{ __('Copy Account ID') }}">
+                                        <span class="material-symbols-outlined text-[16px] select-none"
+                                            x-text="copied ? 'check' : 'content_copy'"></span>
                                     </button>
                                 </div>
                             </div>
@@ -188,50 +203,54 @@
                             </span>
                         </a>
 
-                         {{-- Nút đăng xuất --}}
-                         <button type="button" @click="$dispatch('open-modal', 'logout-confirm-modal')"
-                             class="w-full flex flex-col items-center justify-center p-4 bg-app-surface border border-app-border rounded-xl hover:border-red-500/50 hover:bg-red-500/5 transition-all duration-300 group shadow-sm outline-none">
-                             <span
-                                 class="material-symbols-outlined text-[26px] text-app-muted group-hover:text-red-500 transition-colors duration-300">
-                                 logout
-                             </span>
-                             <span
-                                 class="text-[11px] font-semibold text-app-text mt-1.5 group-hover:text-red-500 transition-colors duration-300">
-                                 {{ __('Log Out') }}
-                             </span>
-                         </button>
+                        {{-- Nút đăng xuất --}}
+                        <button type="button" @click="$dispatch('open-modal', 'logout-confirm-modal')"
+                            class="w-full flex flex-col items-center justify-center p-4 bg-app-surface border border-app-border rounded-xl hover:border-red-500/50 hover:bg-red-500/5 transition-all duration-300 group shadow-sm outline-none">
+                            <span
+                                class="material-symbols-outlined text-[26px] text-app-muted group-hover:text-red-500 transition-colors duration-300">
+                                logout
+                            </span>
+                            <span
+                                class="text-[11px] font-semibold text-app-text mt-1.5 group-hover:text-red-500 transition-colors duration-300">
+                                {{ __('Log Out') }}
+                            </span>
+                        </button>
 
-                         {{-- Form đăng xuất ẩn --}}
-                         <form id="logout-form" method="POST" action="{{ route('logout', ['locale' => app()->getLocale()]) }}" class="hidden">
-                             @csrf
-                         </form>
+                        {{-- Form đăng xuất ẩn --}}
+                        <form id="logout-form" method="POST"
+                            action="{{ route('logout', ['locale' => app()->getLocale()]) }}" class="hidden">
+                            @csrf
+                        </form>
 
-                         {{-- Modal xác nhận đăng xuất --}}
-                         <x-shared.ui.modal name="logout-confirm-modal" maxWidth="md">
-                             <div class="relative p-6 flex flex-col items-center gap-4 text-center">
-                                 {{-- Icon cảnh báo --}}
-                                 <div class="size-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
-                                     <span class="material-symbols-outlined text-[28px]">logout</span>
-                                 </div>
+                        {{-- Modal xác nhận đăng xuất --}}
+                        <x-shared.ui.modal name="logout-confirm-modal" maxWidth="md">
+                            <div class="relative p-6 flex flex-col items-center gap-4 text-center">
+                                {{-- Icon cảnh báo --}}
+                                <div
+                                    class="size-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+                                    <span class="material-symbols-outlined text-[28px]">logout</span>
+                                </div>
 
-                                 <div>
-                                     <h4 class="text-lg font-bold text-app-text">{{ __('Confirm Log Out') }}</h4>
-                                     <p class="text-sm text-app-muted mt-1.5">{{ __('Are you sure you want to log out of your current NDHGift account?') }}</p>
-                                 </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-app-text">{{ __('Confirm Log Out') }}</h4>
+                                    <p class="text-sm text-app-muted mt-1.5">
+                                        {{ __('Are you sure you want to log out of your current NDHGift account?') }}
+                                    </p>
+                                </div>
 
-                                 {{-- Nút hành động --}}
-                                 <div class="flex items-center gap-3 w-full mt-2">
-                                     <button type="button" @click="$dispatch('close-modal', 'logout-confirm-modal')"
-                                         class="flex-1 h-10 px-4 bg-app-main border border-app-border text-app-text hover:bg-primary/5 hover:border-primary/30 font-semibold text-sm rounded-xl transition-all active:scale-[0.98]">
-                                         {{ __('Cancel') }}
-                                     </button>
-                                     <button type="submit" form="logout-form"
-                                         class="flex-1 h-10 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-red-500/15 active:scale-[0.98]">
-                                         {{ __('Log Out') }}
-                                     </button>
-                                 </div>
-                             </div>
-                         </x-shared.ui.modal>
+                                {{-- Nút hành động --}}
+                                <div class="flex items-center gap-3 w-full mt-2">
+                                    <button type="button" @click="$dispatch('close-modal', 'logout-confirm-modal')"
+                                        class="flex-1 h-10 px-4 bg-app-main border border-app-border text-app-text hover:bg-primary/5 hover:border-primary/30 font-semibold text-sm rounded-xl transition-all active:scale-[0.98]">
+                                        {{ __('Cancel') }}
+                                    </button>
+                                    <button type="submit" form="logout-form"
+                                        class="flex-1 h-10 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-red-500/15 active:scale-[0.98]">
+                                        {{ __('Log Out') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </x-shared.ui.modal>
 
                     </div>
                 </div>
