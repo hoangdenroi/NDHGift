@@ -1,13 +1,59 @@
 @props(['title' => 'Dashboard'])
+@php
+    // Lấy ngôn ngữ hiện tại của hệ thống
+    $locale = app()->getLocale();
+
+    // Định nghĩa danh sách các tab điều hướng tương tự như navbar
+    $navItems = [
+        [
+            'name' => __('Home'),
+            'route' => route('app.home.index', ['locale' => $locale]),
+            'icon' => 'home',
+            'active' => request()->routeIs('app.home.index*'),
+        ],
+        [
+            'name' => __('Gifts'),
+            'route' => route('app.gift.index', ['locale' => $locale]),
+            'icon' => 'redeem',
+            'active' => request()->routeIs('app.gift.index*'),
+        ],
+        [
+            'name' => __('Support'),
+            'route' => route('app.support.index', ['locale' => $locale]),
+            'icon' => 'forum',
+            'active' => request()->routeIs('app.support.index*'),
+        ],
+        [
+            'name' => __('About'),
+            'route' => route('app.about.index', ['locale' => $locale]),
+            'icon' => 'info',
+            'active' => request()->routeIs('app.about.index*'),
+        ],
+    ];
+@endphp
 <header
     class="flex items-center justify-between px-3 py-2 sm:px-6 sm:py-4 border-b border-app-border bg-app-surface z-50">
-    <div class="flex items-center gap-2 sm:gap-4">
+    <div class="flex items-center gap-2 sm:gap-4 lg:flex-1">
         <img src="{{ asset('NDHGift.png') }}" alt="Logo" class="size-10">
         <h2 class="text-app-text text-sm sm:text-lg font-bold truncate max-w-[120px] sm:max-w-none leading-tight">
             NDHGift
         </h2>
     </div>
-    <div class="flex items-center gap-2 sm:gap-4">
+
+    <!-- Thanh menu điều hướng căn giữa dành cho màn hình lớn (Desktop) -->
+    <nav class="hidden lg:flex items-center gap-1 sm:gap-2">
+        @foreach ($navItems as $item)
+            <a href="{{ $item['route'] }}"
+                class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ $item['active'] ? 'text-primary bg-primary/10' : 'text-app-muted hover:text-app-text hover:bg-app-surface/50' }}">
+                <span class="material-symbols-outlined text-[20px] {{ $item['active'] ? 'font-filled' : '' }}">
+                    {{ $item['icon'] }}
+                </span>
+                <span>{{ $item['name'] }}</span>
+            </a>
+        @endforeach
+    </nav>
+
+    <div class="flex items-center gap-2 sm:gap-4 lg:flex-1 lg:justify-end">
         {{-- <x-shared.layouts.app.ui.header-search /> --}}
 
         <!-- Actions -->
@@ -52,22 +98,22 @@
                     x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                     x-cloak
                     class="fixed top-[56px] right-3 w-[calc(100vw-24px)] max-w-[224px]
-                                                                                sm:absolute sm:top-full sm:left-auto sm:right-0 sm:translate-x-0 sm:mt-2 sm:w-56
-                                                                                bg-app-surface border border-app-border rounded-xl shadow-xl z-[200] origin-top">
+                                                                                                    sm:absolute sm:top-full sm:left-auto sm:right-0 sm:translate-x-0 sm:mt-2 sm:w-56
+                                                                                                    bg-app-surface border border-app-border rounded-xl shadow-xl z-[200] origin-top">
 
                     {{-- Mũi tên trỏ vào icon (tự động tính vị trí) --}}
                     <div x-ref="arrowOuter" x-effect="
-                                                                        if(openProfile) {
-                                                                            $nextTick(() => {
-                                                                                let btn = $el.closest('.relative').querySelector('.cursor-pointer');
-                                                                                let btnRect = btn.getBoundingClientRect();
-                                                                                let btnCenter = btnRect.left + btnRect.width / 2;
-                                                                                let dropLeft = $el.parentElement.getBoundingClientRect().left;
-                                                                                $refs.arrowOuter.style.left = (btnCenter - dropLeft - 9) + 'px';
-                                                                                $refs.arrowInner.style.left = (btnCenter - dropLeft - 7) + 'px';
-                                                                            })
-                                                                        }
-                                                                    "
+                                                                                            if(openProfile) {
+                                                                                                $nextTick(() => {
+                                                                                                    let btn = $el.closest('.relative').querySelector('.cursor-pointer');
+                                                                                                    let btnRect = btn.getBoundingClientRect();
+                                                                                                    let btnCenter = btnRect.left + btnRect.width / 2;
+                                                                                                    let dropLeft = $el.parentElement.getBoundingClientRect().left;
+                                                                                                    $refs.arrowOuter.style.left = (btnCenter - dropLeft - 9) + 'px';
+                                                                                                    $refs.arrowInner.style.left = (btnCenter - dropLeft - 7) + 'px';
+                                                                                                })
+                                                                                            }
+                                                                                        "
                         class="absolute -top-[9px] w-0 h-0 border-l-[9px] border-l-transparent border-r-[9px] border-r-transparent border-b-[9px] border-b-app-border">
                     </div>
                     <div x-ref="arrowInner"
@@ -94,19 +140,19 @@
                             {{ __('Profile') }}
                         </a>
 
-                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?tab=billing"
+                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?action=billing"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                             <span class="material-symbols-outlined text-[18px] text-app-muted">receipt</span>
                             {{ __('Billing') }}
                         </a>
 
-                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?tab=security"
+                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?action=security"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                             <span class="material-symbols-outlined text-[18px] text-app-muted">lock</span>
                             {{ __('Security') }}
                         </a>
 
-                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?tab=setting"
+                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?action=setting"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                             <span class="material-symbols-outlined text-[18px] text-app-muted">settings</span>
                             {{ __('Settings') }}
@@ -114,7 +160,7 @@
                     </div>
 
                     <div class="border-t border-app-border py-1 rounded-b-xl">
-                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?tab=term"
+                        <a href="{{ route('app.profile.index', ['locale' => app()->getLocale()]) }}?action=term"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-app-text hover:bg-app-surface/50 transition-colors">
                             <span class="material-symbols-outlined text-[18px] text-app-muted">menu_book</span>
                             {{ __('Terms & Services') }}

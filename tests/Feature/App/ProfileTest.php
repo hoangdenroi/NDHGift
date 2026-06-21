@@ -27,7 +27,7 @@ class ProfileTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Chào mừng khách');
-        $response->assertSee('Đăng nhập');
+        $response->assertSee('Đăng Nhập');
         $response->assertSee('Đăng ký');
     }
 
@@ -59,19 +59,19 @@ class ProfileTest extends TestCase
 
         // Kiểm tra các nhãn thông tin trong profile-index.blade.php
         $response->assertSee('Số dư');
-        $response->assertSee('Mã tài khoản');
+        $response->assertSee('ID tài khoản');
         $response->assertSee('Ngày tạo');
 
         // Kiểm tra sự xuất hiện của 3 button mới thêm dưới Avatar
-        $response->assertSee('Đổi voucher');
+        $response->assertSee('Đổi mã quà tặng');
         $response->assertSee('Lịch sử');
-        $response->assertSee('Đăng xuất');
+        $response->assertSee('Đăng Xuất');
 
         // Kiểm tra sự xuất hiện của các menu chức năng mới ở cột phải
-        $response->assertSee('Chỉnh sửa thông tin');
+        $response->assertSee('Chỉnh sửa hồ sơ');
         $response->assertSee('Hóa đơn');
         $response->assertSee('Cài đặt');
-        $response->assertSee('Trợ giúp');
+        $response->assertSee('Giúp đỡ');
     }
 
     /**
