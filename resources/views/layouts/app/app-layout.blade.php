@@ -160,18 +160,8 @@
 </head>
 
 <body
-    x-data="{ sidebarOpen: false, sidebarMini: JSON.parse(localStorage.getItem('navigation') || '{}').sidebarMini === true, isPanelOpen: false }"
-    x-init="$watch('sidebarMini', value => {
-        const nav = { ...JSON.parse(localStorage.getItem('navigation') || '{}'), sidebarMini: value };
-        localStorage.setItem('navigation', JSON.stringify(nav));
-        if ({{ auth()->check() ? 'true' : 'false' }}) {
-            fetch('/api/v1/settings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
-                body: JSON.stringify({ key: 'navigation', value: nav })
-            });
-        }
-    })" class="bg-app-main text-app-text font-display overflow-hidden flex h-screen w-full">
+    x-data="{ sidebarOpen: false, sidebarMini: false, isPanelOpen: false }"
+    class="bg-app-main text-app-text font-display overflow-hidden flex h-screen w-full">
     <!-- Overlay backdrop khi sidebar mở trên mobile -->
     <div x-show="sidebarOpen" @click="sidebarOpen = false" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
