@@ -1,4 +1,4 @@
-<x-app-layout title="Hóa đơn & Ví tiền - NDHGift">
+<x-app-layout :title="__('Billing & Wallet - NDHGift')">
     <div class="w-full" 
          x-data="{ 
             activeTab: '{{ request()->query('tab', 'overview') }}',
@@ -13,9 +13,9 @@
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-2">
                 <h1 class="text-xl sm:text-2xl font-bold text-app-text flex items-center gap-2">
-                    Ví tiền & Hóa đơn
+                    {{ __('Wallet & Billing') }}
                     <span class="material-symbols-outlined text-app-muted text-base sm:text-lg cursor-help"
-                        title="Quản lý ví tài khoản, quy đổi quà tặng và xem chi tiết giao dịch nạp tiền của bạn.">help</span>
+                        title="{{ __('Manage your wallet balance, redeem gift codes and view your transaction history.') }}">help</span>
                 </h1>
             </div>
 
@@ -23,7 +23,7 @@
                 <a href="{{ route('app.topup') }}"
                     class="h-9 px-4 rounded-lg bg-primary hover:bg-primary/90 text-white font-medium text-sm flex items-center gap-1.5 transition-colors shadow-sm">
                     <span class="material-symbols-outlined text-[18px]">add</span>
-                    <span>Nạp tiền vào ví</span>
+                    <span>{{ __('Top Up Wallet') }}</span>
                 </a>
             </div>
         </div>
@@ -32,7 +32,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
             {{-- Số dư hiện tại --}}
             <div class="bg-app-surface border border-app-border rounded-xl p-5 shadow-sm">
-                <p class="text-xs sm:text-sm text-app-muted mb-1 font-medium">Số dư hiện tại</p>
+                <p class="text-xs sm:text-sm text-app-muted mb-1 font-medium">{{ __('Current Balance') }}</p>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-app-text">
                     {{ number_format(auth()->user()->balance ?? 0, 0, ',', '.') }} <span class="text-lg">VND</span>
                 </h2>
@@ -40,15 +40,15 @@
 
             {{-- Mã quà tặng khả dụng --}}
             <div class="bg-app-surface border border-app-border rounded-xl p-5 shadow-sm">
-                <p class="text-xs sm:text-sm text-app-muted mb-1 font-medium">Mã giảm giá/quà tặng</p>
+                <p class="text-xs sm:text-sm text-app-muted mb-1 font-medium">{{ __('Coupons/Gift Codes') }}</p>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-app-text">
-                    {{ $publicCouponsCount }} <span class="text-lg">mã khả dụng</span>
+                    {{ $publicCouponsCount }} <span class="text-lg">{{ __('codes available') }}</span>
                 </h2>
             </div>
 
             {{-- Mã tài khoản định danh --}}
             <div class="bg-app-surface border border-app-border rounded-xl p-5 shadow-sm">
-                <p class="text-xs sm:text-sm text-app-muted mb-1 font-medium font-mono">Unit Code định danh</p>
+                <p class="text-xs sm:text-sm text-app-muted mb-1 font-medium font-mono">{{ __('Identifier Unit Code') }}</p>
                 <h2 class="text-xl sm:text-2xl font-extrabold text-app-text font-mono truncate">
                     {{ auth()->user()->unitcode ?? 'N/A' }}
                 </h2>
@@ -62,17 +62,17 @@
                 <button type="button" @click="switchTab('overview')"
                     class="px-4 py-3 text-xs sm:text-sm font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2"
                     :class="activeTab === 'overview' ? 'border-primary text-primary' : 'border-transparent text-app-muted hover:text-app-text'">
-                    <span class="material-symbols-outlined text-[18px]">grid_view</span> Tổng quan ví
+                    <span class="material-symbols-outlined text-[18px]">grid_view</span> {{ __('Wallet Overview') }}
                 </button>
                 <button type="button" @click="switchTab('transactions')"
                     class="px-4 py-3 text-xs sm:text-sm font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2"
                     :class="activeTab === 'transactions' ? 'border-primary text-primary' : 'border-transparent text-app-muted hover:text-app-text'">
-                    <span class="material-symbols-outlined text-[18px]">swap_horiz</span> Lịch sử giao dịch
+                    <span class="material-symbols-outlined text-[18px]">swap_horiz</span> {{ __('Transaction History') }}
                 </button>
                 <button type="button" @click="switchTab('coupons')"
                     class="px-4 py-3 text-xs sm:text-sm font-bold border-b-2 transition-colors whitespace-nowrap flex items-center gap-2"
                     :class="activeTab === 'coupons' ? 'border-primary text-primary' : 'border-transparent text-app-muted hover:text-app-text'">
-                    <span class="material-symbols-outlined text-[18px]">card_giftcard</span> Quy đổi mã quà tặng
+                    <span class="material-symbols-outlined text-[18px]">card_giftcard</span> {{ __('Redeem Gift Code') }}
                 </button>
             </div>
 

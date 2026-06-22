@@ -22,7 +22,7 @@
         <div class="p-4 border-b border-app-border flex items-center justify-between flex-wrap gap-3">
             <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary text-xl">bar_chart</span>
-                <h3 class="text-sm font-bold text-app-text">Thống kê nạp tiền</h3>
+                <h3 class="text-sm font-bold text-app-text">{{ __('Top Up Statistics') }}</h3>
             </div>
             
             {{-- Bộ lọc Ngày/Tháng/Năm --}}
@@ -30,17 +30,17 @@
                 <button type="button" @click="filter = 'day'"
                     class="px-3 py-1 text-xs font-semibold rounded-md transition-all duration-200"
                     :class="filter === 'day' ? 'bg-app-surface text-primary shadow-sm border border-app-border' : 'text-app-muted hover:text-app-text'">
-                    Ngày
+                    {{ __('Day') }}
                 </button>
                 <button type="button" @click="filter = 'month'"
                     class="px-3 py-1 text-xs font-semibold rounded-md transition-all duration-200"
                     :class="filter === 'month' ? 'bg-app-surface text-primary shadow-sm border border-app-border' : 'text-app-muted hover:text-app-text'">
-                    Tháng
+                    {{ __('Month') }}
                 </button>
                 <button type="button" @click="filter = 'year'"
                     class="px-3 py-1 text-xs font-semibold rounded-md transition-all duration-200"
                     :class="filter === 'year' ? 'bg-app-surface text-primary shadow-sm border border-app-border' : 'text-app-muted hover:text-app-text'">
-                    Năm
+                    {{ __('Year') }}
                 </button>
             </div>
         </div>
@@ -111,7 +111,7 @@
                         <span class="material-symbols-outlined text-lg">account_balance_wallet</span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-[10px] text-app-muted uppercase font-bold tracking-wider mb-0.5">Tổng tiền đã nạp</p>
+                        <p class="text-[10px] text-app-muted uppercase font-bold tracking-wider mb-0.5">{{ __('Total Topped Up') }}</p>
                         <h4 class="text-sm sm:text-base font-extrabold text-app-text truncate" x-text="new Intl.NumberFormat('vi-VN').format(active.total) + 'đ'"></h4>
                     </div>
                 </div>
@@ -121,8 +121,8 @@
                         <span class="material-symbols-outlined text-lg">done_all</span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-[10px] text-app-muted uppercase font-bold tracking-wider mb-0.5">Số lần nạp thành công</p>
-                        <h4 class="text-sm sm:text-base font-extrabold text-app-text truncate" x-text="active.count + ' lần'"></h4>
+                        <p class="text-[10px] text-app-muted uppercase font-bold tracking-wider mb-0.5">{{ __('Successful Top Ups') }}</p>
+                        <h4 class="text-sm sm:text-base font-extrabold text-app-text truncate" x-text="active.count + ' {{ __('times') }}'"></h4>
                     </div>
                 </div>
 
@@ -131,7 +131,7 @@
                         <span class="material-symbols-outlined text-lg">analytics</span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-[10px] text-app-muted uppercase font-bold tracking-wider mb-0.5">Mức nạp trung bình</p>
+                        <p class="text-[10px] text-app-muted uppercase font-bold tracking-wider mb-0.5">{{ __('Average Top Up') }}</p>
                         <h4 class="text-sm sm:text-base font-extrabold text-app-text truncate" x-text="new Intl.NumberFormat('vi-VN').format(active.avg) + 'đ'"></h4>
                     </div>
                 </div>
@@ -144,26 +144,26 @@
         <div class="border border-app-border rounded-xl bg-app-surface p-5 shadow-sm">
             <h4 class="font-bold text-app-text text-sm mb-3 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-primary">payments</span>
-                Hướng dẫn nạp tiền tự động
+                {{ __('Automatic Top Up Guide') }}
             </h4>
             <ul class="text-xs text-app-muted space-y-2 list-decimal list-inside font-medium">
-                <li>Truy cập tab <strong class="text-app-text">Nạp tiền</strong> để lấy mã QR thanh toán ngân hàng.</li>
-                <li>Hệ thống tạo mã QR chứa thông tin chuyển khoản định danh riêng cho bạn.</li>
-                <li>Chuyển khoản chính xác số tiền và nội dung. Tiền được cộng tự động sau 30s - 1 phút.</li>
-                <li>Không thay đổi nội dung chuyển khoản để hệ thống tự nhận diện chính xác.</li>
+                <li>{{ __('Access tab') }} <strong class="text-app-text">{{ __('Top Up') }}</strong> {{ __('to get the bank payment QR code.') }}</li>
+                <li>{{ __('Hệ thống tạo mã QR chứa thông tin chuyển khoản định danh riêng cho bạn.') }}</li>
+                <li>{{ __('Transfer the exact amount and content. Balance is automatically updated in 30s - 1 minute.') }}</li>
+                <li>{{ __('Do not change the transfer content for the system to identify correctly.') }}</li>
             </ul>
         </div>
 
         <div class="border border-app-border rounded-xl bg-app-surface p-5 shadow-sm">
             <h4 class="font-bold text-app-text text-sm mb-3 flex items-center gap-1.5">
                 <span class="material-symbols-outlined text-primary">redeem</span>
-                Quy đổi mã quà tặng
+                {{ __('Redeem Gift Code') }}
             </h4>
             <ul class="text-xs text-app-muted space-y-2 list-decimal list-inside font-medium">
-                <li>Nhận các mã quà tặng (Coupon fixed) từ sự kiện hoặc admin phát tặng.</li>
-                <li>Truy cập tab <strong class="text-app-text">Quy đổi mã quà tặng</strong> để nhập mã.</li>
-                <li>Hệ thống xác nhận và cộng ngay mệnh giá của mã vào số dư ví của bạn.</li>
-                <li>Mỗi tài khoản chỉ được áp dụng mỗi mã quà tặng một lần duy nhất.</li>
+                <li>{{ __('Receive gift codes (fixed coupons) from events or system administrators.') }}</li>
+                <li>{{ __('Access tab') }} <strong class="text-app-text">{{ __('Redeem Gift Code') }}</strong> {{ __('to enter the code.') }}</li>
+                <li>{{ __('The system verifies and immediately adds the code value to your wallet balance.') }}</li>
+                <li>{{ __('Each account can only apply each gift code once.') }}</li>
             </ul>
         </div>
     </div>

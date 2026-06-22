@@ -1,4 +1,4 @@
-<x-app-layout title="Nạp tiền - NDHShop">
+<x-app-layout :title="__('Top Up') . ' - NDHGift'">
 
     <div class="flex flex-col gap-6"
         @balance-updated.window="balance = $event.detail.new_balance; if (topupView === 'qr_display') { topupView = 'form'; amount = ''; }"
@@ -49,7 +49,7 @@
                 @guest
                     console.warn('[Topup] Blocked: User tried to select payment method without being logged in.');
                     window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'warning', title: 'Chưa đăng nhập', message: 'Vui lòng đăng nhập để chọn phương thức thanh toán!' }
+                        detail: { type: 'warning', title: '{{ __('Not Logged In') }}', message: '{{ __('Please log in to select a payment method!') }}' }
                     }));
                     return;
                 @endguest
@@ -59,20 +59,20 @@
                 @guest
                     console.warn('[Topup] Blocked: User tried to generate QR code without being logged in.');
                     window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'warning', title: 'Chưa đăng nhập', message: 'Vui lòng đăng nhập để nạp tiền!' }
+                        detail: { type: 'warning', title: '{{ __('Not Logged In') }}', message: '{{ __('Please log in to top up!') }}' }
                     }));
                     return;
                 @endguest
 
                 if (!this.amount || parseInt(this.amount) < 20000) {
                     window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'warning', title: 'Cảnh báo', message: 'Vui lòng nhập số tiền hợp lệ (tối thiểu 20,000đ)' }
+                        detail: { type: 'warning', title: '{{ __('Warning') }}', message: '{{ __('Please enter a valid amount (minimum 20,000đ)') }}' }
                     }));
                     return;
                 }
                 if (this.paymentMethod !== 'qr') {
                     window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'info', title: 'Thông báo', message: 'Phương thức này đang được cập nhật!' }
+                        detail: { type: 'info', title: '{{ __('Notification') }}', message: '{{ __('This method is being updated!') }}' }
                     }));
                     return;
                 }
@@ -103,12 +103,12 @@
                         this.topupView = 'qr_display';
                     } else {
                         window.dispatchEvent(new CustomEvent('toast', {
-                            detail: { type: 'error', title: 'Lỗi', message: data.message || 'Có lỗi xảy ra khi tạo QR thanh toán!' }
+                            detail: { type: 'error', title: '{{ __('Error') }}', message: data.message || '{{ __('An error occurred while generating the payment QR!') }}' }
                         }));
                     }
                 } catch (error) {
                     window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'error', title: 'Lỗi', message: 'Lỗi kết nối đến máy chủ. Vui lòng thử lại!' }
+                        detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Server connection error. Please try again!') }}' }
                     }));
                 } finally {
                     this.isLoading = false;
@@ -119,8 +119,8 @@
         {{-- Header --}}
         <div class="flex items-center justify-between">
             <div class="flex flex-col gap-1">
-                <h1 class="text-xl sm:text-2xl font-bold text-app-text">Nạp tiền</h1>
-                <p class="text-app-muted text-xs sm:text-sm">Nạp tiền vào tài khoản để sử dụng dịch vụ</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-app-text">{{ __('Top Up') }}</h1>
+                <p class="text-app-muted text-xs sm:text-sm">{{ __('Top up your account to use services') }}</p>
             </div>
             <button
                 @click="if(topupView === 'history') { topupView = 'form'; } else { topupView = 'history'; fetchHistory(1); }"
@@ -128,7 +128,7 @@
                 class="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors">
                 <span class="material-symbols-outlined text-[18px]"
                     x-text="topupView === 'form' ? 'history' : 'arrow_back'"></span>
-                <span x-text="topupView === 'form' ? 'Lịch sử nạp' : 'Quay lại'"></span>
+                <span x-text="topupView === 'form' ? '{{ __('Top Up History') }}' : '{{ __('Back') }}'"></span>
             </button>
         </div>
 
@@ -151,7 +151,7 @@
                                 class="material-symbols-outlined text-primary text-[28px]">account_balance_wallet</span>
                         </div>
                         <div>
-                            <p class="text-xs text-app-muted font-medium uppercase tracking-wider">Số dư hiện tại</p>
+                            <p class="text-xs text-app-muted font-medium uppercase tracking-wider">{{ __('Current Balance') }}</p>
                             <p class="text-xl sm:text-2xl font-bold text-app-text">
                                 <span x-text="new Intl.NumberFormat('vi-VN').format(balance)"></span>
                                 <span class="text-xs sm:text-sm font-medium text-app-muted">VNĐ</span>
@@ -162,7 +162,7 @@
                     {{-- Card nhập số tiền --}}
                     <div class="bg-app-surface border border-app-border rounded-xl overflow-hidden">
                         <div class="px-6 py-4 border-b border-app-border">
-                            <h2 class="text-sm sm:text-base font-bold text-app-text">Số tiền muốn nạp</h2>
+                            <h2 class="text-sm sm:text-base font-bold text-app-text">{{ __('Amount to Top Up') }}</h2>
                         </div>
                         <div class="p-6 space-y-5">
                             {{-- Input nhập số tiền --}}
@@ -170,7 +170,7 @@
                                 <input x-model="amount"
                                     @input="amount = $event.target.value.replace(/[^0-9]/g, ''); if(parseInt(amount) > 100000000) amount = '100000000'"
                                     class="w-full h-14 px-4 pr-16 rounded-xl border-2 border-primary/40 bg-app-main text-app-text placeholder:text-app-muted text-sm sm:text-base focus:border-primary focus:ring-primary transition-colors"
-                                    type="text" inputmode="numeric" placeholder="Từ: 20,000đ — Tối đa: 100,000,000đ" />
+                                    type="text" inputmode="numeric" :placeholder="'{{ __('From: 20,000đ — Max: 100,000,000đ') }}'" />
                                 <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                                     <button x-show="amount" @click="amount = ''" type="button"
                                         class="size-6 rounded-full bg-app-border hover:bg-app-muted/30 flex items-center justify-center transition-colors">
@@ -182,7 +182,7 @@
 
                             {{-- Chọn nhanh --}}
                             <div class="space-y-2">
-                                <label class="block text-xs sm:text-sm font-medium text-app-muted">Chọn nhanh</label>
+                                <label class="block text-xs sm:text-sm font-medium text-app-muted">{{ __('Quick Select') }}</label>
                                 <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
                                     @foreach([20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000] as $val)
                                         <button @click="amount = {{ $val }}"
@@ -201,7 +201,7 @@
                 <div class="lg:col-span-1 flex flex-col gap-6">
                     <div class="bg-app-surface border border-app-border rounded-xl overflow-hidden">
                         <div class="px-6 py-4 border-b border-app-border">
-                            <h2 class="text-sm sm:text-base font-bold text-app-text">Phương thức thanh toán</h2>
+                            <h2 class="text-sm sm:text-base font-bold text-app-text">{{ __('Payment Method') }}</h2>
                         </div>
                         <div class="p-6 space-y-3">
                             {{-- QR Code --}}
@@ -212,7 +212,7 @@
                                     class="w-10 h-10 shrink-0 object-contain rounded">
                                 <div class="min-w-0">
                                     <p class="text-xs sm:text-sm font-bold text-app-text truncate">QR Code</p>
-                                    <p class="text-xs text-app-muted mt-0.5 truncate">Quét mã QR ngân hàng</p>
+                                    <p class="text-xs text-app-muted mt-0.5 truncate">{{ __('Scan bank QR code') }}</p>
                                 </div>
                                 <div x-show="paymentMethod === 'qr'"
                                     class="absolute top-1/2 -translate-y-1/2 right-4 size-5 rounded-full bg-primary flex items-center justify-center shrink-0">
@@ -228,7 +228,7 @@
                                     class="w-10 h-10 shrink-0 object-contain rounded">
                                 <div class="min-w-0">
                                     <p class="text-xs sm:text-sm font-bold text-app-text truncate">VNPay</p>
-                                    <p class="text-xs text-app-muted mt-0.5 truncate">QR, ATM, Visa</p>
+                                    <p class="text-xs text-app-muted mt-0.5 truncate">{{ __('QR, ATM, Visa') }}</p>
                                 </div>
                                 <div x-show="paymentMethod === 'vnpay'"
                                     class="absolute top-1/2 -translate-y-1/2 right-4 size-5 rounded-full bg-primary flex items-center justify-center shrink-0">
@@ -260,7 +260,7 @@
                         <span class="material-symbols-outlined text-[20px]" x-show="!isLoading">add_card</span>
                         <span class="material-symbols-outlined text-[20px] animate-spin" x-show="isLoading"
                             x-cloak>autorenew</span>
-                        <span x-text="isLoading ? 'Đang tạo QR...' : 'Nạp tiền'"></span>
+                        <span x-text="isLoading ? '{{ __('Generating QR...') }}' : '{{ __('Top Up') }}'"></span>
                     </button>
                 </div>
 
@@ -282,29 +282,29 @@
                         <img :src="qrUrl" alt="VietQR" class="w-64 h-64 object-contain" />
                     </div>
                     <p class="text-xs sm:text-sm text-app-muted max-w-xs text-center px-2">
-                        Mở ứng dụng ngân hàng và quét mã bên trên. Mọi thông tin đã được điền tự động.
+                        {{ __('Open your banking app and scan the QR code above. All information is auto-filled.') }}
                     </p>
                 </div>
 
                 {{-- Chi tiết thanh toán --}}
                 <div class="w-full bg-app-surface border border-app-border rounded-xl p-5 space-y-4">
                     <div class="flex justify-between items-center pb-3 border-b border-app-border">
-                        <span class="text-xs sm:text-sm text-app-muted">Số tiền nạp:</span>
+                        <span class="text-xs sm:text-sm text-app-muted">{{ __('Top Up Amount:') }}</span>
                         <span class="font-bold text-primary text-base sm:text-lg">
                             <span x-text="new Intl.NumberFormat('vi-VN').format(amount)"></span>đ
                         </span>
                     </div>
                     <div class="flex flex-col gap-1 pb-3 border-b border-app-border">
-                        <span class="text-xs sm:text-sm text-app-muted">Nội dung chuyển khoản:</span>
+                        <span class="text-xs sm:text-sm text-app-muted">{{ __('Transfer Content:') }}</span>
                         <span class="font-bold text-app-text text-sm sm:text-base text-center tracking-wider py-1"
-                            x-text="qrDescription"></span>
+                             x-text="qrDescription"></span>
                     </div>
                     <div class="pt-1 flex items-start justify-center gap-1.5 px-2">
                         <span class="material-symbols-outlined text-[18px] text-amber-500 mt-0.5 shrink-0">info</span>
                         <span
                             class="text-[11px] sm:text-[13px] leading-snug text-amber-600 dark:text-amber-500 font-medium text-center">
-                            Vui lòng nhập <span class="underline underline-offset-2">đúng nội dung chuyển khoản</span>
-                            để hệ thống tự động cộng tiền cho bạn trong giây lát.
+                            {{ __('Please enter') }} <span class="underline underline-offset-2">{{ __('exact transfer content') }}</span>
+                            {{ __('for the system to automatically credit your account in a moment.') }}
                         </span>
                     </div>
                 </div>
@@ -314,12 +314,12 @@
                     <button @click="window.location.href = '{{ route('app.topup') }}'"
                         class="w-full flex items-center justify-center h-11 bg-primary hover:bg-primary/90 text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] gap-2">
                         <span class="material-symbols-outlined text-[20px]">check_circle</span>
-                        Đã nạp tiền
+                        {{ __('Topped Up') }}
                     </button>
                     <button @click="topupView = 'form'"
                         class="w-full flex items-center justify-center h-11 border border-app-border hover:bg-app-main text-app-text text-sm sm:text-base font-bold rounded-xl transition-colors gap-2">
                         <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-                        Trở lại
+                        {{ __('Back') }}
                     </button>
                 </div>
 
@@ -336,16 +336,17 @@
             <div x-show="transactions.length === 0 && !isLoadingHistory"
                 class="bg-app-surface border border-app-border rounded-xl p-12 flex flex-col items-center text-center">
                 <span class="material-symbols-outlined text-[48px] text-app-muted/40 mb-3">receipt_long</span>
-                <p class="text-app-muted text-sm">Chưa có giao dịch nạp tiền nào.</p>
-                <button @click="topupView = 'form'" class="mt-4 text-primary text-sm font-semibold hover:underline">Nạp
-                    tiền ngay →</button>
+                <p class="text-app-muted text-sm">{{ __('No top up transactions yet.') }}</p>
+                <button @click="topupView = 'form'" class="mt-4 text-primary text-sm font-semibold hover:underline">
+                    {{ __('Top up now →') }}
+                </button>
             </div>
 
             {{-- Danh sách giao dịch --}}
             <div x-show="transactions.length > 0"
                 class="bg-app-surface border border-app-border rounded-xl overflow-hidden">
                 <div class="px-6 py-4 border-b border-app-border">
-                    <h2 class="text-sm sm:text-base font-bold text-app-text">Lịch sử giao dịch</h2>
+                    <h2 class="text-sm sm:text-base font-bold text-app-text">{{ __('Transaction History') }}</h2>
                 </div>
                 <div class="p-6 flex flex-col items-center">
                     <div class="space-y-3 w-full">
@@ -370,7 +371,7 @@
                                     <span
                                         class="inline-flex items-center px-2 py-1 rounded text-[11px] font-bold uppercase tracking-wider shrink-0"
                                         :class="item.status === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'"
-                                        x-text="item.status === 'SUCCESS' ? 'Thành công' : 'Thất bại'">
+                                        x-text="item.status === 'SUCCESS' ? '{{ __('Success') }}' : '{{ __('Failed') }}'">
                                     </span>
                                     <div class="w-full mt-1 flex justify-end">
                                         <p class="text-xs text-app-muted truncate max-w-full inline-block"
@@ -388,7 +389,7 @@
                         class="mt-6 flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-full transition-colors disabled:opacity-50">
                         <span x-show="isLoadingHistory" class="material-symbols-outlined text-[18px] animate-spin"
                             x-cloak>autorenew</span>
-                        <span x-text="isLoadingHistory ? 'Đang tải...' : 'Tải thêm lịch sử'"></span>
+                        <span x-text="isLoadingHistory ? '{{ __('Loading...') }}' : '{{ __('Load More History') }}'"></span>
                     </button>
                 </div>
             </div>
