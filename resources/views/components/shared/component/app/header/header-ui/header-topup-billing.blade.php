@@ -2,7 +2,8 @@
     Component hiển thị số dư và menu liên kết nhanh đến Nạp tiền & Hóa đơn.
     Đồng bộ phong cách thiết kế với component Ngôn ngữ (Language).
     Hỗ trợ cập nhật số dư realtime thông qua sự kiện WebSocket balance-updated.
-    Tích hợp thêm tính năng quy đổi ngoại tệ VND sang USD ($) trực quan ngay tại chỗ.
+    Tích hợp thêm tính năng quy đổi ngoại tệ VND sang USD ($) trực tuyến.
+    Lấy tỷ giá thực tế từ API và tự động quy đổi hai chiều sau khi dừng nhập liệu 1 giây.
 --}}
 
 @auth
@@ -13,13 +14,74 @@
     vndAmount: '',
     usdAmount: '',
     rate: 25400,
-    vndToUsd(val) { 
-        this.vndAmount = val; 
-        this.usdAmount = val ? (parseFloat(val) / this.rate).toFixed(2) : ''; 
+    loadingRate: false,
+    timeoutId: null,
+
+    // Gọi API để lấy tỷ giá USD -> VND mới nhất
+    async fetchRate() {
+        this.loadingRate = true;
+        try {
+            let response = await fetch('https://open.er-api.com/v6/latest/USD');
+            let data = await response.json();
+            if (data && data.rates && data.rates.VND) {
+                this.rate = data.rates.VND;
+            }
+        } catch (error) {
+            console.error('Lỗi khi lấy tỷ giá từ API:', error);
+        } finally {
+            this.loadingRate = false;
+        }
     },
-    usdToVnd(val) { 
-        this.usdAmount = val; 
-        this.vndAmount = val ? Math.round(parseFloat(val) * this.rate).toString() : ''; 
+
+    // Chuyển đổi trạng thái hiển thị giao diện quy đổi
+    async toggleExchange() {
+        this.showExchange = !this.showExchange;
+        this.vndAmount = '';
+        this.usdAmount = '';
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        
+        // Gọi API lấy tỷ giá khi vừa mở tab quy đổi
+        if (this.showExchange) {
+            await this.fetchRate();
+        }
+    },
+
+    // Xử lý khi người dùng nhập số tiền VND
+    handleVndInput(val) {
+        this.vndAmount = val.replace(/[^0-9]/g, '');
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        
+        if (!this.vndAmount) {
+            this.usdAmount = '';
+            return;
+        }
+
+        // Chờ 1 giây sau khi dừng gõ để gọi API và quy đổi
+        this.timeoutId = setTimeout(async () => {
+            await this.fetchRate();
+            if (this.vndAmount) {
+                this.usdAmount = (parseFloat(this.vndAmount) / this.rate).toFixed(2);
+            }
+        }, 1000);
+    },
+
+    // Xử lý khi người dùng nhập số tiền USD
+    handleUsdInput(val) {
+        this.usdAmount = val.replace(/[^0-9.]/g, '');
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+
+        if (!this.usdAmount) {
+            this.vndAmount = '';
+            return;
+        }
+
+        // Chờ 1 giây sau khi dừng gõ để gọi API và quy đổi
+        this.timeoutId = setTimeout(async () => {
+            await this.fetchRate();
+            if (this.usdAmount) {
+                this.vndAmount = Math.round(parseFloat(this.usdAmount) * this.rate).toString();
+            }
+        }, 1000);
     }
 }"
 @balance-updated.window="balance = $event.detail.new_balance">
@@ -66,7 +128,7 @@
             <span class="text-[11px] font-bold text-app-muted uppercase tracking-wider">{{ __('Wallet') }}</span>
             
             {{-- Nút bấm chuyển đổi giữa giao diện số dư và giao diện quy đổi VND ⇄ USD ($) --}}
-            <button @click="showExchange = !showExchange; vndAmount = ''; usdAmount = '';" 
+            <button @click="toggleExchange" 
                 class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold text-primary bg-primary/10 hover:bg-primary/20 transition-all cursor-pointer border border-primary/15">
                 <span class="material-symbols-outlined text-[13px]" x-text="showExchange ? 'arrow_back' : 'currency_exchange'"></span>
                 <span x-text="showExchange ? '{{ __('Back') }}' : 'VND ⇄ USD'"></span>
@@ -115,7 +177,11 @@
             {{-- Tiêu đề và tỷ giá tham khảo --}}
             <div class="text-center pb-1">
                 <span class="text-xs text-app-text font-bold block mb-0.5">Quy đổi ngoại tệ</span>
-                <span class="text-[10px] text-primary font-semibold">Tỷ giá: 1 USD ($) ≈ 25,400 VND</span>
+                <span class="text-[10px] text-primary font-semibold flex items-center justify-center gap-1">
+                    <span>Tỷ giá: 1 USD ($) ≈</span>
+                    <span x-text="loadingRate ? '...' : new Intl.NumberFormat('vi-VN').format(rate)"></span>
+                    <span>VND</span>
+                </span>
             </div>
 
             {{-- Form nhập số liệu quy đổi hai chiều --}}
@@ -124,7 +190,7 @@
                 <div class="flex flex-col gap-1">
                     <label class="text-[10px] font-bold text-app-muted">Số tiền VND</label>
                     <div class="relative">
-                        <input type="text" :value="vndAmount" @input="vndToUsd($event.target.value.replace(/[^0-9]/g, ''))"
+                        <input type="text" :value="vndAmount" @input="handleVndInput($event.target.value)"
                             class="w-full h-9 px-3 pr-12 rounded-lg border border-app-border bg-app-surface text-app-text text-xs focus:border-primary focus:ring-primary outline-none"
                             placeholder="Nhập VNĐ" />
                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-app-muted">VND</span>
@@ -133,14 +199,14 @@
 
                 {{-- Biểu tượng hoán đổi --}}
                 <div class="flex justify-center -my-1">
-                    <span class="material-symbols-outlined text-app-muted text-[16px]">swap_vert</span>
+                    <span class="material-symbols-outlined text-app-muted text-[16px]" :class="loadingRate ? 'animate-spin' : ''">swap_vert</span>
                 </div>
 
                 {{-- Trường nhập USD ($) --}}
                 <div class="flex flex-col gap-1">
                     <label class="text-[10px] font-bold text-app-muted">Số tiền USD ($)</label>
                     <div class="relative">
-                        <input type="text" :value="usdAmount" @input="usdToVnd($event.target.value.replace(/[^0-9.]/g, ''))"
+                        <input type="text" :value="usdAmount" @input="handleUsdInput($event.target.value)"
                             class="w-full h-9 px-3 pr-12 rounded-lg border border-app-border bg-app-surface text-app-text text-xs focus:border-primary focus:ring-primary outline-none"
                             placeholder="Nhập USD ($)" />
                         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-app-muted">USD ($)</span>
