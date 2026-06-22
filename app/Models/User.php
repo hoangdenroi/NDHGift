@@ -67,6 +67,29 @@ class User extends Authenticatable
         ];
     }
 
+    // ===== RELATIONS =====
+
+    /**
+     * Mối quan hệ: Một người dùng có nhiều giao dịch.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function transactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * Mối quan hệ: Một người dùng có thể sử dụng nhiều mã giảm giá/quà tặng.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function coupons(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Coupon::class, 'coupon_user')
+            ->withPivot('used_at');
+    }
+
     // ===== SCOPES =====
 
     /**

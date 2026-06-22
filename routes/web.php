@@ -7,6 +7,9 @@ use App\Http\Controllers\App\gift\GiftController;
 use App\Http\Controllers\App\home\HomeController;
 use App\Http\Controllers\App\profile\ProfileController;
 use App\Http\Controllers\App\support\SupportController;
+use App\Http\Controllers\App\topup\TopupController;
+use App\Http\Controllers\App\billing\BillingController;
+use App\Http\Controllers\App\coupon\CouponController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -54,12 +57,26 @@ Route::prefix('{locale}')
         Route::middleware('auth')->prefix('apps')->group(function () {
             // Các route yêu cầu đăng nhập sẽ được thêm tại đây
             Route::post('/profile', [ProfileController::class, 'update'])->name('app.profile.update');
+
+            // --- NẠP TIỀN (TOPUP) ---
+            Route::get('/topup', [TopupController::class, 'index'])->name('app.topup');
+
+            // --- HÓA ĐƠN & THANH TOÁN (BILLING) ---
+            Route::get('/billing', [BillingController::class, 'index'])->name('app.billing');
+
+            // --- MÃ GIẢM GIÁ (COUPON) ---
+            Route::post('/coupon/redeem', [CouponController::class, 'redeem'])->name('app.coupon.redeem');
+            Route::post('/api/apply-coupon', [CouponController::class, 'applyCoupon'])->name('api.apply-coupon');
         });
     });
 
 // --- API dùng Session Auth (không bị ảnh hưởng bởi locale prefix) ---
 Route::middleware('auth')->prefix('api')->group(function () {
     Route::post('v1/settings', [ProfileController::class, 'updateSettings'])->name('api.settings.update');
+    
+    // --- NẠP TIỀN API (Khớp với topup-index.blade.php) ---
+    Route::post('v1/topup/qrcode', [TopupController::class, 'getPaymentQr'])->name('api.topup.qrcode');
+    Route::get('v1/topup/history', [TopupController::class, 'history'])->name('api.topup.history');
 });
 
 require __DIR__.'/auth.php';
