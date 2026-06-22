@@ -53,8 +53,8 @@ class TopupController extends Controller
         $template = config('payment.vietqr.template', 'compact');
         $prefix = config('payment.vietqr.prefix', 'SEVQR ');
 
-        // Nội dung CK tuỳ theo User đang login
-        $description = $prefix.Auth::user()->unitcode;
+        // Nội dung CK tuỳ theo User đang login, đảm bảo phân cách bằng dấu cách
+        $description = trim($prefix).' '.Auth::user()->unitcode;
 
         // Sinh link QR từ img.vietqr.io
         $qrUrl = "https://img.vietqr.io/image/{$bankId}-{$accountNo}-{$template}.png?amount={$amount}&addInfo=".urlencode($description).'&accountName='.urlencode($accountName);
@@ -152,9 +152,9 @@ class TopupController extends Controller
             $txStatus = 'SUCCESS';
             $failureReason = null;
 
-            // Nếu là tiền vào và đúng cú pháp
+            // Nếu là tiền vào và đúng cú pháp (hỗ trợ cả viết liền hoặc viết cách)
             $prefixPattern = preg_quote(strtoupper(trim($prefix)), '/');
-            if ($validated['transferType'] === 'in' && preg_match('/'.$prefixPattern.'\s+([A-Z0-9]+)/', $transferContent, $matches)) {
+            if ($validated['transferType'] === 'in' && preg_match('/'.$prefixPattern.'\s*([A-Z0-9]+)/', $transferContent, $matches)) {
                 $unitcode = trim($matches[1]);
                 $user = User::where('unitcode', $unitcode)->first();
 

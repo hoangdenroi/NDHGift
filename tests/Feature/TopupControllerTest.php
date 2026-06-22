@@ -124,6 +124,52 @@ class TopupControllerTest extends TestCase
     }
 
     /**
+     * Test case: Nhận webhook SePay thành công khi nội dung chuyển khoản viết liền không có khoảng trắng.
+     */
+    public function test_sepay_webhook_success_no_spaces(): void
+    {
+        Event::fake([BalanceUpdated::class]);
+
+        $apiKey = config('payment.sepay.api_key', 'sepay_api_key_default');
+        $unitcode = $this->user->unitcode;
+
+        // Giả lập Webhook SePay gửi lên với nội dung viết liền "SEVQR01KVP..."
+        $response = $this->postJson('/api/v1/topup/sepay-hook', [
+            'id' => 12349, // ID giao dịch khác
+            'gateway' => 'Vietcombank',
+            'transactionDate' => '2026-06-22 10:00:00',
+            'accountNumber' => '10003179213',
+            'code' => '',
+            'content' => "SEVQR{$unitcode}", // Viết liền không có khoảng trắng
+            'transferType' => 'in',
+            'transferAmount' => 150000,
+            'accumulated' => 150000,
+            'subAccount' => '',
+            'referenceCode' => 'FT12345679',
+            'description' => 'Chuyển tiền qua QR viet lien',
+        ], [
+            'Authorization' => 'Apikey ' . $apiKey,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Giao dịch thành công',
+            ]);
+
+        // Kiểm tra số dư tài khoản tăng lên
+        $this->assertEquals(150000, $this->user->fresh()->balance);
+
+        // Kiểm tra giao dịch được ghi nhận
+        $this->assertDatabaseHas('transactions', [
+            'user_id' => $this->user->id,
+            'amount' => 150000,
+            'status' => 'SUCCESS',
+            'gateway_transaction_id' => '12349',
+        ]);
+    }
+
+    /**
      * Test case: Webhook SePay bị từ chối do sai Authorization API key.
      */
     public function test_sepay_webhook_invalid_authorization(): void
