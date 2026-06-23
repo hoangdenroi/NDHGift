@@ -142,6 +142,32 @@
                             <h3 class="text-base font-bold text-app-text">{{ $user->fullname }}</h3>
                             <p class="text-sm text-app-muted mt-0.5">{{ $user->email }}</p>
                         </div>
+                        @php
+                            $leftProgress = app(\App\Services\UserLevelService::class)->calculateProgress($user);
+                            $leftTierConfig = app(\App\Services\UserLevelService::class)->getTierBenefits($user->current_tier);
+                        @endphp
+                        <div class="flex flex-col items-center gap-1.5 w-full">
+                            <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider flex items-center gap-1"
+                                  style="background-color: {{ $leftTierConfig['color'] }}15; color: {{ $leftTierConfig['color'] }}">
+                                <span>{{ $leftTierConfig['icon'] }}</span>
+                                <span>{{ $leftTierConfig['label'] }}</span>
+                                @if($user->is_tier_frozen)
+                                    <span class="material-symbols-outlined text-[12px] animate-pulse" title="Tài khoản bị đóng băng">ac_unit</span>
+                                @endif
+                            </span>
+                            
+                            {{-- Thanh XP nhỏ gọn --}}
+                            @if(!$leftProgress['is_max'])
+                                <div class="w-2/3 flex flex-col gap-1 mt-1">
+                                    <div class="w-full h-1.5 bg-app-main border border-app-border rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full" style="width: {{ $leftProgress['percent'] }}%"></div>
+                                    </div>
+                                    <span class="text-[9px] text-app-muted text-center">{{ number_format($user->current_xp) }} / {{ number_format($leftProgress['next_tier_xp']) }} XP</span>
+                                </div>
+                            @else
+                                <span class="text-[9px] text-green-500 font-bold tracking-wider uppercase mt-1">MAX LEVEL</span>
+                            @endif
+                        </div>
                         <div class="w-full flex flex-col gap-2 pt-2 border-t border-app-border">
                             <div class="flex items-center justify-between text-sm">
                                 <span class="text-app-muted">{{ __('Balance') }}</span>
@@ -303,6 +329,25 @@
                             </span>
                         </a>
 
+                        {{-- Cấp bậc & Affiliate --}}
+                        <a href="#" @click.prevent="setActiveAction('level-affiliate')"
+                            class="flex items-center justify-between px-6 py-5 hover:bg-primary/5 transition-all duration-300 group">
+                            <div class="flex items-center gap-4">
+                                <span
+                                    class="material-symbols-outlined text-[24px] text-app-muted group-hover:text-primary transition-colors duration-300">
+                                    military_tech
+                                </span>
+                                <span
+                                    class="text-[15px] font-semibold text-app-text group-hover:text-primary transition-colors duration-300">
+                                    {{ __('Level & Affiliate') }}
+                                </span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-[22px] text-app-muted group-hover:text-primary group-hover:translate-x-1 transition-all duration-300">
+                                chevron_right
+                            </span>
+                        </a>
+
                         {{-- Cài đặt --}}
                         <a href="#" @click.prevent="setActiveAction('setting')"
                             class="flex items-center justify-between px-6 py-5 hover:bg-primary/5 transition-all duration-300 group">
@@ -388,6 +433,11 @@
                     {{-- Hóa đơn --}}
                     <div x-show="activeAction === 'billing'" x-cloak class="animate-fade-in">
                         @include('components.pages.app.profile.profile-menu.billing.billing')
+                    </div>
+
+                    {{-- Cấp bậc & Affiliate --}}
+                    <div x-show="activeAction === 'level-affiliate'" x-cloak class="animate-fade-in">
+                        @include('components.pages.app.profile.profile-menu.level-affiliate.level-affiliate')
                     </div>
 
                     {{-- Cài đặt --}}

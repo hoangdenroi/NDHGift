@@ -20,8 +20,12 @@ class RegisteredUserController extends Controller
     /**
      * Hiển thị giao diện đăng ký.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        if ($request->has('ref')) {
+            session(['affiliate_ref' => $request->query('ref')]);
+        }
+
         return view('components.pages.auth.register');
     }
 
@@ -76,6 +80,29 @@ class RegisteredUserController extends Controller
                 ],
             ],
         ]);
+
+        // Cộng XP đăng ký tài khoản mới cho chính User mới
+        try {
+            $registerXp = (int) config('levels.xp_rules.register.xp', 50);
+            if ($registerXp > 0) {
+                app(\App\Services\UserLevelService::class)->awardXp($user, 'register', $registerXp);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi khi cộng XP chào mừng đăng ký: ' . $e->getMessage());
+        }
+
+        // Xử lý giới thiệu (Affiliate)
+        $refCode = $request->input('ref') ?: session('affiliate_ref');
+        if ($refCode) {
+            $referrer = User::where('affiliate_code', $refCode)->first();
+            if ($referrer && $referrer->id !== $user->id) {
+                $user->update(['referred_by' => $referrer->id]);
+
+                // Phát sự kiện giới thiệu thành công
+                event(new \App\Events\UserReferred($referrer, $user));
+            }
+            session()->forget('affiliate_ref');
+        }
 
         event(new Registered($user));
 

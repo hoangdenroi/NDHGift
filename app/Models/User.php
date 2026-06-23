@@ -36,6 +36,8 @@ class User extends Authenticatable
         'settings',
         'last_change_password_at',
         'last_login_at',
+        'affiliate_code',
+        'referred_by',
     ];
 
     /**
@@ -67,7 +69,61 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Tự động khởi tạo mã affiliate ngẫu nhiên khi tạo user mới.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model): void {
+            if (empty($model->affiliate_code)) {
+                $model->affiliate_code = strtoupper(\Illuminate\Support\Str::random(8));
+            }
+        });
+    }
+
     // ===== RELATIONS =====
+
+    /**
+     * Mối quan hệ: Một người dùng có một thông tin cấp độ (UserLevel).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function userLevel(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(UserLevel::class);
+    }
+
+    /**
+     * Mối quan hệ: Một người dùng có nhiều giao dịch tích lũy điểm kinh nghiệm (XP).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function xpTransactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(XpTransaction::class);
+    }
+
+    /**
+     * Mối quan hệ: Một người dùng có thể được giới thiệu bởi một người dùng khác.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function referredBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'referred_by');
+    }
+
+    /**
+     * Mối quan hệ: Một người dùng giới thiệu được nhiều người dùng khác.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function referrals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(User::class, 'referred_by');
+    }
 
     /**
      * Mối quan hệ: Một người dùng có nhiều giao dịch.
@@ -146,5 +202,48 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    // ===== LEVEL & AFFILIATE GETTERS =====
+
+    /**
+     * Getter: Lấy cấp bậc hiện tại của người dùng.
+     *
+     * @return string
+     */
+    public function getCurrentTierAttribute(): string
+    {
+        return $this->userLevel?->tier ?? 'bronze';
+    }
+
+    /**
+     * Getter: Kiểm tra xem cấp độ có đang bị đóng băng hay không.
+     *
+     * @return bool
+     */
+    public function getIsTierFrozenAttribute(): bool
+    {
+        return $this->userLevel?->is_frozen ?? false;
+    }
+
+    /**
+     * Getter: Lấy tổng số XP hiện tại của người dùng.
+     *
+     * @return int
+     */
+    public function getCurrentXpAttribute(): int
+    {
+        return $this->userLevel?->total_xp ?? 0;
+    }
+
+    /**
+     * Getter: Tạo đường dẫn affiliate cá nhân để chia sẻ.
+     *
+     * @return string
+     */
+    public function getAffiliateLinkAttribute(): string
+    {
+        $locale = session('locale', config('localization.default_locale', 'en'));
+        return url("/{$locale}/register?ref=" . $this->affiliate_code);
     }
 }

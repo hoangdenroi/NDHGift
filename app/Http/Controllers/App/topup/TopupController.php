@@ -214,7 +214,7 @@ class TopupController extends Controller
                 $metadata = ['raw_sepay_data' => $validated];
             }
 
-            Transaction::create([
+            $txn = Transaction::create([
                 'user_id' => $userId,
                 'user_identifier' => null,
                 'amount' => $validated['transferAmount'],
@@ -233,6 +233,11 @@ class TopupController extends Controller
                 'metadata' => $metadata,
                 'failure_reason' => $failureReason,
             ]);
+
+            // Phát sự kiện cộng XP & hoa hồng nếu giao dịch thành công và tìm thấy user
+            if ($txStatus === 'SUCCESS' && isset($user) && $user) {
+                event(new \App\Events\UserTopupSucceeded($user, $txn));
+            }
 
             DB::commit();
 

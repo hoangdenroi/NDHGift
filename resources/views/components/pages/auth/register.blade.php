@@ -31,6 +31,7 @@
                 }"
                 @submit="if (isTouched && !isValid) { $event.preventDefault(); window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __("Error") }}', message: '{{ __("Password does not meet security requirements.") }}' } })); }">
                 @csrf
+                <input type="hidden" name="ref" value="{{ request()->query('ref', session('affiliate_ref')) }}">
 
                 {{-- Tên đăng nhập (Username) --}}
                 {{-- <div class="space-y-1.5">

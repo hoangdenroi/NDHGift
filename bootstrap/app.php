@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/admin.php'));
         },
     )
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+        // Quét hạ cấp và đóng băng tài khoản không hoạt động hàng ngày
+        $schedule->command('app:decay-user-levels')->daily();
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         // Cấu hình Trust Proxies cho Cloudflare / Reverse Proxy
         $middleware->trustProxies(at: '*');
@@ -41,6 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\EnsureUserIsActive::class,
+            \App\Http\Middleware\InjectAdConfig::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':web',
         ]);
     })
