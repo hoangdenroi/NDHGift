@@ -243,6 +243,10 @@ class User extends Authenticatable
      */
     public function getAffiliateLinkAttribute(): string
     {
+        if (empty($this->affiliate_code)) {
+            $this->affiliate_code = strtoupper(\Illuminate\Support\Str::random(8));
+            $this->save();
+        }
         $locale = session('locale', config('localization.default_locale', 'en'));
         return url("/{$locale}/register?ref=" . $this->affiliate_code);
     }
