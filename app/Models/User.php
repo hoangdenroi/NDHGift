@@ -246,6 +246,6 @@ class User extends Authenticatable
         }
         $locale = session('locale', config('localization.default_locale', 'en'));
 
-        return url("/{$locale}/register?ref=".$this->affiliate_code);
+        return route('affiliate.share', ['locale' => $locale, 'ref' => $this->affiliate_code]);
     }
 }

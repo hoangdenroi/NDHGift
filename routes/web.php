@@ -42,6 +42,7 @@ Route::prefix('{locale}')
     ->middleware('set.locale')
     ->group(function () {
         Route::get('/', [HomeController::class, 'index'])->name('app.home.index');
+        Route::get('/share', [HomeController::class, 'share'])->name('affiliate.share');
 
         Route::prefix('apps')->group(function () {
             Route::get('/gift', [GiftController::class, 'index'])->name('app.gift.index');

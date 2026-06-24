@@ -92,21 +92,50 @@ class RegisteredUserController extends Controller
         }
 
         // Xử lý giới thiệu (Affiliate)
-        $refCode = $request->input('ref') ?: session('affiliate_ref');
+        $refCode = $request->input('ref') ?: $request->cookie('affiliate_ref') ?: session('affiliate_ref');
         if ($refCode) {
             $referrer = User::where('affiliate_code', $refCode)->first();
-            if ($referrer && $referrer->id !== $user->id) {
-                $user->update(['referred_by' => $referrer->id]);
+            if ($referrer) {
+                // 1. Kiểm tra trùng ID (tự giới thiệu trực tiếp)
+                if ($referrer->id === $user->id) {
+                    \Illuminate\Support\Facades\Log::warning("Phát hiện tự giới thiệu (Trùng ID): Người dùng ID {$user->id} tự đăng ký bằng link của chính mình.");
+                } else {
+                    // 2. Kiểm tra Cookie Tracker (Trùng thiết bị/trình duyệt từng đăng nhập tài khoản người giới thiệu)
+                    $refTracker = $request->cookie('ref_tracker');
 
-                // Phát sự kiện giới thiệu thành công
-                event(new \App\Events\UserReferred($referrer, $user));
+                    // 3. Kiểm tra trùng IP (So sánh IP đăng ký với danh sách IP trong session hoạt động của người giới thiệu)
+                    $currentIp = $request->ip();
+                    $referrerIps = \Illuminate\Support\Facades\DB::table('sessions')
+                        ->where('user_id', $referrer->id)
+                        ->pluck('ip_address')
+                        ->toArray();
+
+                    $isIpMatch = in_array($currentIp, $referrerIps, true);
+                    $isCookieMatch = ($refTracker === $referrer->affiliate_code);
+
+                    if ($isCookieMatch || $isIpMatch) {
+                        \Illuminate\Support\Facades\Log::warning("Chặn tự giới thiệu gian lận: Người dùng ID {$user->id} đăng ký qua link của ID {$referrer->id}. Trùng Cookie: " . ($isCookieMatch ? 'Có' : 'Không') . " - Trùng IP: " . ($isIpMatch ? 'Có' : 'Không') . " (IP: {$currentIp})");
+                    } else {
+                        // Thỏa mãn điều kiện an toàn, thiết lập liên kết giới thiệu
+                        $user->update(['referred_by' => $referrer->id]);
+
+                        // Phát sự kiện giới thiệu thành công (để Listeners cộng XP/thưởng)
+                        event(new \App\Events\UserReferred($referrer, $user));
+                    }
+                }
             }
+            
+            // Dọn dẹp session và cookie để tránh lặp lại
             session()->forget('affiliate_ref');
+            cookie()->queue(cookie()->forget('affiliate_ref'));
         }
 
         event(new Registered($user));
 
         Auth::login($user);
+
+        // Lưu mã định danh thiết bị/trình duyệt của người giới thiệu
+        cookie()->queue('ref_tracker', $user->affiliate_code, 60 * 24 * 365);
 
         return redirect(route('app.home.index', absolute: false));
     }

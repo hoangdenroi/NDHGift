@@ -28,6 +28,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+        if ($user) {
+            // Lưu mã định danh thiết bị/trình duyệt của người giới thiệu
+            cookie()->queue('ref_tracker', $user->affiliate_code, 60 * 24 * 365);
+        }
+
         return redirect()->intended(route('app.home.index', absolute: false));
     }
 
