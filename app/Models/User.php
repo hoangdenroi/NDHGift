@@ -204,7 +204,11 @@ class User extends Authenticatable
      */
     public function getCurrentTierAttribute(): string
     {
-        return $this->userLevel?->tier ?? 'bronze';
+        $userLevel = \Illuminate\Support\Facades\Cache::remember("user_level:{$this->id}", now()->addHours(24), function () {
+            return $this->userLevel()->first();
+        });
+
+        return $userLevel?->tier ?? 'bronze';
     }
 
     /**
@@ -212,7 +216,11 @@ class User extends Authenticatable
      */
     public function getIsTierFrozenAttribute(): bool
     {
-        return $this->userLevel?->is_frozen ?? false;
+        $userLevel = \Illuminate\Support\Facades\Cache::remember("user_level:{$this->id}", now()->addHours(24), function () {
+            return $this->userLevel()->first();
+        });
+
+        return $userLevel?->is_frozen ?? false;
     }
 
     /**
@@ -220,7 +228,11 @@ class User extends Authenticatable
      */
     public function getCurrentXpAttribute(): int
     {
-        return $this->userLevel?->total_xp ?? 0;
+        $userLevel = \Illuminate\Support\Facades\Cache::remember("user_level:{$this->id}", now()->addHours(24), function () {
+            return $this->userLevel()->first();
+        });
+
+        return $userLevel?->total_xp ?? 0;
     }
 
     /**

@@ -347,7 +347,7 @@ class UserLevelService
                 'key' => 'topup',
                 'title' => 'Nạp tiền tích lũy',
                 'description' => 'Tích lũy XP từ nạp tiền (Cứ mỗi 1.000đ nạp nhận 1 XP)',
-                'xp' => '1 XP / 1000 VND',
+                'xp' => '1 XP / 1000 đ',
                 'completed' => null,
                 'limit' => null,
                 'type' => 'unlimited',

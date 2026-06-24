@@ -61,4 +61,18 @@ class UserLevel extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Tự động xóa cache cấp độ người dùng khi thông tin thay đổi.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function ($userLevel): void {
+            \Illuminate\Support\Facades\Cache::forget("user_level:{$userLevel->user_id}");
+        });
+
+        static::deleted(function ($userLevel): void {
+            \Illuminate\Support\Facades\Cache::forget("user_level:{$userLevel->user_id}");
+        });
+    }
 }
