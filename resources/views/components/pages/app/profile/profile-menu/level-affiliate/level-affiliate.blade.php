@@ -12,7 +12,7 @@
     $xpStats = $levelService->getXpEarningStats($user);
 @endphp
 
-<div class="flex flex-col gap-6" x-data="{ showXpModal: false }">
+<div class="flex flex-col gap-6">
     {{-- Header --}}
     <div class="px-6 py-4 border-b border-app-border flex items-center gap-3">
         <button @click="setActiveAction('menu')"
@@ -51,7 +51,7 @@
                 <div class="flex items-center justify-between">
                     <span
                         class="text-xs font-semibold text-app-muted uppercase tracking-wider">{{ __('Current Tier') }}</span>
-                    <button @click="showXpModal = true"
+                    <button @click="$dispatch('open-modal', 'xp-missions-modal')"
                         class="px-2.5 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:scale-[1.03] transition-all cursor-pointer flex items-center gap-1 bg-app-main border border-app-border group"
                         style="color: {{ $tierConfig['color'] }}; border-color: {{ $tierConfig['color'] }}40"
                         title="Xem cách tăng XP">
@@ -235,111 +235,92 @@
     </div>
 
     {{-- Modal hiển thị danh sách nhiệm vụ / cách kiếm XP --}}
-    <div x-show="showXpModal" 
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         x-cloak>
+    <x-shared.ui.modal name="xp-missions-modal" maxWidth="lg">
+        {{-- Modal Header --}}
+        <div class="px-6 py-4 border-b border-app-border flex items-center justify-between bg-app-main/20">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[22px]">rocket_launch</span>
+                <h3 class="text-base font-bold text-app-text">Nhiệm Vụ Kiếm Điểm XP</h3>
+            </div>
+            <button @click="$dispatch('close-modal', 'xp-missions-modal')" 
+                    class="size-8 rounded-lg flex items-center justify-center text-app-muted hover:text-app-text hover:bg-app-main border border-transparent hover:border-app-border transition-all">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+        </div>
         
-        <div @click.outside="showXpModal = false" 
-             class="bg-app-surface border border-app-border rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-95 translate-y-4"
-             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-             x-transition:leave-end="opacity-0 scale-95 translate-y-4">
+        {{-- Modal Body --}}
+        <div class="p-6 overflow-y-auto flex flex-col gap-4 max-h-[70vh]">
+            <p class="text-xs text-app-muted leading-relaxed">
+                Tích lũy điểm kinh nghiệm (XP) để nâng cấp tài khoản của bạn. Cấp bậc càng cao, bạn càng nhận được nhiều ưu đãi giảm giá và giảm mật độ quảng cáo hiển thị trên trang web.
+            </p>
             
-            {{-- Modal Header --}}
-            <div class="px-6 py-4 border-b border-app-border flex items-center justify-between bg-app-main/20">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[22px]">rocket_launch</span>
-                    <h3 class="text-base font-bold text-app-text">Nhiệm Vụ Kiếm Điểm XP</h3>
-                </div>
-                <button @click="showXpModal = false" 
-                        class="size-8 rounded-lg flex items-center justify-center text-app-muted hover:text-app-text hover:bg-app-main border border-transparent hover:border-app-border transition-all">
-                    <span class="material-symbols-outlined text-[18px]">close</span>
-                </button>
-            </div>
-            
-            {{-- Modal Body --}}
-            <div class="p-6 overflow-y-auto flex flex-col gap-4 flex-1">
-                <p class="text-xs text-app-muted leading-relaxed">
-                    Tích lũy điểm kinh nghiệm (XP) để nâng cấp tài khoản của bạn. Cấp bậc càng cao, bạn càng nhận được nhiều ưu đãi giảm giá và giảm mật độ quảng cáo hiển thị trên trang web.
-                </p>
-                
-                <div class="flex flex-col gap-3">
-                    @foreach($xpStats as $stat)
-                        <div class="p-4 bg-app-main border border-app-border rounded-xl flex items-start justify-between gap-4 transition-all hover:border-primary/20 hover:bg-primary/5">
-                            <div class="flex items-start gap-3">
-                                <div class="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
-                                    <span class="material-symbols-outlined text-[18px]">
-                                        @if($stat['key'] === 'topup')
-                                            payments
-                                        @elseif($stat['key'] === 'gift_create')
-                                            featured_seasonal_and_gifts
-                                        @elseif($stat['key'] === 'referral_signup')
-                                            person_add
-                                        @elseif($stat['key'] === 'referral_first_deposit')
-                                            handshake
-                                        @elseif($stat['key'] === 'register')
-                                            waving_hand
-                                        @elseif($stat['key'] === 'verify_email')
-                                            verified
-                                        @else
-                                            stars
-                                        @endif
-                                    </span>
-                                </div>
-                                <div class="flex flex-col gap-0.5">
-                                    <span class="text-xs font-bold text-app-text">{{ $stat['title'] }}</span>
-                                    <span class="text-[11px] text-app-muted leading-relaxed">{{ $stat['description'] }}</span>
-                                    
-                                    {{-- Hiển thị tiến trình lượt --}}
-                                    @if($stat['type'] === 'daily')
-                                        <div class="flex items-center gap-1.5 mt-1.5">
-                                            <div class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
-                                                <div class="h-full bg-primary rounded-full" style="width: {{ min(100, ($stat['completed'] / $stat['limit']) * 100) }}%"></div>
-                                            </div>
-                                            <span class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
-                                                {{ $stat['completed'] }}/{{ $stat['limit'] }} hôm nay
-                                            </span>
-                                        </div>
-                                    @elseif($stat['type'] === 'monthly')
-                                        <div class="flex items-center gap-1.5 mt-1.5">
-                                            <div class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
-                                                <div class="h-full bg-primary rounded-full" style="width: {{ min(100, ($stat['completed'] / $stat['limit']) * 100) }}%"></div>
-                                            </div>
-                                            <span class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
-                                                {{ $stat['completed'] }}/{{ $stat['limit'] }} tháng này
-                                            </span>
-                                        </div>
-                                    @elseif($stat['type'] === 'once')
-                                        <span class="text-[9px] font-bold mt-1.5 uppercase tracking-wider px-1.5 py-0.5 rounded {{ $stat['completed'] > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10' }}">
-                                            {{ $stat['completed'] > 0 ? 'Đã nhận' : 'Chưa nhận' }}
-                                        </span>
+            <div class="flex flex-col gap-3">
+                @foreach($xpStats as $stat)
+                    <div class="p-4 bg-app-main border border-app-border rounded-xl flex items-start justify-between gap-4 transition-all hover:border-primary/20 hover:bg-primary/5">
+                        <div class="flex items-start gap-3">
+                            <div class="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
+                                <span class="material-symbols-outlined text-[18px]">
+                                    @if($stat['key'] === 'topup')
+                                        payments
+                                    @elseif($stat['key'] === 'gift_create')
+                                        featured_seasonal_and_gifts
+                                    @elseif($stat['key'] === 'referral_signup')
+                                        person_add
+                                    @elseif($stat['key'] === 'referral_first_deposit')
+                                        handshake
+                                    @elseif($stat['key'] === 'register')
+                                        waving_hand
+                                    @elseif($stat['key'] === 'verify_email')
+                                        verified
+                                    @else
+                                        stars
                                     @endif
-                                </div>
+                                </span>
                             </div>
-                            <span class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full shrink-0">
-                                {{ $stat['xp'] }}
-                            </span>
+                            <div class="flex flex-col gap-0.5">
+                                <span class="text-xs font-bold text-app-text">{{ $stat['title'] }}</span>
+                                <span class="text-[11px] text-app-muted leading-relaxed">{{ $stat['description'] }}</span>
+                                
+                                {{-- Hiển thị tiến trình lượt --}}
+                                @if($stat['type'] === 'daily')
+                                    <div class="flex items-center gap-1.5 mt-1.5">
+                                        <div class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full" style="width: {{ min(100, ($stat['completed'] / $stat['limit']) * 100) }}%"></div>
+                                        </div>
+                                        <span class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
+                                            {{ $stat['completed'] }}/{{ $stat['limit'] }} hôm nay
+                                        </span>
+                                    </div>
+                                @elseif($stat['type'] === 'monthly')
+                                    <div class="flex items-center gap-1.5 mt-1.5">
+                                        <div class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full" style="width: {{ min(100, ($stat['completed'] / $stat['limit']) * 100) }}%"></div>
+                                        </div>
+                                        <span class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
+                                            {{ $stat['completed'] }}/{{ $stat['limit'] }} tháng này
+                                        </span>
+                                    </div>
+                                @elseif($stat['type'] === 'once')
+                                    <span class="text-[9px] font-bold mt-1.5 uppercase tracking-wider px-1.5 py-0.5 rounded {{ $stat['completed'] > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10' }}">
+                                        {{ $stat['completed'] > 0 ? 'Đã nhận' : 'Chưa nhận' }}
+                                    </span>
+                                @endif
+                            </div>
                         </div>
-                    @endforeach
-                </div>
-            </div>
-            
-            {{-- Modal Footer --}}
-            <div class="px-6 py-4 border-t border-app-border flex justify-end bg-app-main/10">
-                <button @click="showXpModal = false" 
-                        class="h-9 px-4 bg-app-surface border border-app-border hover:bg-app-main text-app-text hover:border-app-border-hover font-semibold text-xs rounded-xl transition-all active:scale-[0.98]">
-                    Đóng
-                </button>
+                        <span class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full shrink-0">
+                            {{ $stat['xp'] }}
+                        </span>
+                    </div>
+                @endforeach
             </div>
         </div>
-    </div>
+        
+        {{-- Modal Footer --}}
+        <div class="px-6 py-4 border-t border-app-border flex justify-end bg-app-main/10">
+            <button @click="$dispatch('close-modal', 'xp-missions-modal')" 
+                    class="h-9 px-4 bg-app-surface border border-app-border hover:bg-app-main text-app-text hover:border-app-border-hover font-semibold text-xs rounded-xl transition-all active:scale-[0.98]">
+                Đóng
+            </button>
+        </div>
+    </x-shared.ui.modal>
 </div>
