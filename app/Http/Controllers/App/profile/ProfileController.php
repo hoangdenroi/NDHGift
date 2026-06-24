@@ -192,7 +192,8 @@ class ProfileController extends Controller
         }
 
         $transactions = $user->xpTransactions()
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->paginate(5); // Phân trang 5 dòng mỗi trang
 
         return response()->json([

@@ -6,7 +6,7 @@
     $adPercent = $levelService->getAdPercentForUser($user);
     $currentTier = $user->current_tier;
     $tierConfig = $levelService->getTierBenefits($currentTier);
-    $initialXpTransactions = $user->xpTransactions()->orderBy('created_at', 'desc')->paginate(5);
+    $initialXpTransactions = $user->xpTransactions()->orderByDesc('created_at')->orderByDesc('id')->paginate(5);
     $referralsCount = $user->referrals()->count();
     $configuredTiers = config('levels.tiers', []);
     $xpStats = $levelService->getXpEarningStats($user);
