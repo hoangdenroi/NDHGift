@@ -247,7 +247,92 @@
     <!-- Bottom Navbar dành cho mobile/tablet -->
     <x-shared.component.app.navbar.navbar-index />
 
+    {{-- Popup chúc mừng Điểm Danh Hàng Ngày --}}
+    @if(session('checkin_success'))
+        @php
+            $checkinData = session('checkin_success');
+            $streak = $checkinData['streak'] ?? 1;
+            $xpAwarded = $checkinData['xp_awarded'] ?? 10;
+        @endphp
+        <div x-data="{ open: true }" x-show="open" 
+             class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             x-cloak>
+            
+            <div @click.outside="open = false" 
+                 class="bg-app-surface border border-app-border rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col p-6 items-center text-center relative"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 scale-95 translate-y-4">
+                
+                {{-- Icon trang trí --}}
+                <div class="size-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 mb-4 animate-bounce">
+                    <span class="material-symbols-outlined text-[32px]">workspace_premium</span>
+                </div>
+                
+                <h3 class="text-lg font-extrabold text-app-text mb-1">Điểm Danh Thành Công!</h3>
+                <p class="text-xs text-app-muted mb-6 leading-relaxed">
+                    Bạn đã điểm danh ngày thứ <span class="text-amber-500 font-bold">{{ $streak }}</span> liên tiếp. Nhận ngay điểm thưởng XP!
+                </p>
+                
+                {{-- XP Awarded Display --}}
+                <div class="mb-6 flex flex-col items-center">
+                    <span class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">
+                        +{{ $xpAwarded }} XP
+                    </span>
+                    @if(($checkinData['bonus_awarded'] ?? 0) > 0)
+                        <span class="text-[10px] text-green-500 font-bold mt-1 bg-green-500/10 px-2.5 py-0.5 rounded-full border border-green-500/20">
+                            Đã cộng {{ $checkinData['bonus_awarded'] }} XP thưởng chuỗi 7 ngày!
+                        </span>
+                    @endif
+                </div>
+
+                {{-- 7-Day Streak Timeline --}}
+                <div class="w-full flex items-center justify-between gap-1 bg-app-main border border-app-border p-3.5 rounded-xl mb-6">
+                    @for($i = 1; $i <= 7; $i++)
+                        <div class="flex flex-col items-center gap-1.5 flex-1 relative">
+                            {{-- Trực quan hóa đường kết nối streak --}}
+                            @if($i < 7)
+                                <div class="absolute top-4 left-[calc(50%+10px)] right-[-50%] h-0.5 {{ $i < $streak ? 'bg-amber-500' : 'bg-app-border' }} z-0"></div>
+                            @endif
+                            
+                            {{-- Trạng thái điểm từng ngày --}}
+                            <div class="size-8 rounded-full border flex items-center justify-center z-10 transition-all duration-300
+                                {{ $i < $streak ? 'bg-amber-500/20 border-amber-500 text-amber-500' : '' }}
+                                {{ $i === $streak ? 'bg-gradient-to-tr from-amber-500 to-orange-500 border-amber-500 text-white shadow-lg shadow-amber-500/30 scale-110' : '' }}
+                                {{ $i > $streak ? 'bg-app-surface border-app-border text-app-muted' : '' }}
+                            ">
+                                @if($i === 7)
+                                    <span class="material-symbols-outlined text-[14px]">featured_seasonal_and_gifts</span>
+                                @elseif($i < $streak)
+                                    <span class="material-symbols-outlined text-[14px] font-bold">check</span>
+                                @else
+                                    <span class="text-[10px] font-bold">{{ $i }}</span>
+                                @endif
+                            </div>
+                            <span class="text-[9px] font-semibold {{ $i == $streak ? 'text-amber-500 font-bold' : 'text-app-muted' }}">
+                                T{{ $i }}
+                            </span>
+                        </div>
+                    @endfor
+                </div>
+
+                <button @click="open = false" 
+                        class="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl transition-all active:scale-[0.98] shadow-md shadow-primary/20">
+                    Tuyệt vời!
+                </button>
+            </div>
+        </div>
+    @endif
+
     @stack('scripts')
 </body>
-
 </html>

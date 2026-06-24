@@ -262,6 +262,8 @@
                                 <span class="material-symbols-outlined text-[18px]">
                                     @if($stat['key'] === 'topup')
                                         payments
+                                    @elseif($stat['key'] === 'daily_checkin')
+                                        calendar_month
                                     @elseif($stat['key'] === 'gift_create')
                                         featured_seasonal_and_gifts
                                     @elseif($stat['key'] === 'referral_signup')
@@ -298,6 +300,15 @@
                                         </div>
                                         <span class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
                                             {{ $stat['completed'] }}/{{ $stat['limit'] }} tháng này
+                                        </span>
+                                    </div>
+                                @elseif($stat['type'] === 'checkin')
+                                    <div class="flex items-center gap-2 mt-1.5">
+                                        <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded {{ $stat['completed'] > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10' }}">
+                                            {{ $stat['completed'] > 0 ? 'Đã điểm danh' : 'Chưa điểm danh' }}
+                                        </span>
+                                        <span class="text-[9px] font-semibold text-primary">
+                                            Chuỗi: {{ $stat['streak'] }}/7 ngày
                                         </span>
                                     </div>
                                 @elseif($stat['type'] === 'once')

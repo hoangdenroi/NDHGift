@@ -40,6 +40,13 @@ class InjectAdConfig
 
         if (Auth::check()) {
             $user = Auth::user();
+            
+            // Tự động điểm danh hàng ngày cho thành viên
+            $checkinResult = $this->userLevelService->checkin($user);
+            if ($checkinResult) {
+                session()->flash('checkin_success', $checkinResult);
+            }
+
             $adPercent = $this->userLevelService->getAdPercentForUser($user);
             $userTier = $user->current_tier;
             $isFrozen = $user->is_tier_frozen;

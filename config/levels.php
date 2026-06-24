@@ -80,10 +80,11 @@ return [
             'commission_percent' => 10, // Hoa hồng 10% giá trị nạp tiền lần đầu của F1 cộng vào balance
             'description' => 'Thành viên được giới thiệu thực hiện nạp tiền lần đầu',
         ],
-        'login_streak' => [
-            'xp' => 50,
+        'daily_checkin' => [
+            'xp_daily' => 10,
+            'xp_streak_bonus' => 30,
             'streak_days' => 7,
-            'description' => 'Đăng nhập liên tục 7 ngày',
+            'description' => 'Điểm danh hàng ngày tích lũy chuỗi 7 ngày',
         ],
     ],
 

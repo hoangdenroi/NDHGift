@@ -270,4 +270,105 @@ class UserLevelSystemTest extends TestCase
         $this->assertEquals(10, $this->levelService->getDiscountForUser($user));
         $this->assertEquals(40, $this->levelService->getAdPercentForUser($user));
     }
+
+    /**
+     * Test case: Kiểm tra hệ thống điểm danh hàng ngày chuỗi 7 ngày và thưởng XP.
+     */
+    public function test_daily_checkin_streak_and_awards(): void
+    {
+        $user = User::factory()->create();
+        
+        // 1. Điểm danh lần đầu (Ngày 1)
+        $result = $this->levelService->checkin($user);
+        $this->assertNotNull($result);
+        $this->assertEquals(1, $result['streak']);
+        $this->assertEquals(10, $result['xp_awarded']);
+        $this->assertEquals(0, $result['bonus_awarded']);
+        
+        // Đảm bảo total_xp cập nhật
+        $userLevel = UserLevel::where('user_id', $user->id)->first();
+        $this->assertEquals(10, $userLevel->total_xp);
+        
+        // 2. Điểm danh lại trong cùng một ngày -> Trả về null
+        $resultRepeat = $this->levelService->checkin($user);
+        $this->assertNull($resultRepeat);
+        $this->assertEquals(10, $userLevel->fresh()->total_xp);
+
+        // 3. Điểm danh tiếp ngày thứ 2 (giả lập tua thời gian sang ngày mai)
+        Carbon::setTestNow(Carbon::tomorrow());
+        $resultDay2 = $this->levelService->checkin($user);
+        $this->assertNotNull($resultDay2);
+        $this->assertEquals(2, $resultDay2['streak']);
+        $this->assertEquals(10, $resultDay2['xp_awarded']);
+        $this->assertEquals(20, $userLevel->fresh()->total_xp);
+
+        // 4. Giả lập tiếp tục điểm danh đến ngày thứ 6 (streak = 6, total_xp = 60)
+        for ($i = 3; $i <= 6; $i++) {
+            Carbon::setTestNow(Carbon::now()->addDay());
+            $this->levelService->checkin($user);
+        }
+        $this->assertEquals(6, $userLevel->fresh()->checkin_streak);
+        $this->assertEquals(60, $userLevel->fresh()->total_xp);
+
+        // 5. Điểm danh ngày thứ 7 (Nhận 10 + 30 bonus = 40 XP)
+        Carbon::setTestNow(Carbon::now()->addDay());
+        $resultDay7 = $this->levelService->checkin($user);
+        $this->assertNotNull($resultDay7);
+        $this->assertEquals(7, $resultDay7['streak']);
+        $this->assertEquals(40, $resultDay7['xp_awarded']);
+        $this->assertEquals(30, $resultDay7['bonus_awarded']);
+        $this->assertEquals(100, $userLevel->fresh()->total_xp);
+
+        // 6. Điểm danh ngày thứ 8 (streak reset về 1, nhận lại 10 XP)
+        Carbon::setTestNow(Carbon::now()->addDay());
+        $resultDay8 = $this->levelService->checkin($user);
+        $this->assertNotNull($resultDay8);
+        $this->assertEquals(1, $resultDay8['streak']);
+        $this->assertEquals(10, $resultDay8['xp_awarded']);
+        $this->assertEquals(110, $userLevel->fresh()->total_xp);
+
+        // 7. Điểm danh ngắt quãng (Bỏ qua 1 ngày, chênh lệch 2 ngày, streak reset về 1)
+        Carbon::setTestNow(Carbon::now()->addDays(2)); // Chênh lệch 2 ngày từ lần checkin cuối
+        $resultGap = $this->levelService->checkin($user);
+        $this->assertNotNull($resultGap);
+        $this->assertEquals(1, $resultGap['streak']);
+        $this->assertEquals(10, $resultGap['xp_awarded']);
+        $this->assertEquals(120, $userLevel->fresh()->total_xp);
+
+        // Reset thời gian giả lập
+        Carbon::setTestNow();
+    }
+
+    /**
+     * Test case: Kiểm tra Middleware tự động điểm danh khi user truy cập.
+     */
+    public function test_middleware_auto_checkin(): void
+    {
+        $user = User::factory()->create();
+        
+        // Điền trước thông tin UserLevel
+        UserLevel::create([
+            'user_id' => $user->id,
+            'total_xp' => 0,
+            'tier' => 'bronze',
+            'checkin_streak' => 0,
+            'last_checked_in_at' => null,
+            'is_frozen' => false,
+            'last_xp_earned_at' => now()->subDays(5),
+        ]);
+
+        // Gửi request truy cập trang profile (có áp dụng InjectAdConfig qua web auth)
+        $response = $this->actingAs($user)->get('/vi/apps/profile');
+
+        // Kiểm tra xem đã có flash checkin_success trong session
+        $response->assertSessionHas('checkin_success');
+        $checkinData = session('checkin_success');
+        $this->assertEquals(1, $checkinData['streak']);
+        $this->assertEquals(10, $checkinData['xp_awarded']);
+
+        // Gửi tiếp request thứ 2 trong cùng ngày
+        $response2 = $this->actingAs($user)->get('/vi/apps/profile');
+        // Không được có flash checkin_success nữa
+        $response2->assertSessionMissing('checkin_success');
+    }
 }

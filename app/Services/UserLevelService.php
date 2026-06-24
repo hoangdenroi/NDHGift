@@ -335,7 +335,27 @@ class UserLevelService
             ->where('source', 'verify_email')
             ->exists() ? 1 : 0;
 
+        // 5. daily_checkin: Lấy streak hiện tại và trạng thái hôm nay
+        $userLevel = UserLevel::where('user_id', $user->id)->first();
+        $hasCheckedInToday = false;
+        $currentStreak = 0;
+        if ($userLevel) {
+            $currentStreak = $userLevel->checkin_streak;
+            $hasCheckedInToday = $userLevel->last_checked_in_at 
+                && \Carbon\Carbon::parse($userLevel->last_checked_in_at)->isSameDay(\Carbon\Carbon::today());
+        }
+
         return [
+            [
+                'key' => 'daily_checkin',
+                'title' => 'Điểm danh hàng ngày',
+                'description' => $xpRules['daily_checkin']['description'] ?? 'Điểm danh liên tiếp để nhận thưởng chuỗi 7 ngày',
+                'xp' => '10 XP / ngày (Ngày 7: +30 XP)',
+                'completed' => $hasCheckedInToday ? 1 : 0,
+                'limit' => 1,
+                'streak' => $currentStreak,
+                'type' => 'checkin'
+            ],
             [
                 'key' => 'topup',
                 'title' => 'Nạp tiền tích lũy',
@@ -391,5 +411,105 @@ class UserLevelService
                 'type' => 'once'
             ],
         ];
+    }
+
+    /**
+     * Thực hiện điểm danh hàng ngày cho người dùng.
+     *
+     * @param User $user
+     * @return array|null Trả về thông tin điểm danh hoặc null nếu hôm nay đã điểm danh
+     */
+    public function checkin(User $user): ?array
+    {
+        return DB::transaction(function () use ($user) {
+            $userLevel = UserLevel::where('user_id', $user->id)->lockForUpdate()->first();
+            if (!$userLevel) {
+                $userLevel = UserLevel::create([
+                    'user_id' => $user->id,
+                    'total_xp' => 0,
+                    'tier' => 'bronze',
+                    'checkin_streak' => 0,
+                    'last_checked_in_at' => null,
+                    'is_frozen' => false,
+                    'last_xp_earned_at' => now(),
+                    'tier_achieved_at' => now(),
+                ]);
+            }
+
+            $today = \Carbon\Carbon::today();
+
+            // Nếu đã điểm danh hôm nay, bỏ qua
+            if ($userLevel->last_checked_in_at && \Carbon\Carbon::parse($userLevel->last_checked_in_at)->isSameDay($today)) {
+                return null;
+            }
+
+            $config = config('levels.xp_rules.daily_checkin', [
+                'xp_daily' => 10,
+                'xp_streak_bonus' => 30,
+                'streak_days' => 7,
+            ]);
+
+            $streak = 1;
+            if ($userLevel->last_checked_in_at) {
+                $lastCheckin = \Carbon\Carbon::parse($userLevel->last_checked_in_at)->startOfDay();
+                $yesterday = \Carbon\Carbon::yesterday()->startOfDay();
+
+                if ($lastCheckin->equalTo($yesterday)) {
+                    // Nếu điểm danh hôm qua, tiếp tục chuỗi streak
+                    $streak = ($userLevel->checkin_streak % $config['streak_days']) + 1;
+                }
+            }
+
+            $xpDaily = (int) ($config['xp_daily'] ?? 10);
+            $xpBonus = (int) ($config['xp_streak_bonus'] ?? 30);
+
+            $amount = $xpDaily;
+            $isStreakCompleted = ($streak === (int) ($config['streak_days'] ?? 7));
+            if ($isStreakCompleted) {
+                $amount += $xpBonus;
+            }
+
+            // 1. Tạo lịch sử giao dịch XP
+            XpTransaction::create([
+                'user_id' => $user->id,
+                'amount' => $amount,
+                'source' => 'daily_checkin',
+                'description' => $isStreakCompleted
+                    ? "Điểm danh ngày {$streak} (Cộng {$xpDaily} XP + thưởng chuỗi {$xpBonus} XP)"
+                    : "Điểm danh hàng ngày (Ngày {$streak}/7 - Cộng {$xpDaily} XP)",
+            ]);
+
+            // 2. Cập nhật thông tin UserLevel
+            $oldXp = $userLevel->total_xp;
+            $newXp = $oldXp + $amount;
+            $wasFrozen = $userLevel->is_frozen;
+
+            $userLevel->total_xp = $newXp;
+            $userLevel->checkin_streak = $streak;
+            $userLevel->last_checked_in_at = now();
+            $userLevel->last_xp_earned_at = now();
+
+            if ($wasFrozen) {
+                $userLevel->is_frozen = false;
+                Notification::create([
+                    'user_id' => $user->id,
+                    'scope' => 'user',
+                    'title' => 'Tài khoản đã được kích hoạt lại',
+                    'message' => "Chào mừng bạn đã hoạt động trở lại! Cấp bậc của bạn đã được mở băng và khôi phục các quyền lợi.",
+                    'type' => 'success',
+                ]);
+            }
+
+            $userLevel->save();
+
+            // 3. Đánh giá thăng cấp
+            $this->checkAndUpgradeTier($user, $userLevel);
+
+            return [
+                'streak' => $streak,
+                'xp_awarded' => $amount,
+                'bonus_awarded' => $isStreakCompleted ? $xpBonus : 0,
+            ];
+        });
     }
 }
