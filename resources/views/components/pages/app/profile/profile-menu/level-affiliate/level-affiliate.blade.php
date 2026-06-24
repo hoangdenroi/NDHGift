@@ -268,7 +268,9 @@
                                     <span class="text-xs font-semibold text-app-text break-words" x-text="tx.description"></span>
                                     <span class="text-[10px] text-app-muted" x-text="formatDate(tx.created_at)"></span>
                                 </div>
-                                <span class="text-xs font-bold text-green-500 bg-green-500/10 px-2.5 py-0.5 rounded-full shrink-0" x-text="`+${tx.amount} XP`"></span>
+                                <span class="text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0"
+                                    :class="tx.amount > 0 ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'"
+                                    x-text="tx.amount > 0 ? `+${tx.amount} XP` : `${tx.amount} XP`"></span>
                             </div>
                         </template>
                     </div>
