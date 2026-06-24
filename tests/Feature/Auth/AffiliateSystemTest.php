@@ -56,13 +56,16 @@ class AffiliateSystemTest extends TestCase
     }
 
     /**
-     * Kiểm tra chặn tự giới thiệu bằng Cookie thiết bị (ref_tracker).
+     * Kiểm tra chặn tự giới thiệu bằng Cookie thiết bị (ref_tracker) và áp dụng phạt cả 2 bên.
      */
     public function test_registration_self_referral_via_cookie_blocked(): void
     {
         $referrer = User::factory()->create([
             'affiliate_code' => 'SELFREF',
         ]);
+
+        // Cấp 100 XP ban đầu cho referrer
+        app(\App\Services\UserLevelService::class)->awardXp($referrer, 'register', 100);
 
         // Giả lập trình duyệt đã lưu cookie ref_tracker của chính người giới thiệu
         $response = $this->withSession(['affiliate_ref' => 'SELFREF'])
@@ -77,12 +80,27 @@ class AffiliateSystemTest extends TestCase
 
         $newUser = User::where('email', 'cheat@example.com')->first();
         $this->assertNotNull($newUser);
-        // Không được gán referred_by do trùng thiết bị
+        // 1. Không gán referred_by
         $this->assertNull($newUser->referred_by);
+
+        // 2. Tài khoản clone mới tạo không nhận XP chào mừng (XP = 0 hoặc null)
+        $newUserLevel = \App\Models\UserLevel::where('user_id', $newUser->id)->first();
+        $this->assertTrue(!$newUserLevel || $newUserLevel->total_xp === 0);
+
+        // 3. Tài khoản chính bị phạt trừ 50 XP (còn 100 - 50 = 50 XP)
+        $referrerLevel = \App\Models\UserLevel::where('user_id', $referrer->id)->first();
+        $this->assertEquals(50, $referrerLevel->total_xp);
+
+        // 4. Có bản ghi giao dịch phạt
+        $this->assertDatabaseHas('xp_transactions', [
+            'user_id' => $referrer->id,
+            'amount' => -50,
+            'source' => 'referral_fraud_penalty'
+        ]);
     }
 
     /**
-     * Kiểm tra chặn tự giới thiệu bằng IP thông qua truy vấn cột metadata của user.
+     * Kiểm tra chặn tự giới thiệu bằng IP thông qua truy vấn cột metadata và áp dụng phạt cả 2 bên.
      */
     public function test_registration_self_referral_via_ip_blocked(): void
     {
@@ -92,6 +110,9 @@ class AffiliateSystemTest extends TestCase
                 'recent_ips' => ['1.2.3.4']
             ]
         ]);
+
+        // Cấp 100 XP ban đầu cho referrer
+        app(\App\Services\UserLevelService::class)->awardXp($referrer, 'register', 100);
 
         // Đăng ký từ chính IP 1.2.3.4 đó
         $response = $this->withSession(['affiliate_ref' => 'IPREF'])
@@ -106,8 +127,23 @@ class AffiliateSystemTest extends TestCase
 
         $newUser = User::where('email', 'cheatip@example.com')->first();
         $this->assertNotNull($newUser);
-        // Không được gán referred_by do trùng IP hoạt động của referrer
+        // 1. Không gán referred_by
         $this->assertNull($newUser->referred_by);
+
+        // 2. Tài khoản clone mới tạo không nhận XP chào mừng
+        $newUserLevel = \App\Models\UserLevel::where('user_id', $newUser->id)->first();
+        $this->assertTrue(!$newUserLevel || $newUserLevel->total_xp === 0);
+
+        // 3. Tài khoản chính bị phạt trừ 50 XP (còn 100 - 50 = 50 XP)
+        $referrerLevel = \App\Models\UserLevel::where('user_id', $referrer->id)->first();
+        $this->assertEquals(50, $referrerLevel->total_xp);
+
+        // 4. Có bản ghi giao dịch phạt
+        $this->assertDatabaseHas('xp_transactions', [
+            'user_id' => $referrer->id,
+            'amount' => -50,
+            'source' => 'referral_fraud_penalty'
+        ]);
     }
 
     /**

@@ -35,7 +35,7 @@ class UserLevelService
      */
     public function awardXp(User $user, string $source, int $amount, ?Model $reference = null): int
     {
-        if ($amount <= 0) {
+        if ($amount === 0) {
             return $user->current_xp;
         }
 
@@ -73,6 +73,10 @@ class UserLevelService
                 ]);
             }
 
+            $desc = $amount > 0 
+                ? "Cộng {$amount} XP từ nguồn {$source}" 
+                : "Trừ " . abs($amount) . " XP do " . ($source === 'referral_fraud_penalty' ? 'gian lận tự giới thiệu' : $source);
+
             // Ghi nhận lịch sử giao dịch XP
             XpTransaction::create([
                 'user_id' => $user->id,
@@ -80,19 +84,21 @@ class UserLevelService
                 'source' => $source,
                 'reference_type' => $refType,
                 'reference_id' => $refId,
-                'description' => "Cộng {$amount} XP từ nguồn {$source}",
+                'description' => $desc,
             ]);
 
             $oldXp = $userLevel->total_xp;
-            $newXp = $oldXp + $amount;
+            $newXp = max(0, $oldXp + $amount);
             $wasFrozen = $userLevel->is_frozen;
 
             // Cập nhật XP và thời gian tương tác mới nhất
             $userLevel->total_xp = $newXp;
-            $userLevel->last_xp_earned_at = now();
+            if ($amount > 0) {
+                $userLevel->last_xp_earned_at = now();
+            }
 
             // Nếu tài khoản đang bị đóng băng (Frozen), hành động nhận XP bất kỳ sẽ kích hoạt lại
-            if ($wasFrozen) {
+            if ($wasFrozen && $amount > 0) {
                 $userLevel->is_frozen = false;
 
                 // Gửi thông báo kích hoạt lại thành công
@@ -116,17 +122,21 @@ class UserLevelService
 
             $userLevel->save();
 
-            // Log audit cộng XP
+            // Log audit cộng/trừ XP
             AuditLogService::log(
-                'award_xp',
+                $amount > 0 ? 'award_xp' : 'deduct_xp',
                 $userLevel,
                 ['total_xp' => $oldXp],
                 ['total_xp' => $newXp, 'source' => $source],
                 $user->id
             );
 
-            // Kiểm tra và thăng cấp (nếu đủ điều kiện)
-            $this->checkAndUpgradeTier($user, $userLevel);
+            // Kiểm tra và thăng cấp / hạ cấp
+            if ($amount > 0) {
+                $this->checkAndUpgradeTier($user, $userLevel);
+            } else {
+                $this->checkAndDowngradeTier($user, $userLevel);
+            }
 
             return $newXp;
         });
@@ -185,6 +195,67 @@ class UserLevelService
                 // Log audit thăng cấp
                 AuditLogService::log(
                     'upgrade_tier',
+                    $userLevel,
+                    ['tier' => $oldTier],
+                    ['tier' => $eligibleTier],
+                    $user->id
+                );
+            }
+        }
+    }
+
+    /**
+     * Kiểm tra và hạ cấp bậc cho người dùng nếu XP rớt xuống dưới mức tối thiểu của cấp hiện tại.
+     *
+     * @param  User  $user  Người dùng cần kiểm tra
+     * @param  UserLevel|null  $userLevel  Bản ghi UserLevel đã được lock (nếu có)
+     */
+    public function checkAndDowngradeTier(User $user, ?UserLevel $userLevel = null): void
+    {
+        $userLevel = $userLevel ?? UserLevel::where('user_id', $user->id)->first();
+        if (! $userLevel) {
+            return;
+        }
+
+        $totalXp = $userLevel->total_xp;
+        $currentTier = $userLevel->tier;
+        $configuredTiers = config('levels.tiers', []);
+
+        // Xác định tier cao nhất phù hợp với XP hiện tại
+        $eligibleTier = 'bronze';
+        foreach ($configuredTiers as $tierKey => $tierConfig) {
+            if ($totalXp >= $tierConfig['min_xp']) {
+                $eligibleTier = $tierKey;
+            }
+        }
+
+        // So sánh để hạ cấp
+        if ($eligibleTier !== $currentTier) {
+            $tierOrder = array_keys($configuredTiers);
+            $currentIndex = array_search($currentTier, $tierOrder);
+            $eligibleIndex = array_search($eligibleTier, $tierOrder);
+
+            if ($eligibleIndex < $currentIndex) {
+                $oldTier = $currentTier;
+                $userLevel->tier = $eligibleTier;
+                $userLevel->tier_achieved_at = now();
+                $userLevel->save();
+
+                $tierLabel = $configuredTiers[$eligibleTier]['label'] ?? $eligibleTier;
+                $tierIcon = $configuredTiers[$eligibleTier]['icon'] ?? '';
+
+                // Gửi thông báo hệ thống
+                Notification::create([
+                    'user_id' => $user->id,
+                    'scope' => 'user',
+                    'title' => 'Tài khoản của bạn đã bị hạ cấp bậc thành viên',
+                    'message' => "Do bị trừ điểm kinh nghiệm, tài khoản của bạn đã bị hạ xuống hạng {$tierIcon} {$tierLabel}.",
+                    'type' => 'warning',
+                ]);
+
+                // Log audit hạ cấp
+                AuditLogService::log(
+                    'downgrade_tier',
                     $userLevel,
                     ['tier' => $oldTier],
                     ['tier' => $eligibleTier],

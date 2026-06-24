@@ -81,29 +81,19 @@ class RegisteredUserController extends Controller
             ],
         ]);
 
-        // Cộng XP đăng ký tài khoản mới cho chính User mới
-        try {
-            $registerXp = (int) config('levels.xp_rules.register.xp', 50);
-            if ($registerXp > 0) {
-                app(\App\Services\UserLevelService::class)->awardXp($user, 'register', $registerXp);
-            }
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Lỗi khi cộng XP chào mừng đăng ký: ' . $e->getMessage());
-        }
-
-        // Xử lý giới thiệu (Affiliate)
+        // 1. Phân tích Affiliate (Kiểm tra xem có gian lận tự giới thiệu hay không)
+        $isFraud = false;
+        $referrer = null;
         $refCode = $request->input('ref') ?: $request->cookie('affiliate_ref') ?: session('affiliate_ref');
+        
         if ($refCode) {
             $referrer = User::where('affiliate_code', $refCode)->first();
             if ($referrer) {
-                // 1. Kiểm tra trùng ID (tự giới thiệu trực tiếp)
                 if ($referrer->id === $user->id) {
+                    $isFraud = true;
                     \Illuminate\Support\Facades\Log::warning("Phát hiện tự giới thiệu (Trùng ID): Người dùng ID {$user->id} tự đăng ký bằng link của chính mình.");
                 } else {
-                    // 2. Kiểm tra Cookie Tracker (Trùng thiết bị/trình duyệt từng đăng nhập tài khoản người giới thiệu)
                     $refTracker = $request->cookie('ref_tracker');
-
-                    // 3. Kiểm tra trùng IP (So sánh IP đăng ký với danh sách IP trong metadata hoạt động của người giới thiệu)
                     $currentIp = $request->ip();
                     $referrerMetadata = $referrer->metadata ?? [];
                     $referrerIps = $referrerMetadata['recent_ips'] ?? [];
@@ -112,17 +102,46 @@ class RegisteredUserController extends Controller
                     $isCookieMatch = ($refTracker === $referrer->affiliate_code);
 
                     if ($isCookieMatch || $isIpMatch) {
-                        \Illuminate\Support\Facades\Log::warning("Chặn tự giới thiệu gian lận: Người dùng ID {$user->id} đăng ký qua link của ID {$referrer->id}. Trùng Cookie: " . ($isCookieMatch ? 'Có' : 'Không') . " - Trùng IP: " . ($isIpMatch ? 'Có' : 'Không') . " (IP: {$currentIp})");
-                    } else {
-                        // Thỏa mãn điều kiện an toàn, thiết lập liên kết giới thiệu
-                        $user->update(['referred_by' => $referrer->id]);
-
-                        // Phát sự kiện giới thiệu thành công (để Listeners cộng XP/thưởng)
-                        event(new \App\Events\UserReferred($referrer, $user));
+                        $isFraud = true;
+                        \Illuminate\Support\Facades\Log::warning("Phát hiện tự giới thiệu gian lận: Người dùng ID {$user->id} đăng ký qua link của ID {$referrer->id}. Trùng Cookie: " . ($isCookieMatch ? 'Có' : 'Không') . " - Trùng IP: " . ($isIpMatch ? 'Có' : 'Không') . " (IP: {$currentIp})");
                     }
                 }
             }
-            
+        }
+
+        // 2. Cộng XP đăng ký tài khoản mới cho chính User mới
+        try {
+            $registerXp = $isFraud ? 0 : (int) config('levels.xp_rules.register.xp', 50);
+            if ($registerXp > 0) {
+                app(\App\Services\UserLevelService::class)->awardXp($user, 'register', $registerXp);
+            } else if ($isFraud) {
+                \Illuminate\Support\Facades\Log::info("Không cộng XP chào mừng cho tài khoản clone ID {$user->id} do tự giới thiệu gian lận.");
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Lỗi khi cộng XP chào mừng đăng ký: ' . $e->getMessage());
+        }
+
+        // 3. Xử lý gán referred_by hoặc Phạt tài khoản chính
+        if ($refCode && $referrer) {
+            if ($isFraud) {
+                // Phạt trừ 50 XP của tài khoản chính (referrer)
+                try {
+                    app(\App\Services\UserLevelService::class)->awardXp(
+                        $referrer,
+                        'referral_fraud_penalty',
+                        -50
+                    );
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error("Lỗi khi phạt trừ XP tài khoản chính ID {$referrer->id}: " . $e->getMessage());
+                }
+            } else {
+                // Thỏa mãn điều kiện an toàn, thiết lập liên kết giới thiệu
+                $user->update(['referred_by' => $referrer->id]);
+
+                // Phát sự kiện giới thiệu thành công (để Listeners cộng XP/thưởng)
+                event(new \App\Events\UserReferred($referrer, $user));
+            }
+
             // Dọn dẹp session và cookie để tránh lặp lại
             session()->forget('affiliate_ref');
             cookie()->queue(cookie()->forget('affiliate_ref'));
