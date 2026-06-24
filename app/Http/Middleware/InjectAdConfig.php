@@ -45,6 +45,7 @@ class InjectAdConfig
             $checkinResult = $this->userLevelService->checkin($user);
             if ($checkinResult) {
                 session()->flash('checkin_success', $checkinResult);
+                session()->put('checkin_success_shown', false);
             }
 
             $adPercent = $this->userLevelService->getAdPercentForUser($user);

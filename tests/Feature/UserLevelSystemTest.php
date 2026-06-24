@@ -365,6 +365,9 @@ class UserLevelSystemTest extends TestCase
         $checkinData = session('checkin_success');
         $this->assertEquals(1, $checkinData['streak']);
         $this->assertEquals(10, $checkinData['xp_awarded']);
+        
+        // Cờ checkin_success_shown phải được thiết lập thành true sau khi render view
+        $this->assertTrue(session('checkin_success_shown'));
 
         // Gửi tiếp request thứ 2 trong cùng ngày
         $response2 = $this->actingAs($user)->get('/vi/apps/profile');

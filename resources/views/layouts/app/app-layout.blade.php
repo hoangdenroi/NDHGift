@@ -248,11 +248,12 @@
     <x-shared.component.app.navbar.navbar-index />
 
     {{-- Popup chúc mừng Điểm Danh Hàng Ngày --}}
-    @if(session('checkin_success'))
+    @if(session('checkin_success') && !session('checkin_success_shown'))
         @php
             $checkinData = session('checkin_success');
             $streak = $checkinData['streak'] ?? 1;
             $xpAwarded = $checkinData['xp_awarded'] ?? 10;
+            session(['checkin_success_shown' => true]);
         @endphp
         <div x-data="{ open: true }" x-show="open" 
              class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
