@@ -177,4 +177,31 @@ class ProfileController extends Controller
             'message' => 'Cập nhật cấu hình thành công!',
         ]);
     }
+
+    /**
+     * Lấy danh sách giao dịch điểm kinh nghiệm (XP) phân trang.
+     */
+    public function xpTransactions(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yêu cầu đăng nhập.',
+            ], 401);
+        }
+
+        $transactions = $user->xpTransactions()
+            ->orderBy('created_at', 'desc')
+            ->paginate(5); // Phân trang 5 dòng mỗi trang
+
+        return response()->json([
+            'success' => true,
+            'data' => $transactions->items(),
+            'current_page' => $transactions->currentPage(),
+            'last_page' => $transactions->lastPage(),
+            'total' => $transactions->total(),
+            'per_page' => $transactions->perPage(),
+        ]);
+    }
 }

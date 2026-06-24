@@ -374,4 +374,47 @@ class UserLevelSystemTest extends TestCase
         // Không được có flash checkin_success nữa
         $response2->assertSessionMissing('checkin_success');
     }
+
+    /**
+     * Test case: Kiểm tra API phân trang lịch sử giao dịch XP.
+     */
+    public function test_xp_transactions_pagination_api(): void
+    {
+        $user = User::factory()->create();
+
+        // Tạo sẵn 7 giao dịch XP cho user (cộng với 1 giao dịch Welcome XP mặc định khi đăng ký là 8)
+        for ($i = 1; $i <= 7; $i++) {
+            XpTransaction::create([
+                'user_id' => $user->id,
+                'amount' => 10,
+                'source' => 'test',
+                'description' => "Giao dịch XP thứ {$i}",
+            ]);
+        }
+
+        // Gọi API phân trang lấy trang 1 (mỗi trang 5 dòng)
+        $response = $this->actingAs($user)->getJson('/api/v1/profile/xp-transactions?page=1');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'data',
+                'current_page',
+                'last_page',
+                'total',
+                'per_page',
+            ])
+            ->assertJsonPath('success', true)
+            ->assertJsonCount(5, 'data')
+            ->assertJsonPath('current_page', 1)
+            ->assertJsonPath('last_page', 2)
+            ->assertJsonPath('total', 8);
+
+        // Gọi API lấy trang 2
+        $response2 = $this->actingAs($user)->getJson('/api/v1/profile/xp-transactions?page=2');
+
+        $response2->assertStatus(200)
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('current_page', 2);
+    }
 }

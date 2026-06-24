@@ -73,6 +73,7 @@ Route::prefix('{locale}')
 // --- API dùng Session Auth (không bị ảnh hưởng bởi locale prefix) ---
 Route::middleware('auth')->prefix('api')->group(function () {
     Route::post('v1/settings', [ProfileController::class, 'updateSettings'])->name('api.settings.update');
+    Route::get('v1/profile/xp-transactions', [ProfileController::class, 'xpTransactions'])->name('api.profile.xp_transactions');
     
     // --- NẠP TIỀN API (Khớp với topup-index.blade.php) ---
     Route::post('v1/topup/qrcode', [TopupController::class, 'getPaymentQr'])->name('api.topup.qrcode');

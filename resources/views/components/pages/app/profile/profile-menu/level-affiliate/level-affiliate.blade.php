@@ -6,7 +6,7 @@
     $adPercent = $levelService->getAdPercentForUser($user);
     $currentTier = $user->current_tier;
     $tierConfig = $levelService->getTierBenefits($currentTier);
-    $xpTransactions = $user->xpTransactions()->orderBy('created_at', 'desc')->take(8)->get();
+    $initialXpTransactions = $user->xpTransactions()->orderBy('created_at', 'desc')->paginate(5);
     $referralsCount = $user->referrals()->count();
     $configuredTiers = config('levels.tiers', []);
     $xpStats = $levelService->getXpEarningStats($user);
@@ -205,32 +205,96 @@
         </div>
 
         {{-- 4. Lịch sử nhận XP (XP Log) --}}
-        <div class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col gap-4 shadow-sm">
+        <div x-data="{
+            transactions: @js($initialXpTransactions->items()),
+            currentPage: 1,
+            lastPage: @js($initialXpTransactions->lastPage()),
+            total: @js($initialXpTransactions->total()),
+            isLoading: false,
+            async fetchPage(page) {
+                if (page < 1 || page > this.lastPage || this.isLoading) return;
+                this.isLoading = true;
+                try {
+                    const response = await fetch(`/api/v1/profile/xp-transactions?page=${page}`);
+                    const res = await response.json();
+                    if (res.success) {
+                        this.transactions = res.data;
+                        this.currentPage = res.current_page;
+                        this.lastPage = res.last_page;
+                        this.total = res.total;
+                    }
+                } catch (e) {
+                    console.error('Error fetching XP transactions:', e);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+            formatDate(dateString) {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${hours}:${minutes} ${day}/${month}/${year}`;
+            }
+        }" class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col gap-4 shadow-sm col-span-1 md:col-span-2">
             <h3 class="text-sm font-bold text-app-text border-b border-app-border pb-3 flex items-center gap-2">
                 <span class="material-symbols-outlined text-blue-500 text-[20px]">history</span>
                 {{ __('XP Transaction History') }}
             </h3>
 
-            @if($xpTransactions->isEmpty())
-                <div class="flex flex-col items-center justify-center py-10 text-center">
-                    <span class="material-symbols-outlined text-app-muted/30 text-5xl mb-2 select-none">database</span>
-                    <p class="text-xs text-app-muted">{{ __('No XP transactions recorded yet.') }}</p>
+            {{-- Vùng chứa danh sách và Loading overlay --}}
+            <div class="relative min-h-[150px] flex flex-col justify-between">
+                <div x-show="isLoading" class="absolute inset-0 bg-app-surface/60 backdrop-blur-[1px] flex items-center justify-center z-10" x-cloak>
+                    <div class="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
-            @else
-                <div class="flex flex-col divide-y divide-app-border/60">
-                    @foreach($xpTransactions as $tx)
-                        <div class="py-3 flex items-center justify-between first:pt-0 last:pb-0">
-                            <div class="flex flex-col gap-0.5">
-                                <span class="text-xs font-semibold text-app-text">{{ $tx->description }}</span>
-                                <span class="text-[10px] text-app-muted">{{ $tx->created_at->format('H:i d/m/Y') }}</span>
+
+                {{-- Empty State --}}
+                <template x-if="transactions.length === 0">
+                    <div class="flex flex-col items-center justify-center py-10 text-center flex-1">
+                        <span class="material-symbols-outlined text-app-muted/30 text-5xl mb-2 select-none">database</span>
+                        <p class="text-xs text-app-muted">{{ __('No XP transactions recorded yet.') }}</p>
+                    </div>
+                </template>
+
+                {{-- Transaction List --}}
+                <template x-if="transactions.length > 0">
+                    <div class="flex flex-col divide-y divide-app-border/60 flex-1">
+                        <template x-for="tx in transactions" :key="tx.id">
+                            <div class="py-3 flex items-center justify-between first:pt-0 last:pb-0">
+                                <div class="flex flex-col gap-0.5 min-w-0 flex-1 pr-4">
+                                    <span class="text-xs font-semibold text-app-text break-words" x-text="tx.description"></span>
+                                    <span class="text-[10px] text-app-muted" x-text="formatDate(tx.created_at)"></span>
+                                </div>
+                                <span class="text-xs font-bold text-green-500 bg-green-500/10 px-2.5 py-0.5 rounded-full shrink-0" x-text="`+${tx.amount} XP`"></span>
                             </div>
-                            <span class="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full shrink-0">
-                                +{{ $tx->amount }} XP
-                            </span>
-                        </div>
-                    @endforeach
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            {{-- Pagination Controls --}}
+            <template x-if="lastPage > 1">
+                <div class="flex items-center justify-between border-t border-app-border pt-4 mt-2">
+                    <button @click="fetchPage(currentPage - 1)" 
+                            :disabled="currentPage === 1 || isLoading" 
+                            class="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-app-border hover:bg-primary/5 hover:border-primary/30 text-xs font-semibold text-app-text disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all select-none">
+                        <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+                        <span>{{ __('Previous') }}</span>
+                    </button>
+
+                    <span class="text-[11px] font-semibold text-app-muted select-none" x-text="`{{ __('Page') }} ${currentPage} / ${lastPage}`"></span>
+
+                    <button @click="fetchPage(currentPage + 1)" 
+                            :disabled="currentPage === lastPage || isLoading" 
+                            class="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-app-border hover:bg-primary/5 hover:border-primary/30 text-xs font-semibold text-app-text disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all select-none">
+                        <span>{{ __('Next') }}</span>
+                        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                    </button>
                 </div>
-            @endif
+            </template>
         </div>
     </div>
 
