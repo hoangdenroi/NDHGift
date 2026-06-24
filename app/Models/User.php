@@ -7,8 +7,13 @@ namespace App\Models;
 use App\Models\Traits\HasUnitcode;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -78,7 +83,7 @@ class User extends Authenticatable
 
         static::creating(function ($model): void {
             if (empty($model->affiliate_code)) {
-                $model->affiliate_code = strtoupper(\Illuminate\Support\Str::random(8));
+                $model->affiliate_code = strtoupper(Str::random(8));
             }
         });
     }
@@ -87,60 +92,48 @@ class User extends Authenticatable
 
     /**
      * Mối quan hệ: Một người dùng có một thông tin cấp độ (UserLevel).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function userLevel(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function userLevel(): HasOne
     {
         return $this->hasOne(UserLevel::class);
     }
 
     /**
      * Mối quan hệ: Một người dùng có nhiều giao dịch tích lũy điểm kinh nghiệm (XP).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function xpTransactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function xpTransactions(): HasMany
     {
         return $this->hasMany(XpTransaction::class);
     }
 
     /**
      * Mối quan hệ: Một người dùng có thể được giới thiệu bởi một người dùng khác.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function referredBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function referredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'referred_by');
     }
 
     /**
      * Mối quan hệ: Một người dùng giới thiệu được nhiều người dùng khác.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function referrals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function referrals(): HasMany
     {
         return $this->hasMany(User::class, 'referred_by');
     }
 
     /**
      * Mối quan hệ: Một người dùng có nhiều giao dịch.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function transactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
     }
 
     /**
      * Mối quan hệ: Một người dùng có thể sử dụng nhiều mã giảm giá/quà tặng.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function coupons(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function coupons(): BelongsToMany
     {
         return $this->belongsToMany(Coupon::class, 'coupon_user')
             ->withPivot('used_at');
@@ -208,8 +201,6 @@ class User extends Authenticatable
 
     /**
      * Getter: Lấy cấp bậc hiện tại của người dùng.
-     *
-     * @return string
      */
     public function getCurrentTierAttribute(): string
     {
@@ -218,8 +209,6 @@ class User extends Authenticatable
 
     /**
      * Getter: Kiểm tra xem cấp độ có đang bị đóng băng hay không.
-     *
-     * @return bool
      */
     public function getIsTierFrozenAttribute(): bool
     {
@@ -228,8 +217,6 @@ class User extends Authenticatable
 
     /**
      * Getter: Lấy tổng số XP hiện tại của người dùng.
-     *
-     * @return int
      */
     public function getCurrentXpAttribute(): int
     {
@@ -238,16 +225,15 @@ class User extends Authenticatable
 
     /**
      * Getter: Tạo đường dẫn affiliate cá nhân để chia sẻ.
-     *
-     * @return string
      */
     public function getAffiliateLinkAttribute(): string
     {
         if (empty($this->affiliate_code)) {
-            $this->affiliate_code = strtoupper(\Illuminate\Support\Str::random(8));
+            $this->affiliate_code = strtoupper(Str::random(8));
             $this->save();
         }
         $locale = session('locale', config('localization.default_locale', 'en'));
-        return url("/{$locale}/register?ref=" . $this->affiliate_code);
+
+        return url("/{$locale}/register?ref=".$this->affiliate_code);
     }
 }

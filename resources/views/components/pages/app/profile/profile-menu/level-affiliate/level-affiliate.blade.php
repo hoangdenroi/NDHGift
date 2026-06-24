@@ -12,20 +12,23 @@
 
 <div class="flex flex-col gap-6">
     {{-- Header --}}
-    <div class="flex items-center justify-between border-b border-app-border pb-4">
-        <div>
-            <h2 class="text-lg font-bold text-app-text">{{ __('Level & Affiliate') }}</h2>
-            <p class="text-sm text-app-muted mt-0.5">{{ __('Track your account level benefits and refer friends to earn rewards') }}</p>
-        </div>
-        <button @click="setActiveAction('menu')" class="h-9 px-4 bg-app-main border border-app-border text-app-text hover:bg-primary/5 hover:border-primary/30 font-semibold text-xs rounded-xl transition-all active:scale-[0.98] flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-            {{ __('Back to Menu') }}
+    <div class="px-6 py-4 border-b border-app-border flex items-center gap-3">
+        <button @click="setActiveAction('menu')"
+            class="flex items-center justify-center size-9 rounded-lg border border-app-border hover:bg-primary/5 hover:border-primary/30 transition-all text-app-muted hover:text-primary active:scale-95">
+            <span class="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
+        <div>
+            <h2 class="text-base font-bold text-app-text">{{ __('Level & Affiliate') }}</h2>
+            <p class="text-sm text-app-muted mt-0.5">
+                {{ __('Track your account level benefits and refer friends to earn rewards') }}
+            </p>
+        </div>
     </div>
 
     {{-- Alert trạng thái tài khoản bị đóng băng (Frozen) --}}
     @if($user->is_tier_frozen)
-        <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-start gap-3 animate-pulse">
+        <div
+            class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-start gap-3 animate-pulse">
             <span class="material-symbols-outlined text-[24px] shrink-0">ac_unit</span>
             <div class="text-sm">
                 <span class="font-bold">{{ __('Your account tier is currently frozen!') }}</span>
@@ -40,24 +43,28 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {{-- 1. Thẻ Cấp Bậc (Tier Card) --}}
-        <div class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col justify-between gap-6 shadow-sm">
+        <div
+            class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col justify-between gap-6 shadow-sm">
             <div class="flex flex-col gap-4">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-app-muted uppercase tracking-wider">{{ __('Current Tier') }}</span>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider" 
-                          style="background-color: {{ $tierConfig['color'] }}15; color: {{ $tierConfig['color'] }}">
+                    <span
+                        class="text-xs font-semibold text-app-muted uppercase tracking-wider">{{ __('Current Tier') }}</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                        style="background-color: {{ $tierConfig['color'] }}15; color: {{ $tierConfig['color'] }}">
                         {{ $tierConfig['label'] ?? $currentTier }}
                     </span>
                 </div>
 
                 {{-- Visual Tier Info --}}
                 <div class="flex items-center gap-4">
-                    <span class="text-5xl select-none" style="filter: drop-shadow(0 4px 6px {{ $tierConfig['color'] }}40)">
+                    <span class="text-5xl select-none"
+                        style="filter: drop-shadow(0 4px 6px {{ $tierConfig['color'] }}40)">
                         {{ $tierConfig['icon'] ?? '🥉' }}
                     </span>
                     <div class="flex flex-col">
                         <span class="text-xl font-bold text-app-text">{{ $tierConfig['label'] }}</span>
-                        <span class="text-xs text-app-muted mt-0.5">{{ __('Accumulated XP:') }} <strong class="text-app-text">{{ number_format($user->current_xp) }} XP</strong></span>
+                        <span class="text-xs text-app-muted mt-0.5">{{ __('Accumulated XP:') }} <strong
+                                class="text-app-text">{{ number_format($user->current_xp) }} XP</strong></span>
                     </div>
                 </div>
 
@@ -68,16 +75,19 @@
                         @if($progress['is_max'])
                             <span class="text-green-500 font-bold uppercase">{{ __('MAX LEVEL') }}</span>
                         @else
-                            <span class="text-app-text">{{ number_format($progress['current_xp']) }} / {{ number_format($progress['next_tier_xp']) }} XP</span>
+                            <span class="text-app-text">{{ number_format($progress['current_xp']) }} /
+                                {{ number_format($progress['next_tier_xp']) }} XP</span>
                         @endif
                     </div>
                     <div class="w-full h-3 bg-app-main border border-app-border rounded-full overflow-hidden p-0.5">
-                        <div class="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full transition-all duration-500 ease-out" 
-                             style="width: {{ $progress['percent'] }}%"></div>
+                        <div class="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full transition-all duration-500 ease-out"
+                            style="width: {{ $progress['percent'] }}%"></div>
                     </div>
                     @if(!$progress['is_max'])
                         <span class="text-[11px] text-app-muted">
-                            {{ __('Need') }} <strong>{{ number_format($progress['next_tier_xp'] - $progress['current_xp']) }} XP</strong> {{ __('more to reach') }} {{ $progress['next_tier_icon'] }} {{ $progress['next_tier_label'] }}
+                            {{ __('Need') }}
+                            <strong>{{ number_format($progress['next_tier_xp'] - $progress['current_xp']) }} XP</strong>
+                            {{ __('more to reach') }} {{ $progress['next_tier_icon'] }} {{ $progress['next_tier_label'] }}
                         </span>
                     @endif
                 </div>
@@ -85,7 +95,8 @@
 
             {{-- Quyền lợi ưu đãi --}}
             <div class="border-t border-app-border pt-4 flex flex-col gap-3">
-                <h4 class="text-xs font-bold text-app-muted uppercase tracking-wider">{{ __('Your Tier Benefits') }}</h4>
+                <h4 class="text-xs font-bold text-app-muted uppercase tracking-wider">{{ __('Your Tier Benefits') }}
+                </h4>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="p-3 bg-app-main border border-app-border rounded-xl flex items-center gap-3">
                         <span class="material-symbols-outlined text-[24px] text-orange-500">sell</span>
@@ -106,10 +117,12 @@
         </div>
 
         {{-- 2. Thẻ Giới Thiệu (Affiliate Card) --}}
-        <div class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col justify-between gap-6 shadow-sm">
+        <div
+            class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col justify-between gap-6 shadow-sm">
             <div class="flex flex-col gap-4">
-                <span class="text-xs font-semibold text-app-muted uppercase tracking-wider">{{ __('Affiliate System') }}</span>
-                
+                <span
+                    class="text-xs font-semibold text-app-muted uppercase tracking-wider">{{ __('Affiliate System') }}</span>
+
                 <div>
                     <h3 class="text-base font-bold text-app-text">{{ __('Invite Friends & Earn Rewards') }}</h3>
                     <p class="text-xs text-app-muted mt-1 leading-relaxed">
@@ -129,12 +142,14 @@
                 }">
                     <label class="text-xs font-semibold text-app-muted">{{ __('Your Referral Link') }}</label>
                     <div class="flex items-center gap-2">
-                        <div class="flex-1 bg-app-main border border-app-border rounded-xl px-3 py-2.5 text-xs text-app-text font-medium select-all truncate select-none pointer-events-none" translate="no">
+                        <div class="flex-1 bg-app-main border border-app-border rounded-xl px-3 py-2.5 text-xs text-app-text font-medium select-all truncate select-none pointer-events-none"
+                            translate="no">
                             {{ $user->affiliate_link }}
                         </div>
-                        <button @click="copyLink" 
-                                class="h-[38px] px-4 bg-primary hover:bg-primary/95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-orange-500/15 active:scale-[0.97] flex items-center justify-center gap-1 shrink-0">
-                            <span class="material-symbols-outlined text-[16px]" x-text="copied ? 'check' : 'content_copy'"></span>
+                        <button @click="copyLink"
+                            class="h-[38px] px-4 bg-primary hover:bg-primary/95 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-orange-500/15 active:scale-[0.97] flex items-center justify-center gap-1 shrink-0">
+                            <span class="material-symbols-outlined text-[16px]"
+                                x-text="copied ? 'check' : 'content_copy'"></span>
                             <span x-text="copied ? '{{ __('Copied') }}' : '{{ __('Copy') }}'"></span>
                         </button>
                     </div>
@@ -145,7 +160,8 @@
             <div class="border-t border-app-border pt-4 flex items-center justify-between">
                 <div class="flex flex-col gap-0.5">
                     <span class="text-xs text-app-muted">{{ __('Total Referred Members (F1)') }}</span>
-                    <span class="text-lg font-bold text-app-text">{{ number_format($referralsCount) }} {{ __('members') }}</span>
+                    <span class="text-lg font-bold text-app-text">{{ number_format($referralsCount) }}
+                        {{ __('members') }}</span>
                 </div>
                 <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                     <span class="material-symbols-outlined text-[22px]">group</span>
@@ -164,12 +180,14 @@
             </h3>
             <div class="flex flex-col gap-3">
                 @foreach($configuredTiers as $key => $tier)
-                    <div class="flex items-center justify-between p-3 rounded-xl transition-colors {{ $currentTier === $key ? 'bg-primary/5 border border-primary/20' : 'bg-app-main/40 border border-app-border' }}">
+                    <div
+                        class="flex items-center justify-between p-3 rounded-xl transition-colors {{ $currentTier === $key ? 'bg-primary/5 border border-primary/20' : 'bg-app-main/40 border border-app-border' }}">
                         <div class="flex items-center gap-2.5">
                             <span class="text-2xl select-none">{{ $tier['icon'] }}</span>
                             <div class="flex flex-col">
                                 <span class="text-xs font-bold text-app-text">{{ $tier['label'] }}</span>
-                                <span class="text-[10px] text-app-muted mt-0.5">{{ __('Require:') }} {{ number_format($tier['min_xp']) }} XP</span>
+                                <span class="text-[10px] text-app-muted mt-0.5">{{ __('Require:') }}
+                                    {{ number_format($tier['min_xp']) }} XP</span>
                             </div>
                         </div>
                         <div class="flex flex-col items-end text-right">
