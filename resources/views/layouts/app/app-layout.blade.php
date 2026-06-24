@@ -319,7 +319,7 @@
                                 @endif
                             </div>
                             <span class="text-[9px] font-semibold {{ $i == $streak ? 'text-amber-500 font-bold' : 'text-app-muted' }}">
-                                T{{ $i }}
+                                Ngày {{ $i }}
                             </span>
                         </div>
                     @endfor
