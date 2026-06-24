@@ -91,11 +91,18 @@ class AffiliateSystemTest extends TestCase
         $referrerLevel = \App\Models\UserLevel::where('user_id', $referrer->id)->first();
         $this->assertEquals(50, $referrerLevel->total_xp);
 
-        // 4. Có bản ghi giao dịch phạt
+        // 4. Có bản ghi giao dịch phạt cho tài khoản chính
         $this->assertDatabaseHas('xp_transactions', [
             'user_id' => $referrer->id,
             'amount' => -50,
             'source' => 'referral_fraud_penalty'
+        ]);
+
+        // 5. Có bản ghi giao dịch 0 XP cho tài khoản clone mới
+        $this->assertDatabaseHas('xp_transactions', [
+            'user_id' => $newUser->id,
+            'amount' => 0,
+            'source' => 'register_fraud_blocked'
         ]);
     }
 
@@ -138,11 +145,18 @@ class AffiliateSystemTest extends TestCase
         $referrerLevel = \App\Models\UserLevel::where('user_id', $referrer->id)->first();
         $this->assertEquals(50, $referrerLevel->total_xp);
 
-        // 4. Có bản ghi giao dịch phạt
+        // 4. Có bản ghi giao dịch phạt cho tài khoản chính
         $this->assertDatabaseHas('xp_transactions', [
             'user_id' => $referrer->id,
             'amount' => -50,
             'source' => 'referral_fraud_penalty'
+        ]);
+
+        // 5. Có bản ghi giao dịch 0 XP cho tài khoản clone mới
+        $this->assertDatabaseHas('xp_transactions', [
+            'user_id' => $newUser->id,
+            'amount' => 0,
+            'source' => 'register_fraud_blocked'
         ]);
     }
 

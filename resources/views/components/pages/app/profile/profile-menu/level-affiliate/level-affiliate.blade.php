@@ -269,7 +269,7 @@
                                     <span class="text-[10px] text-app-muted" x-text="formatDate(tx.created_at)"></span>
                                 </div>
                                 <span class="text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0"
-                                    :class="tx.amount > 0 ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'"
+                                    :class="tx.amount > 0 ? 'text-green-500 bg-green-500/10' : (tx.amount < 0 ? 'text-red-500 bg-red-500/10' : 'text-app-muted bg-app-main border border-app-border')"
                                     x-text="tx.amount > 0 ? `+${tx.amount} XP` : `${tx.amount} XP`"></span>
                             </div>
                         </template>

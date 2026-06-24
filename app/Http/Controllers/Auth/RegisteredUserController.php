@@ -116,6 +116,14 @@ class RegisteredUserController extends Controller
                 app(\App\Services\UserLevelService::class)->awardXp($user, 'register', $registerXp);
             } else if ($isFraud) {
                 \Illuminate\Support\Facades\Log::info("Không cộng XP chào mừng cho tài khoản clone ID {$user->id} do tự giới thiệu gian lận.");
+                
+                // Ghi nhận lịch sử giao dịch 0 XP cho tài khoản clone để hiển thị minh bạch trên giao diện
+                \App\Models\XpTransaction::create([
+                    'user_id' => $user->id,
+                    'amount' => 0,
+                    'source' => 'register_fraud_blocked',
+                    'description' => 'Không được cộng XP đăng ký chào mừng do tự giới thiệu gian lận',
+                ]);
             }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Lỗi khi cộng XP chào mừng đăng ký: ' . $e->getMessage());
