@@ -256,8 +256,8 @@
             
             <div class="flex flex-col gap-3">
                 @foreach($xpStats as $stat)
-                    <div class="p-4 bg-app-main border border-app-border rounded-xl flex items-start justify-between gap-4 transition-all hover:border-primary/20 hover:bg-primary/5">
-                        <div class="flex items-start gap-3">
+                    <div class="p-4 bg-app-main border border-app-border rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all hover:border-primary/20 hover:bg-primary/5">
+                        <div class="flex items-start gap-3 min-w-0 flex-1">
                             <div class="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
                                 <span class="material-symbols-outlined text-[18px]">
                                     @if($stat['key'] === 'topup')
@@ -279,8 +279,8 @@
                                     @endif
                                 </span>
                             </div>
-                            <div class="flex flex-col gap-0.5">
-                                <span class="text-xs font-bold text-app-text">{{ $stat['title'] }}</span>
+                            <div class="flex flex-col gap-0.5 min-w-0 flex-1">
+                                <span class="text-xs font-bold text-app-text truncate sm:whitespace-normal">{{ $stat['title'] }}</span>
                                 <span class="text-[11px] text-app-muted leading-relaxed">{{ $stat['description'] }}</span>
                                 
                                 {{-- Hiển thị tiến trình lượt --}}
@@ -318,7 +318,7 @@
                                 @endif
                             </div>
                         </div>
-                        <span class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full shrink-0">
+                        <span class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full shrink-0 self-start sm:self-center">
                             {{ $stat['xp'] }}
                         </span>
                     </div>

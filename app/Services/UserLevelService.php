@@ -8,7 +8,7 @@ use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserLevel;
 use App\Models\XpTransaction;
-use App\Services\AuditLogService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -25,11 +25,12 @@ class UserLevelService
      * Cộng điểm kinh nghiệm (XP) cho người dùng.
      * Sử dụng DB Transaction và Pessimistic Locking để chống Race Condition.
      *
-     * @param User $user Người dùng được cộng XP
-     * @param string $source Nguồn XP (register, verify_email, topup, gift_create, referral_signup, referral_first_deposit, login_streak)
-     * @param int $amount Số XP được cộng
-     * @param Model|null $reference Đối tượng liên kết gây ra hành động cộng XP
+     * @param  User  $user  Người dùng được cộng XP
+     * @param  string  $source  Nguồn XP (register, verify_email, topup, gift_create, referral_signup, referral_first_deposit, login_streak)
+     * @param  int  $amount  Số XP được cộng
+     * @param  Model|null  $reference  Đối tượng liên kết gây ra hành động cộng XP
      * @return int Tổng số XP sau khi cộng
+     *
      * @throws Exception
      */
     public function awardXp(User $user, string $source, int $amount, ?Model $reference = null): int
@@ -60,7 +61,7 @@ class UserLevelService
             // Lock bản ghi UserLevel của User hiện tại để đảm bảo tính toàn vẹn dữ liệu
             $userLevel = UserLevel::where('user_id', $user->id)->lockForUpdate()->first();
 
-            if (!$userLevel) {
+            if (! $userLevel) {
                 // Tạo mới nếu chưa có
                 $userLevel = UserLevel::create([
                     'user_id' => $user->id,
@@ -99,7 +100,7 @@ class UserLevelService
                     'user_id' => $user->id,
                     'scope' => 'user',
                     'title' => 'Tài khoản đã được kích hoạt lại',
-                    'message' => "Chào mừng bạn đã hoạt động trở lại! Cấp bậc của bạn đã được mở băng và khôi phục các quyền lợi.",
+                    'message' => 'Chào mừng bạn đã hoạt động trở lại! Cấp bậc của bạn đã được mở băng và khôi phục các quyền lợi.',
                     'type' => 'success',
                 ]);
 
@@ -134,14 +135,13 @@ class UserLevelService
     /**
      * Kiểm tra và thăng cấp bậc cho người dùng dựa trên XP tích lũy.
      *
-     * @param User $user Người dùng cần kiểm tra
-     * @param UserLevel|null $userLevel Bản ghi UserLevel đã được lock (nếu có)
-     * @return void
+     * @param  User  $user  Người dùng cần kiểm tra
+     * @param  UserLevel|null  $userLevel  Bản ghi UserLevel đã được lock (nếu có)
      */
     public function checkAndUpgradeTier(User $user, ?UserLevel $userLevel = null): void
     {
         $userLevel = $userLevel ?? UserLevel::where('user_id', $user->id)->first();
-        if (!$userLevel) {
+        if (! $userLevel) {
             return;
         }
 
@@ -196,9 +196,6 @@ class UserLevelService
 
     /**
      * Lấy thông tin cấu hình chi tiết của một cấp bậc.
-     *
-     * @param string $tier
-     * @return array
      */
     public function getTierBenefits(string $tier): array
     {
@@ -207,9 +204,6 @@ class UserLevelService
 
     /**
      * Lấy phần trăm chiết khấu (giảm giá) của người dùng khi mua template premium.
-     *
-     * @param User $user
-     * @return float
      */
     public function getDiscountForUser(User $user): float
     {
@@ -226,9 +220,6 @@ class UserLevelService
 
     /**
      * Lấy mật độ quảng cáo Google AdSense của người dùng (0 - 100%).
-     *
-     * @param User $user
-     * @return int
      */
     public function getAdPercentForUser(User $user): int
     {
@@ -246,7 +237,6 @@ class UserLevelService
     /**
      * Tính toán tiến trình thăng cấp (progress) để hiển thị lên giao diện UI.
      *
-     * @param User $user
      * @return array{
      *     current_xp: int,
      *     next_tier_xp: int,
@@ -262,7 +252,7 @@ class UserLevelService
         $currentTier = $user->current_tier;
         $configuredTiers = config('levels.tiers', []);
         $tierOrder = array_keys($configuredTiers);
-        
+
         $currentIndex = array_search($currentTier, $tierOrder);
         $nextIndex = $currentIndex !== false ? $currentIndex + 1 : false;
 
@@ -288,8 +278,8 @@ class UserLevelService
         $xpEarnedInCurrentRange = $currentXp - $minXpOfCurrent;
         $xpNeededForNextRange = $minXpOfNext - $minXpOfCurrent;
 
-        $percent = $xpNeededForNextRange > 0 
-            ? (int) min(100, max(0, round(($xpEarnedInCurrentRange / $xpNeededForNextRange) * 100))) 
+        $percent = $xpNeededForNextRange > 0
+            ? (int) min(100, max(0, round(($xpEarnedInCurrentRange / $xpNeededForNextRange) * 100)))
             : 0;
 
         return [
@@ -304,9 +294,6 @@ class UserLevelService
 
     /**
      * Lấy thống kê các hoạt động tích lũy XP của người dùng bao gồm số lượt đã hoàn thành hôm nay/tháng này và giới hạn.
-     *
-     * @param User $user
-     * @return array
      */
     public function getXpEarningStats(User $user): array
     {
@@ -315,14 +302,14 @@ class UserLevelService
         // 1. gift_create: Lấy số lượng đã tạo hôm nay
         $todayGiftCreateCount = XpTransaction::where('user_id', $user->id)
             ->where('source', 'gift_create')
-            ->whereDate('created_at', \Carbon\Carbon::today())
+            ->whereDate('created_at', Carbon::today())
             ->count();
 
         // 2. referral_signup: Lấy số lượng đã giới thiệu trong tháng này
         $thisMonthReferralCount = XpTransaction::where('user_id', $user->id)
             ->where('source', 'referral_signup')
-            ->whereMonth('created_at', \Carbon\Carbon::now()->month)
-            ->whereYear('created_at', \Carbon\Carbon::now()->year)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
             ->count();
 
         // 3. register: Đã nhận chưa?
@@ -341,74 +328,74 @@ class UserLevelService
         $currentStreak = 0;
         if ($userLevel) {
             $currentStreak = $userLevel->checkin_streak;
-            $hasCheckedInToday = $userLevel->last_checked_in_at 
-                && \Carbon\Carbon::parse($userLevel->last_checked_in_at)->isSameDay(\Carbon\Carbon::today());
+            $hasCheckedInToday = $userLevel->last_checked_in_at
+                && Carbon::parse($userLevel->last_checked_in_at)->isSameDay(Carbon::today());
         }
 
         return [
             [
                 'key' => 'daily_checkin',
                 'title' => 'Điểm danh hàng ngày',
-                'description' => $xpRules['daily_checkin']['description'] ?? 'Điểm danh liên tiếp để nhận thưởng chuỗi 7 ngày',
-                'xp' => '10 XP / ngày (Ngày 7: +30 XP)',
+                'description' => 'Điểm danh hàng ngày tích lũy chuỗi 7 ngày (Ngày thứ 7 nhận thêm 30 XP)',
+                'xp' => '+10 XP',
                 'completed' => $hasCheckedInToday ? 1 : 0,
                 'limit' => 1,
                 'streak' => $currentStreak,
-                'type' => 'checkin'
+                'type' => 'checkin',
             ],
             [
                 'key' => 'topup',
                 'title' => 'Nạp tiền tích lũy',
-                'description' => $xpRules['topup']['description'] ?? 'Tích lũy XP từ nạp tiền',
-                'xp' => '1 XP / 1.000đ nạp',
+                'description' => 'Tích lũy XP từ nạp tiền (Cứ mỗi 1.000đ nạp nhận 1 XP)',
+                'xp' => '1 XP / 1000 VND',
                 'completed' => null,
                 'limit' => null,
-                'type' => 'unlimited'
+                'type' => 'unlimited',
             ],
             [
                 'key' => 'gift_create',
                 'title' => 'Tạo trang quà tặng',
                 'description' => $xpRules['gift_create']['description'] ?? 'Tạo trang quà tặng mới',
-                'xp' => '+' . ($xpRules['gift_create']['xp'] ?? 20) . ' XP',
+                'xp' => '+'.($xpRules['gift_create']['xp'] ?? 20).' XP',
                 'completed' => $todayGiftCreateCount,
                 'limit' => $xpRules['gift_create']['daily_cap'] ?? 5,
-                'type' => 'daily'
+                'type' => 'daily',
             ],
             [
                 'key' => 'referral_signup',
                 'title' => 'Giới thiệu thành viên mới',
                 'description' => $xpRules['referral_signup']['description'] ?? 'Giới thiệu thành viên đăng ký thành công',
-                'xp' => '+' . ($xpRules['referral_signup']['xp_referrer'] ?? 100) . ' XP',
+                'xp' => '+'.($xpRules['referral_signup']['xp_referrer'] ?? 100).' XP',
                 'completed' => $thisMonthReferralCount,
                 'limit' => $xpRules['referral_signup']['monthly_cap_referrer'] ?? 10,
-                'type' => 'monthly'
+                'type' => 'monthly',
             ],
             [
                 'key' => 'referral_first_deposit',
                 'title' => 'Giới thiệu nạp tiền lần đầu',
                 'description' => $xpRules['referral_first_deposit']['description'] ?? 'F1 nạp tiền lần đầu thành công',
-                'xp' => '+' . ($xpRules['referral_first_deposit']['xp_referrer'] ?? 100) . ' XP',
+                'xp' => '+'.($xpRules['referral_first_deposit']['xp_referrer'] ?? 100).' XP',
                 'completed' => null,
                 'limit' => null,
-                'type' => 'unlimited'
+                'type' => 'unlimited',
             ],
             [
                 'key' => 'register',
                 'title' => 'Đăng ký tài khoản',
                 'description' => $xpRules['register']['description'] ?? 'Nhận điểm chào mừng thành viên mới',
-                'xp' => '+' . ($xpRules['register']['xp'] ?? 50) . ' XP',
+                'xp' => '+'.($xpRules['register']['xp'] ?? 50).' XP',
                 'completed' => $hasRegisterXp,
                 'limit' => 1,
-                'type' => 'once'
+                'type' => 'once',
             ],
             [
                 'key' => 'verify_email',
                 'title' => 'Xác thực địa chỉ email',
                 'description' => $xpRules['verify_email']['description'] ?? 'Xác thực địa chỉ email thành công',
-                'xp' => '+' . ($xpRules['verify_email']['xp'] ?? 30) . ' XP',
+                'xp' => '+'.($xpRules['verify_email']['xp'] ?? 30).' XP',
                 'completed' => $hasVerifyEmailXp,
                 'limit' => 1,
-                'type' => 'once'
+                'type' => 'once',
             ],
         ];
     }
@@ -416,14 +403,13 @@ class UserLevelService
     /**
      * Thực hiện điểm danh hàng ngày cho người dùng.
      *
-     * @param User $user
      * @return array|null Trả về thông tin điểm danh hoặc null nếu hôm nay đã điểm danh
      */
     public function checkin(User $user): ?array
     {
         return DB::transaction(function () use ($user) {
             $userLevel = UserLevel::where('user_id', $user->id)->lockForUpdate()->first();
-            if (!$userLevel) {
+            if (! $userLevel) {
                 $userLevel = UserLevel::create([
                     'user_id' => $user->id,
                     'total_xp' => 0,
@@ -436,10 +422,10 @@ class UserLevelService
                 ]);
             }
 
-            $today = \Carbon\Carbon::today();
+            $today = Carbon::today();
 
             // Nếu đã điểm danh hôm nay, bỏ qua
-            if ($userLevel->last_checked_in_at && \Carbon\Carbon::parse($userLevel->last_checked_in_at)->isSameDay($today)) {
+            if ($userLevel->last_checked_in_at && Carbon::parse($userLevel->last_checked_in_at)->isSameDay($today)) {
                 return null;
             }
 
@@ -451,8 +437,8 @@ class UserLevelService
 
             $streak = 1;
             if ($userLevel->last_checked_in_at) {
-                $lastCheckin = \Carbon\Carbon::parse($userLevel->last_checked_in_at)->startOfDay();
-                $yesterday = \Carbon\Carbon::yesterday()->startOfDay();
+                $lastCheckin = Carbon::parse($userLevel->last_checked_in_at)->startOfDay();
+                $yesterday = Carbon::yesterday()->startOfDay();
 
                 if ($lastCheckin->equalTo($yesterday)) {
                     // Nếu điểm danh hôm qua, tiếp tục chuỗi streak
@@ -495,7 +481,7 @@ class UserLevelService
                     'user_id' => $user->id,
                     'scope' => 'user',
                     'title' => 'Tài khoản đã được kích hoạt lại',
-                    'message' => "Chào mừng bạn đã hoạt động trở lại! Cấp bậc của bạn đã được mở băng và khôi phục các quyền lợi.",
+                    'message' => 'Chào mừng bạn đã hoạt động trở lại! Cấp bậc của bạn đã được mở băng và khôi phục các quyền lợi.',
                     'type' => 'success',
                 ]);
             }
