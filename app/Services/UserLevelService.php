@@ -301,4 +301,95 @@ class UserLevelService
             'is_max' => false,
         ];
     }
+
+    /**
+     * Lấy thống kê các hoạt động tích lũy XP của người dùng bao gồm số lượt đã hoàn thành hôm nay/tháng này và giới hạn.
+     *
+     * @param User $user
+     * @return array
+     */
+    public function getXpEarningStats(User $user): array
+    {
+        $xpRules = config('levels.xp_rules', []);
+
+        // 1. gift_create: Lấy số lượng đã tạo hôm nay
+        $todayGiftCreateCount = XpTransaction::where('user_id', $user->id)
+            ->where('source', 'gift_create')
+            ->whereDate('created_at', \Carbon\Carbon::today())
+            ->count();
+
+        // 2. referral_signup: Lấy số lượng đã giới thiệu trong tháng này
+        $thisMonthReferralCount = XpTransaction::where('user_id', $user->id)
+            ->where('source', 'referral_signup')
+            ->whereMonth('created_at', \Carbon\Carbon::now()->month)
+            ->whereYear('created_at', \Carbon\Carbon::now()->year)
+            ->count();
+
+        // 3. register: Đã nhận chưa?
+        $hasRegisterXp = XpTransaction::where('user_id', $user->id)
+            ->where('source', 'register')
+            ->exists() ? 1 : 0;
+
+        // 4. verify_email: Đã nhận chưa?
+        $hasVerifyEmailXp = XpTransaction::where('user_id', $user->id)
+            ->where('source', 'verify_email')
+            ->exists() ? 1 : 0;
+
+        return [
+            [
+                'key' => 'topup',
+                'title' => 'Nạp tiền tích lũy',
+                'description' => $xpRules['topup']['description'] ?? 'Tích lũy XP từ nạp tiền',
+                'xp' => '1 XP / 1.000đ nạp',
+                'completed' => null,
+                'limit' => null,
+                'type' => 'unlimited'
+            ],
+            [
+                'key' => 'gift_create',
+                'title' => 'Tạo trang quà tặng',
+                'description' => $xpRules['gift_create']['description'] ?? 'Tạo trang quà tặng mới',
+                'xp' => '+' . ($xpRules['gift_create']['xp'] ?? 20) . ' XP',
+                'completed' => $todayGiftCreateCount,
+                'limit' => $xpRules['gift_create']['daily_cap'] ?? 5,
+                'type' => 'daily'
+            ],
+            [
+                'key' => 'referral_signup',
+                'title' => 'Giới thiệu thành viên mới',
+                'description' => $xpRules['referral_signup']['description'] ?? 'Giới thiệu thành viên đăng ký thành công',
+                'xp' => '+' . ($xpRules['referral_signup']['xp_referrer'] ?? 100) . ' XP',
+                'completed' => $thisMonthReferralCount,
+                'limit' => $xpRules['referral_signup']['monthly_cap_referrer'] ?? 10,
+                'type' => 'monthly'
+            ],
+            [
+                'key' => 'referral_first_deposit',
+                'title' => 'Giới thiệu nạp tiền lần đầu',
+                'description' => $xpRules['referral_first_deposit']['description'] ?? 'F1 nạp tiền lần đầu thành công',
+                'xp' => '+' . ($xpRules['referral_first_deposit']['xp_referrer'] ?? 100) . ' XP',
+                'completed' => null,
+                'limit' => null,
+                'type' => 'unlimited'
+            ],
+            [
+                'key' => 'register',
+                'title' => 'Đăng ký tài khoản',
+                'description' => $xpRules['register']['description'] ?? 'Nhận điểm chào mừng thành viên mới',
+                'xp' => '+' . ($xpRules['register']['xp'] ?? 50) . ' XP',
+                'completed' => $hasRegisterXp,
+                'limit' => 1,
+                'type' => 'once'
+            ],
+            [
+                'key' => 'verify_email',
+                'title' => 'Xác thực địa chỉ email',
+                'description' => $xpRules['verify_email']['description'] ?? 'Xác thực địa chỉ email thành công',
+                'xp' => '+' . ($xpRules['verify_email']['xp'] ?? 30) . ' XP',
+                'completed' => $hasVerifyEmailXp,
+                'limit' => 1,
+                'type' => 'once'
+            ],
+        ];
+    }
 }
