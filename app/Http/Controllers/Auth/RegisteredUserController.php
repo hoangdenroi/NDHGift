@@ -103,14 +103,12 @@ class RegisteredUserController extends Controller
                     // 2. Kiểm tra Cookie Tracker (Trùng thiết bị/trình duyệt từng đăng nhập tài khoản người giới thiệu)
                     $refTracker = $request->cookie('ref_tracker');
 
-                    // 3. Kiểm tra trùng IP (So sánh IP đăng ký với danh sách IP trong session hoạt động của người giới thiệu)
+                    // 3. Kiểm tra trùng IP (So sánh IP đăng ký với danh sách IP trong metadata hoạt động của người giới thiệu)
                     $currentIp = $request->ip();
-                    $referrerIps = \Illuminate\Support\Facades\DB::table('sessions')
-                        ->where('user_id', $referrer->id)
-                        ->pluck('ip_address')
-                        ->toArray();
+                    $referrerMetadata = $referrer->metadata ?? [];
+                    $referrerIps = $referrerMetadata['recent_ips'] ?? [];
 
-                    $isIpMatch = in_array($currentIp, $referrerIps, true);
+                    $isIpMatch = $currentIp && in_array($currentIp, $referrerIps, true);
                     $isCookieMatch = ($refTracker === $referrer->affiliate_code);
 
                     if ($isCookieMatch || $isIpMatch) {
@@ -133,9 +131,6 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
-
-        // Lưu mã định danh thiết bị/trình duyệt của người giới thiệu
-        cookie()->queue('ref_tracker', $user->affiliate_code, 60 * 24 * 365);
 
         return redirect(route('app.home.index', absolute: false));
     }

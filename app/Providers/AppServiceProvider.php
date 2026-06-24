@@ -85,8 +85,34 @@ class AppServiceProvider extends ServiceProvider
         // === AUDIT LOG — Theo dõi Login/Logout ===
 
         Event::listen(Login::class, function (Login $event) {
-            if ($event->user) {
-                AuditLogService::log('login', $event->user, null, null, $event->user->id);
+            $user = $event->user;
+            if ($user) {
+                // 1. Ghi log audit hoạt động login
+                AuditLogService::log('login', $user, null, null, $user->id);
+
+                // 2. Tự động set cookie ref_tracker lưu mã giới thiệu của thiết bị này
+                cookie()->queue('ref_tracker', $user->affiliate_code, 60 * 24 * 365);
+
+                // 3. Lưu IP đăng nhập hiện tại vào metadata để chống gian lận affiliate
+                $request = request();
+                if ($request) {
+                    $currentIp = $request->ip();
+                    if ($currentIp) {
+                        $metadata = $user->metadata ?? [];
+                        $recentIps = $metadata['recent_ips'] ?? [];
+
+                        if (!in_array($currentIp, $recentIps, true)) {
+                            $recentIps[] = $currentIp;
+                            // Giới hạn lưu tối đa 10 IP gần nhất để tránh phình dung lượng data
+                            if (count($recentIps) > 10) {
+                                array_shift($recentIps);
+                            }
+                            $metadata['recent_ips'] = $recentIps;
+                            $user->metadata = $metadata;
+                            $user->save();
+                        }
+                    }
+                }
             }
         });
 

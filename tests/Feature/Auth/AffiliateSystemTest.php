@@ -6,7 +6,6 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class AffiliateSystemTest extends TestCase
@@ -83,22 +82,15 @@ class AffiliateSystemTest extends TestCase
     }
 
     /**
-     * Kiểm tra chặn tự giới thiệu bằng IP thông qua truy vấn bảng sessions.
+     * Kiểm tra chặn tự giới thiệu bằng IP thông qua truy vấn cột metadata của user.
      */
     public function test_registration_self_referral_via_ip_blocked(): void
     {
         $referrer = User::factory()->create([
             'affiliate_code' => 'IPREF',
-        ]);
-
-        // Ghi nhận IP hoạt động của người giới thiệu trong bảng sessions
-        DB::table('sessions')->insert([
-            'id' => 'referrer_session_id',
-            'user_id' => $referrer->id,
-            'ip_address' => '1.2.3.4',
-            'user_agent' => 'Mozilla/5.0',
-            'payload' => 'payload',
-            'last_activity' => time(),
+            'metadata' => [
+                'recent_ips' => ['1.2.3.4']
+            ]
         ]);
 
         // Đăng ký từ chính IP 1.2.3.4 đó
@@ -116,5 +108,34 @@ class AffiliateSystemTest extends TestCase
         $this->assertNotNull($newUser);
         // Không được gán referred_by do trùng IP hoạt động của referrer
         $this->assertNull($newUser->referred_by);
+    }
+
+    /**
+     * Kiểm tra sự kiện Login tự động lưu IP hiện tại của user vào metadata['recent_ips'] và set cookie khi đăng nhập qua HTTP.
+     */
+    public function test_user_login_saves_ip_to_metadata_and_sets_cookie(): void
+    {
+        $user = User::factory()->create([
+            'password' => bcrypt('password'),
+            'metadata' => []
+        ]);
+
+        $response = $this->withServerVariables(['REMOTE_ADDR' => '9.9.9.9'])
+            ->post('/en/login', [
+                'email' => $user->email,
+                'password' => 'password',
+            ]);
+
+        $this->assertAuthenticated();
+
+        $user->refresh();
+        $metadata = $user->metadata;
+
+        $this->assertIsArray($metadata);
+        $this->assertArrayHasKey('recent_ips', $metadata);
+        $this->assertContains('9.9.9.9', $metadata['recent_ips']);
+        
+        // Xác minh cookie ref_tracker được gán đúng
+        $response->assertCookie('ref_tracker', $user->affiliate_code);
     }
 }
