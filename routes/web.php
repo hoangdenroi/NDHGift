@@ -10,6 +10,7 @@ use App\Http\Controllers\App\support\SupportController;
 use App\Http\Controllers\App\topup\TopupController;
 use App\Http\Controllers\App\billing\BillingController;
 use App\Http\Controllers\App\coupon\CouponController;
+use App\Http\Controllers\App\notification\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -79,6 +80,12 @@ Route::middleware('auth')->prefix('api')->group(function () {
     // --- NẠP TIỀN API (Khớp với topup-index.blade.php) ---
     Route::post('v1/topup/qrcode', [TopupController::class, 'getPaymentQr'])->name('api.topup.qrcode');
     Route::get('v1/topup/history', [TopupController::class, 'history'])->name('api.topup.history');
+
+    // --- THÔNG BÁO API ---
+    Route::get('v1/notifications', [NotificationController::class, 'index'])->name('api.notifications.index');
+    Route::post('v1/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('api.notifications.read');
+    Route::post('v1/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.read_all');
+    Route::post('v1/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('api.notifications.clear_all');
 });
 
 require __DIR__.'/auth.php';
