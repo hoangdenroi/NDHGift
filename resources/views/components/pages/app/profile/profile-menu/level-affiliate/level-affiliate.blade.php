@@ -12,7 +12,14 @@
     $xpStats = $levelService->getXpEarningStats($user);
 @endphp
 
-<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-6" x-data="{
+    selectedTier: null,
+    currentTier: '{{ $currentTier }}',
+    openTierDetail(key, label, icon, minXp, discount, adPercent, color) {
+        this.selectedTier = { key, label, icon, minXp, discount, adPercent, color };
+        $dispatch('open-modal', 'tier-detail-modal');
+    }
+}">
     {{-- Header --}}
     <div class="px-6 py-4 border-b border-app-border flex items-center gap-3">
         <button @click="setActiveAction('menu')"
@@ -186,7 +193,16 @@
             <div class="flex flex-col gap-3">
                 @foreach($configuredTiers as $key => $tier)
                     <div
-                        class="flex items-center justify-between p-3 rounded-xl transition-colors {{ $currentTier === $key ? 'bg-primary/5 border border-primary/20' : 'bg-app-main/40 border border-app-border' }}">
+                        @click="openTierDetail(
+                            '{{ $key }}',
+                            '{{ $tier['label'] }}',
+                            '{{ $tier['icon'] }}',
+                            {{ $tier['min_xp'] }},
+                            {{ $tier['discount'] }},
+                            {{ $tier['ad_percent'] }},
+                            '{{ $tier['color'] }}'
+                        )"
+                        class="flex items-center justify-between p-3 rounded-xl cursor-pointer hover:bg-primary/5 hover:border-primary/30 transition-all active:scale-[0.98] {{ $currentTier === $key ? 'bg-primary/5 border border-primary/20 ring-1 ring-primary/30' : 'bg-app-main/40 border border-app-border' }}">
                         <div class="flex items-center gap-2.5">
                             <span class="text-2xl select-none">{{ $tier['icon'] }}</span>
                             <div class="flex flex-col">
@@ -422,5 +438,96 @@
                 Đóng
             </button>
         </div>
+    </x-shared.ui.modal>
+
+    {{-- Modal hiển thị chi tiết cấp bậc --}}
+    <x-shared.ui.modal name="tier-detail-modal" maxWidth="md">
+        <template x-if="selectedTier">
+            <div>
+                {{-- Modal Header --}}
+                <div class="px-6 py-4 border-b border-app-border flex items-center justify-between bg-app-main/20"
+                    :style="`border-bottom-color: ${selectedTier.color}20`">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl select-none" x-text="selectedTier.icon"></span>
+                        <h3 class="text-base font-bold text-app-text" x-text="selectedTier.label"></h3>
+                    </div>
+                    <button @click="$dispatch('close-modal', 'tier-detail-modal')"
+                        class="size-8 rounded-lg flex items-center justify-center text-app-muted hover:text-app-text hover:bg-app-main border border-transparent hover:border-app-border transition-all">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+
+                {{-- Modal Body --}}
+                <div class="p-6 flex flex-col gap-5">
+                    {{-- Nếu là cấp bậc hiện tại --}}
+                    <template x-if="selectedTier.key === currentTier">
+                        <div class="p-3.5 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-3 text-green-500 dark:text-green-400">
+                            <span class="material-symbols-outlined text-[20px] animate-pulse">verified</span>
+                            <div class="text-xs font-bold">
+                                Đây là cấp bậc thành viên hiện tại của bạn
+                            </div>
+                        </div>
+                    </template>
+
+                    {{-- Thẻ thông tin lớn --}}
+                    <div class="p-5 rounded-xl border border-app-border flex flex-col items-center justify-center gap-3 bg-app-main/20 relative overflow-hidden">
+                        {{-- Background Glow --}}
+                        <div class="absolute -right-8 -top-8 size-24 rounded-full blur-2xl opacity-20 pointer-events-none"
+                            :style="`background-color: ${selectedTier.color}`"></div>
+                        
+                        <span class="text-5xl select-none" x-text="selectedTier.icon"
+                            :style="`filter: drop-shadow(0 8px 12px ${selectedTier.color}30)`"></span>
+                        <div class="flex flex-col items-center text-center mt-1">
+                            <span class="text-lg font-extrabold text-app-text" x-text="selectedTier.label" :style="`color: ${selectedTier.color}`"></span>
+                            <span class="text-xs text-app-muted mt-1">
+                                Yêu cầu tối thiểu: <strong class="text-app-text font-bold" x-text="`${selectedTier.minXp.toLocaleString()} XP`"></strong>
+                            </span>
+                        </div>
+                    </div>
+
+                    {{-- Đặc quyền chi tiết --}}
+                    <div class="flex flex-col gap-3">
+                        <h4 class="text-xs font-bold text-app-muted uppercase tracking-wider">Đặc quyền cấp bậc</h4>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="p-3 bg-app-main border border-app-border rounded-xl flex items-center gap-3">
+                                <span class="material-symbols-outlined text-[22px] text-orange-500">sell</span>
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] text-app-muted">Giảm giá template</span>
+                                    <span class="text-xs font-bold text-app-text" x-text="`Giảm ${selectedTier.discount}%`"></span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-app-main border border-app-border rounded-xl flex items-center gap-3">
+                                <span class="material-symbols-outlined text-[22px] text-blue-500">ads_click</span>
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] text-app-muted">Mật độ quảng cáo</span>
+                                    <span class="text-xs font-bold text-app-text" x-text="`Còn ${selectedTier.adPercent}%`"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Mô tả thêm cho từng cấp bậc để tạo cảm giác premium --}}
+                    <div class="p-4 bg-app-main/30 border border-app-border/60 rounded-xl">
+                        <h4 class="text-xs font-bold text-app-muted mb-1.5 uppercase tracking-wider">Chi tiết đặc quyền</h4>
+                        <p class="text-xs text-app-text leading-relaxed font-medium" x-text="
+                            selectedTier.key === 'bronze' ? 'Cấp bậc khởi đầu dành cho mọi thành viên mới. Bạn được sử dụng đầy đủ các tính năng cơ bản của NDHGift và bắt đầu hành trình tích lũy XP.' :
+                            selectedTier.key === 'silver' ? 'Cấp bậc Bạc đánh dấu sự tiến bộ của bạn. Nhận ngay ưu đãi giảm giá 5% khi mua các template premium và giảm 30% lượng quảng cáo hiển thị.' :
+                            selectedTier.key === 'gold' ? 'Trở thành thành viên Vàng để tận hưởng các ưu đãi hấp dẫn hơn. Giảm giá 10% cho mọi giao dịch template premium và giảm đến 60% quảng cáo.' :
+                            selectedTier.key === 'platinum' ? 'Thành viên Bạch Kim sở hữu những đặc quyền ưu tú. Giảm giá sâu 15% cho template premium và giảm tối đa 90% tần suất xuất hiện quảng cáo.' :
+                            selectedTier.key === 'diamond' ? 'Cấp bậc tối cao của NDHGift. Tận hưởng ưu đãi giảm giá cao nhất 20% cho template premium và trải nghiệm lướt web hoàn toàn không có quảng cáo (100% Ad-Free).' : ''
+                        "></p>
+                    </div>
+                </div>
+
+                {{-- Modal Footer --}}
+                <div class="px-6 py-4 border-t border-app-border flex justify-end bg-app-main/10">
+                    <button @click="$dispatch('close-modal', 'tier-detail-modal')"
+                        class="h-9 px-4 bg-app-surface border border-app-border hover:bg-app-main text-app-text hover:border-app-border-hover font-semibold text-xs rounded-xl transition-all active:scale-[0.98]">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </template>
     </x-shared.ui.modal>
 </div>
