@@ -239,7 +239,7 @@
                 const year = date.getFullYear();
                 return `${hours}:${minutes} ${day}/${month}/${year}`;
             }
-        }" class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col gap-4 shadow-sm col-span-1 md:col-span-2">
+        }" class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col gap-4 shadow-sm">
             <h3 class="text-sm font-bold text-app-text border-b border-app-border pb-3 flex items-center gap-2">
                 <span class="material-symbols-outlined text-blue-500 text-[20px]">history</span>
                 {{ __('XP Transaction History') }}
