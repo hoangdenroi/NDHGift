@@ -247,25 +247,28 @@
 
             {{-- Vùng chứa danh sách và Loading overlay --}}
             <div class="relative min-h-[150px] flex flex-col justify-between">
-                <div x-show="isLoading" class="absolute inset-0 bg-app-surface/60 backdrop-blur-[1px] flex items-center justify-center z-10" x-cloak>
+                <div x-show="isLoading"
+                    class="absolute inset-0 bg-app-surface/60 backdrop-blur-[1px] flex items-center justify-center z-10"
+                    x-cloak>
                     <div class="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
 
                 {{-- Empty State --}}
                 <template x-if="transactions.length === 0">
                     <div class="flex flex-col items-center justify-center py-10 text-center flex-1">
-                        <span class="material-symbols-outlined text-app-muted/30 text-5xl mb-2 select-none">database</span>
+                        <span
+                            class="material-symbols-outlined text-app-muted/30 text-5xl mb-2 select-none">database</span>
                         <p class="text-xs text-app-muted">{{ __('No XP transactions recorded yet.') }}</p>
                     </div>
                 </template>
-
                 {{-- Transaction List --}}
                 <template x-if="transactions.length > 0">
                     <div class="flex flex-col divide-y divide-app-border/60 flex-1">
                         <template x-for="tx in transactions" :key="tx.id">
                             <div class="py-3 flex items-center justify-between first:pt-0 last:pb-0">
                                 <div class="flex flex-col gap-0.5 min-w-0 flex-1 pr-4">
-                                    <span class="text-xs font-semibold text-app-text break-words" x-text="tx.description"></span>
+                                    <span class="text-xs font-semibold text-app-text break-words"
+                                        x-text="tx.description"></span>
                                     <span class="text-[10px] text-app-muted" x-text="formatDate(tx.created_at)"></span>
                                 </div>
                                 <span class="text-xs font-bold px-2.5 py-0.5 rounded-full shrink-0"
@@ -280,18 +283,17 @@
             {{-- Pagination Controls --}}
             <template x-if="lastPage > 1">
                 <div class="flex items-center justify-between border-t border-app-border pt-4 mt-2">
-                    <button @click="fetchPage(currentPage - 1)" 
-                            :disabled="currentPage === 1 || isLoading" 
-                            class="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-app-border hover:bg-primary/5 hover:border-primary/30 text-xs font-semibold text-app-text disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all select-none">
+                    <button @click="fetchPage(currentPage - 1)" :disabled="currentPage === 1 || isLoading"
+                        class="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-app-border hover:bg-primary/5 hover:border-primary/30 text-xs font-semibold text-app-text disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all select-none">
                         <span class="material-symbols-outlined text-[16px]">chevron_left</span>
                         <span>{{ __('Previous') }}</span>
                     </button>
 
-                    <span class="text-[11px] font-semibold text-app-muted select-none" x-text="`{{ __('Page') }} ${currentPage} / ${lastPage}`"></span>
+                    <span class="text-[11px] font-semibold text-app-muted select-none"
+                        x-text="`{{ __('Page') }} ${currentPage} / ${lastPage}`"></span>
 
-                    <button @click="fetchPage(currentPage + 1)" 
-                            :disabled="currentPage === lastPage || isLoading" 
-                            class="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-app-border hover:bg-primary/5 hover:border-primary/30 text-xs font-semibold text-app-text disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all select-none">
+                    <button @click="fetchPage(currentPage + 1)" :disabled="currentPage === lastPage || isLoading"
+                        class="flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-app-border hover:bg-primary/5 hover:border-primary/30 text-xs font-semibold text-app-text disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-all select-none">
                         <span>{{ __('Next') }}</span>
                         <span class="material-symbols-outlined text-[16px]">chevron_right</span>
                     </button>
@@ -308,23 +310,26 @@
                 <span class="material-symbols-outlined text-primary text-[22px]">rocket_launch</span>
                 <h3 class="text-base font-bold text-app-text">Nhiệm Vụ Kiếm Điểm XP</h3>
             </div>
-            <button @click="$dispatch('close-modal', 'xp-missions-modal')" 
-                    class="size-8 rounded-lg flex items-center justify-center text-app-muted hover:text-app-text hover:bg-app-main border border-transparent hover:border-app-border transition-all">
+            <button @click="$dispatch('close-modal', 'xp-missions-modal')"
+                class="size-8 rounded-lg flex items-center justify-center text-app-muted hover:text-app-text hover:bg-app-main border border-transparent hover:border-app-border transition-all">
                 <span class="material-symbols-outlined text-[18px]">close</span>
             </button>
         </div>
-        
+
         {{-- Modal Body --}}
         <div class="p-6 overflow-y-auto flex flex-col gap-4 max-h-[70vh]">
             <p class="text-xs text-app-muted leading-relaxed">
-                Tích lũy điểm kinh nghiệm (XP) để nâng cấp tài khoản của bạn. Cấp bậc càng cao, bạn càng nhận được nhiều ưu đãi giảm giá và giảm mật độ quảng cáo hiển thị trên trang web.
+                Tích lũy điểm kinh nghiệm (XP) để nâng cấp tài khoản của bạn. Cấp bậc càng cao, bạn càng nhận được nhiều
+                ưu đãi giảm giá và giảm mật độ quảng cáo hiển thị trên trang web.
             </p>
-            
+
             <div class="flex flex-col gap-3">
                 @foreach($xpStats as $stat)
-                    <div class="p-4 bg-app-main border border-app-border rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all hover:border-primary/20 hover:bg-primary/5">
+                    <div
+                        class="p-4 bg-app-main border border-app-border rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all hover:border-primary/20 hover:bg-primary/5">
                         <div class="flex items-start gap-3 min-w-0 flex-1">
-                            <div class="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
+                            <div
+                                class="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
                                 <span class="material-symbols-outlined text-[18px]">
                                     @if($stat['key'] === 'topup')
                                         payments
@@ -346,31 +351,41 @@
                                 </span>
                             </div>
                             <div class="flex flex-col gap-0.5 min-w-0 flex-1">
-                                <span class="text-xs font-bold text-app-text truncate sm:whitespace-normal">{{ $stat['title'] }}</span>
+                                <span
+                                    class="text-xs font-bold text-app-text truncate sm:whitespace-normal">{{ $stat['title'] }}</span>
                                 <span class="text-[11px] text-app-muted leading-relaxed">{{ $stat['description'] }}</span>
-                                
+
                                 {{-- Hiển thị tiến trình lượt --}}
                                 @if($stat['type'] === 'daily')
                                     <div class="flex items-center gap-1.5 mt-1.5">
-                                        <div class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
-                                            <div class="h-full bg-primary rounded-full" style="width: {{ min(100, ($stat['completed'] / $stat['limit']) * 100) }}%"></div>
+                                        <div
+                                            class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full"
+                                                style="width: {{ min(100, ($stat['completed'] / $stat['limit']) * 100) }}%">
+                                            </div>
                                         </div>
-                                        <span class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
+                                        <span
+                                            class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
                                             {{ $stat['completed'] }}/{{ $stat['limit'] }} hôm nay
                                         </span>
                                     </div>
                                 @elseif($stat['type'] === 'monthly')
                                     <div class="flex items-center gap-1.5 mt-1.5">
-                                        <div class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
-                                            <div class="h-full bg-primary rounded-full" style="width: {{ min(100, ($stat['completed'] / $stat['limit']) * 100) }}%"></div>
+                                        <div
+                                            class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full"
+                                                style="width: {{ min(100, ($stat['completed'] / $stat['limit']) * 100) }}%">
+                                            </div>
                                         </div>
-                                        <span class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
+                                        <span
+                                            class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
                                             {{ $stat['completed'] }}/{{ $stat['limit'] }} tháng này
                                         </span>
                                     </div>
                                 @elseif($stat['type'] === 'checkin')
                                     <div class="flex items-center gap-2 mt-1.5">
-                                        <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded {{ $stat['completed'] > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10' }}">
+                                        <span
+                                            class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded {{ $stat['completed'] > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10' }}">
                                             {{ $stat['completed'] > 0 ? 'Đã điểm danh' : 'Chưa điểm danh' }}
                                         </span>
                                         <span class="text-[9px] font-semibold text-primary">
@@ -378,24 +393,32 @@
                                         </span>
                                     </div>
                                 @elseif($stat['type'] === 'once')
-                                    <span class="text-[9px] font-bold mt-1.5 uppercase tracking-wider px-1.5 py-0.5 rounded {{ $stat['completed'] > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10' }}">
+                                    <span
+                                        class="text-[9px] font-bold mt-1.5 uppercase tracking-wider px-1.5 py-0.5 rounded {{ $stat['completed'] > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10' }}">
                                         {{ $stat['completed'] > 0 ? 'Đã nhận' : 'Chưa nhận' }}
                                     </span>
                                 @endif
                             </div>
                         </div>
-                        <span class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full shrink-0 self-start sm:self-center">
-                            {{ $stat['xp'] }}
-                        </span>
+                        <div class="flex flex-col items-end gap-1 shrink-0 self-start sm:self-center">
+                            <span class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">
+                                {{ $stat['xp'] }}
+                            </span>
+                            @if($stat['key'] === 'referral_first_deposit')
+                                <span class="text-[10px] font-bold text-green-500 bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">
+                                    +10% Hoa hồng
+                                </span>
+                            @endif
+                        </div>
                     </div>
                 @endforeach
             </div>
         </div>
-        
+
         {{-- Modal Footer --}}
         <div class="px-6 py-4 border-t border-app-border flex justify-end bg-app-main/10">
-            <button @click="$dispatch('close-modal', 'xp-missions-modal')" 
-                    class="h-9 px-4 bg-app-surface border border-app-border hover:bg-app-main text-app-text hover:border-app-border-hover font-semibold text-xs rounded-xl transition-all active:scale-[0.98]">
+            <button @click="$dispatch('close-modal', 'xp-missions-modal')"
+                class="h-9 px-4 bg-app-surface border border-app-border hover:bg-app-main text-app-text hover:border-app-border-hover font-semibold text-xs rounded-xl transition-all active:scale-[0.98]">
                 Đóng
             </button>
         </div>
