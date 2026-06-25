@@ -69,6 +69,7 @@
             currentPage: 1,
             lastPage: 1,
             isLoadingHistory: false,
+            txToCancel: null,
 
             init() {
                 // Khởi tạo bộ đếm thời gian cho các giao dịch đang chờ
@@ -244,11 +245,14 @@
                 this.topupView = 'qr_display';
             },
 
-            async cancelTx(id) {
-                if (!confirm('Bạn có chắc chắn muốn hủy giao dịch nạp tiền đang chờ này không?')) {
-                    return;
-                }
+            confirmCancel(tx) {
+                this.txToCancel = tx;
+                window.dispatchEvent(new CustomEvent('open-modal', { detail: 'confirm-cancel-topup' }));
+            },
 
+            async executeCancelTx() {
+                if (!this.txToCancel) return;
+                const id = this.txToCancel.id;
                 try {
                     const response = await fetch(`/api/v1/topup/${id}/cancel`, {
                         method: 'POST',
@@ -277,6 +281,9 @@
                     window.dispatchEvent(new CustomEvent('toast', {
                         detail: { type: 'error', title: 'Lỗi kết nối', message: 'Không thể hủy giao dịch. Vui lòng thử lại sau.' }
                     }));
+                } finally {
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: 'confirm-cancel-topup' }));
+                    this.txToCancel = null;
                 }
             },
 

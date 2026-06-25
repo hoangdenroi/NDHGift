@@ -75,7 +75,7 @@
                                     <button @click="showQr(tx)" class="h-[26px] px-2.5 rounded bg-primary text-white text-[11px] font-bold hover:bg-primary/90 transition-colors flex items-center gap-1">
                                         <span class="material-symbols-outlined text-[14px]">qr_code</span> Xem QR
                                     </button>
-                                    <button @click="cancelTx(tx.id)" class="size-[26px] flex items-center justify-center rounded border border-red-500/20 hover:bg-red-500/10 text-red-500 transition-colors" title="Hủy giao dịch">
+                                    <button @click="confirmCancel(tx)" class="size-[26px] flex items-center justify-center rounded border border-red-500/20 hover:bg-red-500/10 text-red-500 transition-colors" title="Hủy giao dịch">
                                         <span class="material-symbols-outlined text-[15px]">close</span>
                                     </button>
                                 </div>
@@ -88,3 +88,27 @@
         </div>
     </div>
 </div>
+
+{{-- Modal xác nhận hủy giao dịch --}}
+<x-shared.ui.modal name="confirm-cancel-topup" maxWidth="md">
+    <div class="p-6">
+        <div class="flex items-center gap-3 mb-4 text-red-500">
+            <span class="material-symbols-outlined text-[28px]">warning</span>
+            <h3 class="text-base sm:text-lg font-bold text-app-text">Xác nhận hủy giao dịch</h3>
+        </div>
+        <p class="text-xs sm:text-sm text-app-muted mb-6 leading-relaxed">
+            Bạn có chắc chắn muốn hủy giao dịch nạp tiền mã <span class="font-mono font-bold text-app-text uppercase" x-text="txToCancel?.payment_code"></span> với số tiền <span class="font-bold text-primary" x-text="txToCancel ? new Intl.NumberFormat('vi-VN').format(txToCancel.amount) + 'đ' : ''"></span> không? Hành động này không thể hoàn tác.
+        </p>
+        <div class="flex justify-end gap-3">
+            <button @click="$dispatch('close-modal', 'confirm-cancel-topup')" 
+                    class="px-4 py-2 rounded-xl border border-app-border hover:bg-app-main text-app-text text-xs sm:text-sm font-semibold transition-colors">
+                Hủy bỏ
+            </button>
+            <button @click="executeCancelTx()" 
+                    class="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                Đồng ý hủy
+            </button>
+        </div>
+    </div>
+</x-shared.ui.modal>
