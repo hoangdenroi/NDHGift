@@ -3,275 +3,10 @@
     <div class="flex flex-col gap-6"
         @balance-updated.window="balance = $event.detail.new_balance; fetchPending();"
         @topup-status-changed.window="handleTopupStatusChanged($event.detail)"
-        x-data="{
+        x-data="topupIndex({
             balance: {{ auth()->user()->balance ?? 0 }},
-            amount: '',
-            paymentMethod: 'qr',
-            topupView: 'form',
-            qrUrl: '',
-            qrDescription: '',
-            activeQrTx: null,
-            isLoading: false,
-            transactions: [],
-            currentPage: 1,
-            lastPage: 1,
-            isLoadingHistory: false,
-            pendingTransactions: @json($pendingTransactions ?? []),
-
-            init() {
-                // Khởi tạo bộ đếm thời gian cho các giao dịch đang chờ
-                setInterval(() => {
-                    this.updateCountdowns();
-                }, 1000);
-                this.updateCountdowns();
-            },
-
-            updateCountdowns() {
-                this.pendingTransactions.forEach(tx => {
-                    if (!tx.expires_at) return;
-                    const expires = new Date(tx.expires_at).getTime();
-                    const now = new Date().getTime();
-                    const diff = expires - now;
-
-                    if (diff <= 0) {
-                        tx.timeLeft = 'Đã hết hạn';
-                        if (tx.status === 'PENDING') {
-                            tx.status = 'EXPIRED';
-                            // Cập nhật lại danh sách sau khi giao dịch hết hạn
-                            setTimeout(() => { this.fetchPending(); }, 2000);
-                        }
-                    } else {
-                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                        tx.timeLeft = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                    }
-                });
-            },
-
-            async fetchPending() {
-                try {
-                    const response = await fetch('/api/v1/topup/pending', {
-                        method: 'GET',
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        this.pendingTransactions = data.data;
-                        this.updateCountdowns();
-                    }
-                } catch (error) {
-                    console.error('Lỗi khi tải danh sách giao dịch chờ:', error);
-                }
-            },
-
-            handleTopupStatusChanged(detail) {
-                // Tìm kiếm giao dịch trong danh sách để cập nhật trạng thái realtime
-                const tx = this.pendingTransactions.find(t => t.id === detail.transaction_id);
-                if (tx) {
-                    tx.status = detail.new_status;
-                    if (detail.new_status === 'SUCCESS') {
-                        window.dispatchEvent(new CustomEvent('toast', {
-                            detail: { type: 'success', title: 'Nạp tiền thành công', message: `Giao dịch ${tx.payment_code} đã được xử lý!` }
-                        }));
-                        // Flash hiệu ứng thành công rồi tải lại danh sách
-                        setTimeout(() => {
-                            this.fetchPending();
-                            if (this.activeQrTx && this.activeQrTx.id === tx.id) {
-                                this.activeQrTx = null;
-                                this.topupView = 'form';
-                            }
-                        }, 3000);
-                    } else {
-                        this.fetchPending();
-                        if (this.activeQrTx && this.activeQrTx.id === tx.id) {
-                            this.activeQrTx = null;
-                            this.topupView = 'form';
-                        }
-                    }
-                } else {
-                    this.fetchPending();
-                }
-            },
-
-            async fetchHistory(page = 1) {
-                @guest
-                    console.warn('[Topup] Blocked: Guest user tried to fetch top-up history.');
-                    return;
-                @endguest
-
-                if (this.isLoadingHistory) return;
-                this.isLoadingHistory = true;
-                try {
-                    const response = await fetch(`/api/v1/topup/history?page=${page}`, {
-                        method: 'GET',
-                        credentials: 'same-origin',
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        if (page === 1) {
-                            this.transactions = data.data.data;
-                        } else {
-                            this.transactions = [...this.transactions, ...data.data.data];
-                        }
-                        this.currentPage = data.data.current_page;
-                        this.lastPage = data.data.last_page;
-                    }
-                } catch (error) {
-                    console.error('Lỗi khi tải lịch sử nạp tiền:', error);
-                } finally {
-                    this.isLoadingHistory = false;
-                }
-            },
-
-            selectPaymentMethod(method) {
-                @guest
-                    console.warn('[Topup] Blocked: User tried to select payment method without being logged in.');
-                    window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'warning', title: '{{ __('Not Logged In') }}', message: '{{ __('Please log in to select a payment method!') }}' }
-                    }));
-                    return;
-                @endguest
-                this.paymentMethod = method;
-            },
-
-            async generateQR() {
-                @guest
-                    console.warn('[Topup] Blocked: User tried to generate QR code without being logged in.');
-                    window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'warning', title: '{{ __('Not Logged In') }}', message: '{{ __('Please log in to top up!') }}' }
-                    }));
-                    return;
-                @endguest
-
-                if (!this.amount || parseInt(this.amount) < 20000) {
-                    window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'warning', title: '{{ __('Warning') }}', message: '{{ __('Please enter a valid amount (minimum 20,000đ)') }}' }
-                    }));
-                    return;
-                }
-                if (this.paymentMethod !== 'qr') {
-                    window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'info', title: '{{ __('Notification') }}', message: '{{ __('This method is being updated!') }}' }
-                    }));
-                    return;
-                }
-
-                // Kiểm tra giới hạn 3 giao dịch PENDING ở phía Client
-                const activePendingCount = this.pendingTransactions.filter(t => t.status === 'PENDING').length;
-                if (activePendingCount >= 3) {
-                    window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'warning', title: 'Giới hạn giao dịch', message: 'Bạn đang có 3 giao dịch chờ thanh toán. Vui lòng hoàn tất hoặc hủy bớt giao dịch cũ!' }
-                    }));
-                    return;
-                }
-
-                this.isLoading = true;
-                try {
-                    const response = await fetch('/api/v1/topup/create', {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                        },
-                        body: JSON.stringify({ amount: this.amount })
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        this.fetchPending();
-                        this.showQr(data.transaction);
-                        this.amount = '';
-                        window.dispatchEvent(new CustomEvent('toast', {
-                            detail: { type: 'success', title: 'Thành công', message: 'Đã tạo giao dịch nạp tiền. Vui lòng quét mã QR thanh toán!' }
-                        }));
-                    } else {
-                        window.dispatchEvent(new CustomEvent('toast', {
-                            detail: { type: 'error', title: '{{ __('Error') }}', message: data.message || '{{ __('An error occurred while generating the payment QR!') }}' }
-                        }));
-                    }
-                } catch (error) {
-                    window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Server connection error. Please try again!') }}' }
-                    }));
-                } finally {
-                    this.isLoading = false;
-                }
-            },
-
-            showQr(tx) {
-                const bankId = '{{ config('payment.vietqr.bin', '970423') }}';
-                const accountNo = '{{ config('payment.vietqr.account', '10003179213') }}';
-                const accountName = '{{ config('payment.vietqr.name', 'NGUYEN DUC HOANG') }}';
-                const template = '{{ config('payment.vietqr.template', 'compact') }}';
-                const prefix = '{{ config('payment.vietqr.prefix', 'SEVQR ') }}';
-
-                const description = `${prefix.trim()} ${tx.payment_code}`;
-
-                this.qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${tx.amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountName)}`;
-                this.qrDescription = description;
-                this.activeQrTx = tx;
-                this.topupView = 'qr_display';
-            },
-
-            async cancelTx(id) {
-                if (!confirm('Bạn có chắc chắn muốn hủy giao dịch nạp tiền đang chờ này không?')) {
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`/api/v1/topup/${id}/cancel`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                        }
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        window.dispatchEvent(new CustomEvent('toast', {
-                            detail: { type: 'success', title: 'Hủy thành công', message: data.message }
-                        }));
-                        this.fetchPending();
-                        if (this.activeQrTx && this.activeQrTx.id === id) {
-                            this.activeQrTx = null;
-                            this.topupView = 'form';
-                        }
-                    } else {
-                        window.dispatchEvent(new CustomEvent('toast', {
-                            detail: { type: 'error', title: 'Lỗi', message: data.message }
-                        }));
-                    }
-                } catch (error) {
-                    window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'error', title: 'Lỗi kết nối', message: 'Không thể hủy giao dịch. Vui lòng thử lại sau.' }
-                    }));
-                }
-            },
-
-            copyText(text) {
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(text).then(() => {
-                        window.dispatchEvent(new CustomEvent('toast', {
-                            detail: { type: 'success', title: 'Đã sao chép', message: 'Nội dung chuyển khoản đã được sao chép vào bộ nhớ tạm.' }
-                        }));
-                    });
-                } else {
-                    // Fallback
-                    const el = document.createElement('textarea');
-                    el.value = text;
-                    document.body.appendChild(el);
-                    el.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(el);
-                    window.dispatchEvent(new CustomEvent('toast', {
-                        detail: { type: 'success', title: 'Đã sao chép', message: 'Nội dung chuyển khoản đã được sao chép vào bộ nhớ tạm.' }
-                    }));
-                }
-            }
-        }">
+            pendingTransactions: @js($pendingTransactions ?? [])
+        })">
 
         {{-- Header --}}
         <div class="flex items-center justify-between">
@@ -325,7 +60,7 @@
                             {{-- Input nhập số tiền --}}
                             <div class="relative">
                                 <input x-model="amount"
-                                    @input="amount = $event.target.value.replace(/[^0-9]/g, ''); if(parseInt(amount) > 100000000) amount = '100000000'"
+                                    @input="amount = $event.target.value.replace(/[^0-9]/g, ''); if(amount && parseInt(amount) > 100000000) amount = '100000000'"
                                     class="w-full h-14 px-4 pr-16 rounded-xl border-2 border-primary/40 bg-app-main text-app-text placeholder:text-app-muted text-sm sm:text-base focus:border-primary focus:ring-primary transition-colors"
                                     type="text" inputmode="numeric" :placeholder="'{{ __('From: 20,000đ — Max: 100,000,000đ') }}'" />
                                 <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
@@ -649,3 +384,258 @@
     </div>
 
 </x-app-layout>
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('topupIndex', (config) => ({
+            balance: config.balance,
+            pendingTransactions: config.pendingTransactions,
+            amount: '',
+            paymentMethod: 'qr',
+            topupView: 'form',
+            qrUrl: '',
+            qrDescription: '',
+            activeQrTx: null,
+            isLoading: false,
+            transactions: [],
+            currentPage: 1,
+            lastPage: 1,
+            isLoadingHistory: false,
+
+            init() {
+                // Khởi tạo bộ đếm thời gian cho các giao dịch đang chờ
+                setInterval(() => {
+                    this.updateCountdowns();
+                }, 1000);
+                this.updateCountdowns();
+            },
+
+            updateCountdowns() {
+                this.pendingTransactions.forEach(tx => {
+                    if (!tx.expires_at) return;
+                    const expires = new Date(tx.expires_at).getTime();
+                    const now = new Date().getTime();
+                    const diff = expires - now;
+
+                    if (diff <= 0) {
+                        tx.timeLeft = 'Đã hết hạn';
+                        if (tx.status === 'PENDING') {
+                            tx.status = 'EXPIRED';
+                            // Cập nhật lại danh sách sau khi giao dịch hết hạn
+                            setTimeout(() => { this.fetchPending(); }, 2000);
+                        }
+                    } else {
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                        tx.timeLeft = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    }
+                });
+            },
+
+            async fetchPending() {
+                try {
+                    const response = await fetch('/api/v1/topup/pending', {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        this.pendingTransactions = data.data;
+                        this.updateCountdowns();
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi tải danh sách giao dịch chờ:', error);
+                }
+            },
+
+            handleTopupStatusChanged(detail) {
+                // Tìm kiếm giao dịch trong danh sách để cập nhật trạng thái realtime
+                const tx = this.pendingTransactions.find(t => t.id === detail.transaction_id);
+                if (tx) {
+                    tx.status = detail.new_status;
+                    if (detail.new_status === 'SUCCESS') {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'success', title: 'Nạp tiền thành công', message: `Giao dịch ${tx.payment_code} đã được xử lý!` }
+                        }));
+                        // Flash hiệu ứng thành công rồi tải lại danh sách
+                        setTimeout(() => {
+                            this.fetchPending();
+                            if (this.activeQrTx && this.activeQrTx.id === tx.id) {
+                                this.activeQrTx = null;
+                                this.topupView = 'form';
+                            }
+                        }, 3000);
+                    } else {
+                        this.fetchPending();
+                        if (this.activeQrTx && this.activeQrTx.id === tx.id) {
+                            this.activeQrTx = null;
+                            this.topupView = 'form';
+                        }
+                    }
+                } else {
+                    this.fetchPending();
+                }
+            },
+
+            async fetchHistory(page = 1) {
+                if (this.isLoadingHistory) return;
+                this.isLoadingHistory = true;
+                try {
+                    const response = await fetch(`/api/v1/topup/history?page=${page}`, {
+                        method: 'GET',
+                        credentials: 'same-origin',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        if (page === 1) {
+                            this.transactions = data.data.data;
+                        } else {
+                            this.transactions = [...this.transactions, ...data.data.data];
+                        }
+                        this.currentPage = data.data.current_page;
+                        this.lastPage = data.data.last_page;
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi tải lịch sử nạp tiền:', error);
+                } finally {
+                    this.isLoadingHistory = false;
+                }
+            },
+
+            selectPaymentMethod(method) {
+                this.paymentMethod = method;
+            },
+
+            async generateQR() {
+                if (!this.amount || parseInt(this.amount) < 20000) {
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'warning', title: 'Cảnh báo', message: 'Vui lòng nhập số tiền hợp lệ (tối thiểu 20,000đ)' }
+                    }));
+                    return;
+                }
+                if (this.paymentMethod !== 'qr') {
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'info', title: 'Thông báo', message: 'Phương thức này đang được cập nhật!' }
+                    }));
+                    return;
+                }
+
+                // Kiểm tra giới hạn 3 giao dịch PENDING ở phía Client
+                const activePendingCount = this.pendingTransactions.filter(t => t.status === 'PENDING').length;
+                if (activePendingCount >= 3) {
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'warning', title: 'Giới hạn giao dịch', message: 'Bạn đang có 3 giao dịch chờ thanh toán. Vui lòng hoàn tất hoặc hủy bớt giao dịch cũ!' }
+                    }));
+                    return;
+                }
+
+                this.isLoading = true;
+                try {
+                    const response = await fetch('/api/v1/topup/create', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                        },
+                        body: JSON.stringify({ amount: this.amount })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        this.fetchPending();
+                        this.showQr(data.transaction);
+                        this.amount = '';
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'success', title: 'Thành công', message: 'Đã tạo giao dịch nạp tiền. Vui lòng quét mã QR thanh toán!' }
+                        }));
+                    } else {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'error', title: 'Lỗi', message: data.message || 'Có lỗi xảy ra khi tạo QR thanh toán!' }
+                        }));
+                    }
+                } catch (error) {
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'error', title: 'Lỗi', message: 'Lỗi kết nối đến máy chủ. Vui lòng thử lại!' }
+                    }));
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+
+            showQr(tx) {
+                const bankId = '{{ config('payment.vietqr.bin', '970423') }}';
+                const accountNo = '{{ config('payment.vietqr.account', '10003179213') }}';
+                const accountName = '{{ config('payment.vietqr.name', 'NGUYEN DUC HOANG') }}';
+                const template = '{{ config('payment.vietqr.template', 'compact') }}';
+                const prefix = '{{ config('payment.vietqr.prefix', 'SEVQR ') }}';
+
+                const description = `${prefix.trim()} ${tx.payment_code}`;
+
+                this.qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${tx.amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountName)}`;
+                this.qrDescription = description;
+                this.activeQrTx = tx;
+                this.topupView = 'qr_display';
+            },
+
+            async cancelTx(id) {
+                if (!confirm('Bạn có chắc chắn muốn hủy giao dịch nạp tiền đang chờ này không?')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/v1/topup/${id}/cancel`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                        }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'success', title: 'Hủy thành công', message: data.message }
+                        }));
+                        this.fetchPending();
+                        if (this.activeQrTx && this.activeQrTx.id === id) {
+                            this.activeQrTx = null;
+                            this.topupView = 'form';
+                        }
+                    } else {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'error', title: 'Lỗi', message: data.message }
+                        }));
+                    }
+                } catch (error) {
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'error', title: 'Lỗi kết nối', message: 'Không thể hủy giao dịch. Vui lòng thử lại sau.' }
+                    }));
+                }
+            },
+
+            copyText(text) {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'success', title: 'Đã sao chép', message: 'Nội dung chuyển khoản đã được sao chép vào bộ nhớ tạm.' }
+                        }));
+                    });
+                } else {
+                    const el = document.createElement('textarea');
+                    el.value = text;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'success', title: 'Đã sao chép', message: 'Nội dung chuyển khoản đã được sao chép vào bộ nhớ tạm.' }
+                    }));
+                }
+            }
+        }));
+    });
+</script>
+@endpush
