@@ -8,6 +8,7 @@ use App\Events\BalanceUpdated;
 use App\Events\TopupStatusChanged;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\TelegramService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
@@ -217,6 +218,13 @@ class TopupControllerTest extends TestCase
     {
         Event::fake([BalanceUpdated::class, TopupStatusChanged::class]);
 
+        // Giả lập không bắn thông báo thật sang Telegram Bot API
+        $this->mock(TelegramService::class, function ($mock) {
+            $mock->shouldReceive('sendTopupSuccessNotification')
+                ->once()
+                ->andReturn(true);
+        });
+
         $apiKey = config('payment.sepay.api_key', 'sepay_api_key_default');
 
         // Tạo giao dịch PENDING trước
@@ -273,6 +281,13 @@ class TopupControllerTest extends TestCase
     public function test_sepay_webhook_fallback_unitcode_success(): void
     {
         Event::fake([BalanceUpdated::class, TopupStatusChanged::class]);
+
+        // Giả lập không bắn thông báo thật sang Telegram Bot API
+        $this->mock(TelegramService::class, function ($mock) {
+            $mock->shouldReceive('sendTopupSuccessNotification')
+                ->once()
+                ->andReturn(true);
+        });
 
         $apiKey = config('payment.sepay.api_key', 'sepay_api_key_default');
         $unitcode = $this->user->unitcode;

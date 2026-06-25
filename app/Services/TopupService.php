@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+use App\Services\TelegramService;
+
 /**
  * TopupService — Đóng gói toàn bộ business logic nạp tiền.
  *
@@ -23,6 +25,9 @@ use Illuminate\Support\Str;
  */
 class TopupService
 {
+    public function __construct(
+        private readonly TelegramService $telegramService
+    ) {}
     /**
      * Tạo giao dịch PENDING mới + sinh QR thanh toán.
      *
@@ -399,6 +404,9 @@ class TopupService
 
         // Phát sự kiện XP & hoa hồng affiliate
         event(new UserTopupSucceeded($user, $txn));
+
+        // Bắn thông báo Telegram khi nạp tiền thành công
+        $this->telegramService->sendTopupSuccessNotification($user, $txn);
     }
 
     /**
