@@ -119,13 +119,12 @@ class TopupController extends Controller
     /**
      * API: Lấy lịch sử nạp tiền (tất cả trạng thái) có phân trang.
      */
-    public function history(): JsonResponse
+    public function history(Request $request): JsonResponse
     {
         $user = Auth::user();
+        $perPage = (int) $request->query('per_page', 10);
 
-        $transactions = Transaction::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $transactions = $this->topupService->getHistory($user, $perPage);
 
         return response()->json([
             'success' => true,

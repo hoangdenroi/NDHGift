@@ -438,4 +438,54 @@ class TopupControllerTest extends TestCase
             return $event->transactionId === $expiredTx->id && $event->newStatus === Transaction::STATUS_EXPIRED;
         });
     }
+
+    /**
+     * Test case: Giao dịch nạp tiền quá hạn tự động chuyển sang EXPIRED khi gọi API get pending.
+     */
+    public function test_auto_expire_pending_transactions_on_fetch_success(): void
+    {
+        Event::fake([TopupStatusChanged::class]);
+
+        // Tạo 1 giao dịch PENDING đã quá hạn
+        $expiredTx = Transaction::create([
+            'user_id' => $this->user->id,
+            'amount' => 50000,
+            'status' => Transaction::STATUS_PENDING,
+            'payment_method' => 'SEPAY',
+            'payment_code' => 'EXP67890',
+            'transaction_no' => 'TXN_EXP_AUTO_1',
+            'expires_at' => now()->subMinutes(5), // Đã hết hạn cách đây 5 phút
+        ]);
+
+        // Tạo 1 giao dịch PENDING chưa quá hạn
+        $activeTx = Transaction::create([
+            'user_id' => $this->user->id,
+            'amount' => 50000,
+            'status' => Transaction::STATUS_PENDING,
+            'payment_method' => 'SEPAY',
+            'payment_code' => 'ACT67890',
+            'transaction_no' => 'TXN_ACT_AUTO_1',
+            'expires_at' => now()->addMinutes(30), // Chưa quá hạn
+        ]);
+
+        // Gọi API pending
+        $response = $this->actingAs($this->user)
+            ->getJson('/api/v1/topup/pending');
+
+        $response->assertStatus(200);
+
+        // Kiểm tra trong DB: expiredTx đã chuyển sang EXPIRED, activeTx vẫn PENDING
+        $this->assertEquals(Transaction::STATUS_EXPIRED, $expiredTx->fresh()->status);
+        $this->assertEquals(Transaction::STATUS_PENDING, $activeTx->fresh()->status);
+
+        // API chỉ trả về giao dịch chưa hết hạn
+        $response->assertJsonCount(1, 'data');
+        $this->assertEquals('ACT67890', $response->json('data.0.payment_code'));
+
+        // Đảm bảo event status change được phát cho giao dịch hết hạn
+        Event::assertDispatched(TopupStatusChanged::class, function ($event) use ($expiredTx) {
+            return $event->transactionId === $expiredTx->id && $event->newStatus === Transaction::STATUS_EXPIRED;
+        });
+    }
 }
+

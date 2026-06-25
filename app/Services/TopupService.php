@@ -145,10 +145,61 @@ class TopupService
      */
     public function getPendingTransactions(User $user): \Illuminate\Database\Eloquent\Collection
     {
+        // Tự động quét và chuyển các giao dịch PENDING đã quá hạn của user này sang EXPIRED
+        $this->expireUserTransactions($user);
+
         return Transaction::forUser($user->id)
             ->pending()
             ->orderBy('created_at', 'desc')
             ->get();
+    }
+
+    /**
+     * Lấy lịch sử nạp tiền có phân trang của user.
+     *
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getHistory(User $user, int $perPage = 10): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        // Tự động quét và cập nhật các giao dịch quá hạn trước khi trả về lịch sử
+        $this->expireUserTransactions($user);
+
+        return Transaction::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
+
+    /**
+     * Tự động chuyển các giao dịch PENDING đã quá hạn của User sang EXPIRED.
+     */
+    private function expireUserTransactions(User $user): void
+    {
+        $expiredTransactions = Transaction::forUser($user->id)
+            ->where('status', Transaction::STATUS_PENDING)
+            ->where('expires_at', '<=', now())
+            ->get();
+
+        foreach ($expiredTransactions as $tx) {
+            DB::transaction(function () use ($tx, $user): void {
+                // Lock record để tránh race condition với webhook SePay
+                $locked = Transaction::where('id', $tx->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($locked && $locked->status === Transaction::STATUS_PENDING) {
+                    $locked->status = Transaction::STATUS_EXPIRED;
+                    $locked->failure_reason = 'Giao dịch hết hạn tự động sau ' . Transaction::PENDING_EXPIRY_MINUTES . ' phút.';
+                    $locked->save();
+
+                    // Broadcast sự kiện trạng thái thay đổi
+                    event(new TopupStatusChanged(
+                        userId: $user->id,
+                        transactionId: $locked->id,
+                        newStatus: Transaction::STATUS_EXPIRED,
+                    ));
+                }
+            });
+        }
     }
 
     /**
