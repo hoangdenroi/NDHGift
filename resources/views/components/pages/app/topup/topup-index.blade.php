@@ -3,10 +3,7 @@
     <div class="flex flex-col gap-6"
         @balance-updated.window="balance = $event.detail.new_balance; fetchPending();"
         @topup-status-changed.window="handleTopupStatusChanged($event.detail)"
-        x-data="topupIndex({
-            balance: {{ auth()->user()->balance ?? 0 }},
-            pendingTransactions: @js($pendingTransactions ?? [])
-        })">
+        x-data="topupIndex()">
 
         {{-- Header --}}
         <div class="flex items-center justify-between">
@@ -383,14 +380,18 @@
 
     </div>
 
-</x-app-layout>
 
 @push('scripts')
 <script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('topupIndex', (config) => ({
-            balance: config.balance,
-            pendingTransactions: config.pendingTransactions,
+    window.topupConfig = {
+        balance: {{ auth()->user()->balance ?? 0 }},
+        pendingTransactions: @js($pendingTransactions ?? [])
+    };
+
+    window.topupIndex = function () {
+        return {
+            balance: window.topupConfig.balance,
+            pendingTransactions: window.topupConfig.pendingTransactions,
             amount: '',
             paymentMethod: 'qr',
             topupView: 'form',
@@ -635,7 +636,8 @@
                     }));
                 }
             }
-        }));
-    });
+        };
+    };
 </script>
 @endpush
+</x-app-layout>
