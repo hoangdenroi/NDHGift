@@ -37,12 +37,12 @@ class TopupService
     {
         return DB::transaction(function () use ($user, $amount): array {
             // Kiểm tra giới hạn — lockForUpdate ngăn race condition tạo đồng thời
-            $pendingCount = Transaction::forUser($user->id)
+            $pendingTransactions = Transaction::forUser($user->id)
                 ->pending()
                 ->lockForUpdate()
-                ->count();
+                ->get();
 
-            if ($pendingCount >= Transaction::MAX_PENDING_TRANSACTIONS) {
+            if ($pendingTransactions->count() >= Transaction::MAX_PENDING_TRANSACTIONS) {
                 throw new \RuntimeException(
                     'Bạn đã có ' . Transaction::MAX_PENDING_TRANSACTIONS . ' giao dịch đang chờ. '
                     . 'Vui lòng hoàn tất hoặc hủy giao dịch cũ trước khi tạo mới.'
