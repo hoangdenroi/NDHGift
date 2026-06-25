@@ -225,6 +225,7 @@
                 window.Echo.private('App.Models.User.' + window.userId)
                     .stopListening('UserAccountLocked')
                     .stopListening('BalanceUpdated')
+                    .stopListening('TopupStatusChanged')
                     .listen('UserAccountLocked', (e) => {
                         // Redirect về '/', Middleware EnsureUserIsActive sẽ chặn lại, gỡ session và hiển thị Toast Login
                         window.location.href = '/';
@@ -238,6 +239,12 @@
                         // Phát custom event để các component Alpine.js tự cập nhật số dư
                         window.dispatchEvent(new CustomEvent('balance-updated', {
                             detail: { new_balance: e.new_balance, amount: e.amount }
+                        }));
+                    })
+                    .listen('TopupStatusChanged', (e) => {
+                        // Phát custom event khi giao dịch nạp tiền thay đổi trạng thái
+                        window.dispatchEvent(new CustomEvent('topup-status-changed', {
+                            detail: { transaction_id: e.transaction_id, new_status: e.new_status }
                         }));
                     });
             }

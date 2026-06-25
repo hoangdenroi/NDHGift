@@ -1,83 +1,129 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\App\topup;
 
-use App\Events\BalanceUpdated;
 use App\Http\Controllers\Controller;
-use App\Models\Notification;
+use App\Http\Requests\Topup\CreateTopupRequest;
+use App\Http\Requests\Topup\SepayWebhookRequest;
 use App\Models\Transaction;
-use App\Models\User;
-use App\Services\AuditLogService;
-use Carbon\Carbon;
+use App\Services\TopupService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use Illuminate\View\View;
 
+/**
+ * TopupController — Skinny Controller cho module nạp tiền.
+ *
+ * Mọi business logic đã delegate sang TopupService.
+ * Controller chỉ nhận request, gọi service và trả response.
+ */
 class TopupController extends Controller
 {
-    public function index()
+    public function __construct(
+        private readonly TopupService $topupService
+    ) {}
+
+    /**
+     * Trang nạp tiền — truyền danh sách giao dịch PENDING vào view.
+     */
+    public function index(): View
     {
-        return view('components.pages.app.topup.topup-index');
+        $pendingTransactions = $this->topupService->getPendingTransactions(Auth::user());
+
+        return view('components.pages.app.topup.topup-index', [
+            'pendingTransactions' => $pendingTransactions,
+        ]);
     }
 
     /**
-     * Lấy thông tin & link mã QR thanh toán
+     * API: Tạo giao dịch nạp tiền PENDING + sinh QR thanh toán.
+     *
+     * Chỉ nhận amount từ client — server tự tính toán mọi thứ.
      */
-    public function getPaymentQr(Request $request)
+    public function createTopup(CreateTopupRequest $request): JsonResponse
     {
-        if (! Auth::check()) {
-            Log::warning('Nạp tiền thất bại: Nỗ lực tạo mã QR khi chưa đăng nhập', [
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-            ]);
+        try {
+            $result = $this->topupService->createPendingTransaction(
+                Auth::user(),
+                (int) $request->validated('amount')
+            );
 
             return response()->json([
+                'success' => true,
+                'qr_url' => $result['qr_url'],
+                'description' => $result['description'],
+                'transaction' => [
+                    'id' => $result['transaction']->id,
+                    'transaction_no' => $result['transaction']->transaction_no,
+                    'payment_code' => $result['transaction']->payment_code,
+                    'amount' => $result['transaction']->amount,
+                    'status' => $result['transaction']->status,
+                    'expires_at' => $result['transaction']->expires_at?->toISOString(),
+                    'created_at' => $result['transaction']->created_at?->toISOString(),
+                ],
+            ]);
+        } catch (\RuntimeException $e) {
+            return response()->json([
                 'success' => false,
-                'message' => 'Vui lòng đăng nhập hệ thống để thực hiện nạp tiền!',
-            ], 401);
+                'message' => $e->getMessage(),
+            ], 422);
         }
+    }
 
-        // Require amount and must be integer >= 20000
-        $request->validate([
-            'amount' => 'required|integer|min:20000|max:100000000',
-        ]);
+    /**
+     * API: Hủy giao dịch PENDING — kiểm tra IDOR trong Service.
+     */
+    public function cancelTopup(Transaction $transaction): JsonResponse
+    {
+        try {
+            $this->topupService->cancelTransaction(Auth::user(), $transaction);
 
-        $amount = $request->input('amount');
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã hủy giao dịch thành công.',
+            ]);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
 
-        // Cấu hình ngân hàng (Bạn có thể chuyển các giá trị này sang .env)
-        $bankId = config('payment.vietqr.bin', '970423');
-        $accountNo = config('payment.vietqr.account', '10003179213');
-        $accountName = config('payment.vietqr.name', 'NGUYEN DUC HOANG');
-        $template = config('payment.vietqr.template', 'compact');
-        $prefix = config('payment.vietqr.prefix', 'SEVQR ');
-
-        // Nội dung CK tuỳ theo User đang login, đảm bảo phân cách bằng dấu cách
-        $description = trim($prefix).' '.Auth::user()->unitcode;
-
-        // Sinh link QR từ img.vietqr.io
-        $qrUrl = "https://img.vietqr.io/image/{$bankId}-{$accountNo}-{$template}.png?amount={$amount}&addInfo=".urlencode($description).'&accountName='.urlencode($accountName);
+    /**
+     * API: Lấy danh sách giao dịch PENDING chưa hết hạn.
+     */
+    public function pendingTransactions(): JsonResponse
+    {
+        $transactions = $this->topupService->getPendingTransactions(Auth::user());
 
         return response()->json([
             'success' => true,
-            'qr_url' => $qrUrl,
-            'amount' => $amount,
-            'description' => $description,
+            'data' => $transactions->map(fn (Transaction $tx) => [
+                'id' => $tx->id,
+                'transaction_no' => $tx->transaction_no,
+                'payment_code' => $tx->payment_code,
+                'amount' => $tx->amount,
+                'status' => $tx->status,
+                'order_info' => $tx->order_info,
+                'expires_at' => $tx->expires_at?->toISOString(),
+                'created_at' => $tx->created_at?->toISOString(),
+            ]),
         ]);
     }
 
     /**
-     * Lấy lịch sử nạp tiền của user hiện tại
+     * API: Lấy lịch sử nạp tiền (tất cả trạng thái) có phân trang.
      */
-    public function history(Request $request)
+    public function history(): JsonResponse
     {
-        $unitcode = Auth::user()->unitcode;
+        $user = Auth::user();
 
-        $transactions = Transaction::where(function ($query) use ($unitcode) {
-            $query->where('user_id', Auth::id())
-                ->orWhere('order_info', 'like', "%{$unitcode}%");
-        })
+        $transactions = Transaction::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -87,172 +133,75 @@ class TopupController extends Controller
         ]);
     }
 
-    public function sepayHook(Request $request)
+    /**
+     * Webhook từ SePay — xác thực API key rồi delegate sang Service.
+     *
+     * Giữ logic xác thực API key tại Controller vì đây là HTTP-level concern,
+     * không thuộc business logic thuần túy.
+     */
+    public function sepayHook(SepayWebhookRequest $request): JsonResponse
     {
-        // Sử dụng config thay thế cho env trực tiếp
-        $expectedApiKey = config('payment.sepay.api_key');
-        $authHeader = $request->header('Authorization');
-        $apiKeyHeader = $request->header('apikey');
+        // Xác thực API key từ header
+        if (!$this->validateSepayApiKey($request)) {
+            Log::warning('SePay Webhook: API key không hợp lệ', [
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
 
-        // Kiểm tra xem header nào được gửi (Authorization hoặc apikey trực tiếp)
-        $isValid = false;
-        if ($authHeader && ltrim($authHeader) === 'Apikey '.$expectedApiKey) {
-            $isValid = true;
-        } elseif ($apiKeyHeader && current(explode(' ', $apiKeyHeader)) === $expectedApiKey) { // Trường hợp chỉ truyền giá trị api key
-            $isValid = true;
-        } elseif ($apiKeyHeader && current(explode(' ', ltrim(str_replace('Apikey ', '', $apiKeyHeader)))) === $expectedApiKey) {
-            $isValid = true;
-        } elseif ($apiKeyHeader === $expectedApiKey) {
-            $isValid = true;
-        }
-
-        if (! $isValid) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized. Invalid API Key.',
             ], 401);
         }
 
-        // Validate dữ liệu từ SePay webhook dựa theo DTO
-        $validated = $request->validate([
-            'id' => 'required|integer', // ID giao dịch trên SePay
-            'gateway' => 'required|string', // Brand name của ngân hàng
-            'transactionDate' => 'required|string', // Thời gian xảy ra giao dịch phía ngân hàng
-            'accountNumber' => 'required|string', // Số tài khoản ngân hàng
-            'code' => 'nullable', // Mã code thanh toán
-            'content' => 'required|string', // Nội dung chuyển khoản
-            'transferType' => 'required|string|in:in,out', // Loại giao dịch
-            'transferAmount' => 'required|integer|min:1', // Số tiền giao dịch
-            'accumulated' => 'required|integer', // Số dư tài khoản (lũy kế)
-            'subAccount' => 'nullable', // Tài khoản ngân hàng phụ
-            'referenceCode' => 'nullable|string', // Mã tham chiếu của tin nhắn sms
-            'description' => 'nullable|string', // Toàn bộ nội dung tin nhắn sms
-        ]);
-
         try {
-            DB::beginTransaction();
+            $result = $this->topupService->processSepayWebhook($request->validated());
 
-            $gatewayTransactionId = (string) $validated['id'];
-
-            // Kiểm tra xem transaction này đã được xử lý chưa (dựa vào id của SePay)
-            $existingTx = Transaction::where('gateway_transaction_id', $gatewayTransactionId)->first();
-
-            if ($existingTx) {
-                DB::rollBack();
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Giao dịch đã được thực hiện trước đó.',
-                ]);
-            }
-
-            $userId = null;
-            $prefix = config('payment.vietqr.prefix', 'SEVQR ');
-            $transferContent = strtoupper(trim($validated['content']));
-            $txStatus = 'SUCCESS';
-            $failureReason = null;
-
-            // Nếu là tiền vào và đúng cú pháp (hỗ trợ cả viết liền hoặc viết cách)
-            $prefixPattern = preg_quote(strtoupper(trim($prefix)), '/');
-            if ($validated['transferType'] === 'in' && preg_match('/'.$prefixPattern.'\s*([A-Z0-9]+)/', $transferContent, $matches)) {
-                $unitcode = trim($matches[1]);
-                $user = User::where('unitcode', $unitcode)->first();
-
-                if ($user) {
-                    $userId = $user->id;
-                    $oldBalance = $user->balance ?? 0;
-                    // Cộng tiền cho user
-                    $user->balance = $oldBalance + $validated['transferAmount'];
-                    $user->save();
-
-                    // Ghi log nạp tiền
-                    AuditLogService::log(
-                        'topup_bank_transfer',
-                        $user,
-                        ['balance' => (float) $oldBalance],
-                        [
-                            'balance' => (float) $user->balance,
-                            'amount' => (float) $validated['transferAmount'],
-                            'gateway' => $validated['gateway'],
-                            'transaction_no' => $gatewayTransactionId,
-                        ],
-                        $userId
-                    );
-
-                    // Tạo thông báo lưu DB
-                    Notification::create([
-                        'user_id' => $userId,
-                        'scope' => 'user',
-                        'title' => 'Nạp tiền thành công',
-                        'message' => 'Bạn vừa nạp thành công '.number_format($validated['transferAmount']).'đ vào tài khoản.',
-                        'type' => 'success',
-                        'data' => [
-                            'action' => 'update_balance',
-                        ],
-                    ]);
-
-                    // Phát sự kiện WebSocket realtime để Frontend tự cập nhật số dư
-                    event(new BalanceUpdated(
-                        userId: $userId,
-                        newBalance: (float) $user->balance,
-                        amount: (float) $validated['transferAmount'],
-                        message: 'Nạp thành công '.number_format($validated['transferAmount']).'đ',
-                    ));
-                } else {
-                    $txStatus = 'FAILED';
-                    $failureReason = 'Không tìm thấy user với mã unitcode: '.$unitcode;
-                }
-            } else {
-                $txStatus = 'FAILED';
-                $failureReason = 'Sai cú pháp nạp tiền hoặc không phải giao dịch chuyển vào (in)';
-            }
-
-            // Xử lý metadata json string nếu có
-            $metadataInput = $validated['metadata'] ?? null;
-            $metadata = is_string($metadataInput) ? json_decode($metadataInput, true) : $metadataInput;
-            if (! $metadata) {
-                $metadata = ['raw_sepay_data' => $validated];
-            }
-
-            $txn = Transaction::create([
-                'user_id' => $userId,
-                'user_identifier' => null,
-                'amount' => $validated['transferAmount'],
-                'fee' => 0, // SePay không trả về fee, gán mặc định 0
-                'net_amount' => $validated['transferAmount'],
-                'currency' => 'VND',
-                'transaction_no' => 'TXN'.Str::ulid()->toString(),
-                'gateway_transaction_id' => $gatewayTransactionId,
-                'bank_code' => $validated['gateway'],
-                'status' => $txStatus, // SUCCESS hoặc FAILED
-                'payment_method' => 'SEPAY',
-                'response_code' => $txStatus === 'SUCCESS' ? '00' : '99',
-                'order_info' => $validated['content'].' - '.($validated['description'] ?? ''),
-                'pay_date' => Carbon::parse($validated['transactionDate']),
-                'account_number' => $validated['subAccount'] ?? $validated['accountNumber'],
-                'metadata' => $metadata,
-                'failure_reason' => $failureReason,
-            ]);
-
-            // Phát sự kiện cộng XP & hoa hồng nếu giao dịch thành công và tìm thấy user
-            if ($txStatus === 'SUCCESS' && isset($user) && $user) {
-                event(new \App\Events\UserTopupSucceeded($user, $txn));
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Giao dịch thành công',
-            ]);
+            return response()->json($result);
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('SePay Webhook Error: '.$e->getMessage());
+            Log::error('SePay Webhook Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi xử lý webhook',
+                'message' => 'Lỗi khi xử lý webhook.',
             ], 500);
         }
+    }
+
+    /**
+     * Xác thực API key từ header của SePay webhook.
+     *
+     * Hỗ trợ nhiều định dạng header (Authorization, apikey) để tương thích
+     * với cấu hình đa dạng từ phía SePay.
+     */
+    private function validateSepayApiKey(Request $request): bool
+    {
+        $expectedApiKey = config('payment.sepay.api_key');
+        $authHeader = $request->header('Authorization');
+        $apiKeyHeader = $request->header('apikey');
+
+        if ($authHeader && ltrim($authHeader) === 'Apikey ' . $expectedApiKey) {
+            return true;
+        }
+
+        if ($apiKeyHeader) {
+            // Trường hợp gửi trực tiếp giá trị api key
+            if ($apiKeyHeader === $expectedApiKey) {
+                return true;
+            }
+            // Trường hợp có prefix "Apikey "
+            if (current(explode(' ', $apiKeyHeader)) === $expectedApiKey) {
+                return true;
+            }
+            // Trường hợp "Apikey <value>" — tách prefix ra
+            $stripped = ltrim(str_replace('Apikey ', '', $apiKeyHeader));
+            if (current(explode(' ', $stripped)) === $expectedApiKey) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

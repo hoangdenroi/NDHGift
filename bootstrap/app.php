@@ -23,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
         // Quét hạ cấp và đóng băng tài khoản không hoạt động hàng ngày
         $schedule->command('app:decay-user-levels')->daily();
+
+        // Chuyển giao dịch nạp tiền PENDING quá hạn sang EXPIRED — mỗi giờ
+        $schedule->command('topup:expire-pending')->hourly();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         // Cấu hình Trust Proxies cho Cloudflare / Reverse Proxy

@@ -1,7 +1,8 @@
 <x-app-layout :title="__('Top Up') . ' - NDHGift'">
 
     <div class="flex flex-col gap-6"
-        @balance-updated.window="balance = $event.detail.new_balance; if (topupView === 'qr_display') { topupView = 'form'; amount = ''; }"
+        @balance-updated.window="balance = $event.detail.new_balance; fetchPending();"
+        @topup-status-changed.window="handleTopupStatusChanged($event.detail)"
         x-data="{
             balance: {{ auth()->user()->balance ?? 0 }},
             amount: '',
@@ -9,12 +10,89 @@
             topupView: 'form',
             qrUrl: '',
             qrDescription: '',
-            lastGeneratedAmount: '',
+            activeQrTx: null,
             isLoading: false,
             transactions: [],
             currentPage: 1,
             lastPage: 1,
             isLoadingHistory: false,
+            pendingTransactions: @json($pendingTransactions ?? []),
+
+            init() {
+                // Khởi tạo bộ đếm thời gian cho các giao dịch đang chờ
+                setInterval(() => {
+                    this.updateCountdowns();
+                }, 1000);
+                this.updateCountdowns();
+            },
+
+            updateCountdowns() {
+                this.pendingTransactions.forEach(tx => {
+                    if (!tx.expires_at) return;
+                    const expires = new Date(tx.expires_at).getTime();
+                    const now = new Date().getTime();
+                    const diff = expires - now;
+
+                    if (diff <= 0) {
+                        tx.timeLeft = 'Đã hết hạn';
+                        if (tx.status === 'PENDING') {
+                            tx.status = 'EXPIRED';
+                            // Cập nhật lại danh sách sau khi giao dịch hết hạn
+                            setTimeout(() => { this.fetchPending(); }, 2000);
+                        }
+                    } else {
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                        tx.timeLeft = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    }
+                });
+            },
+
+            async fetchPending() {
+                try {
+                    const response = await fetch('/api/v1/topup/pending', {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        this.pendingTransactions = data.data;
+                        this.updateCountdowns();
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi tải danh sách giao dịch chờ:', error);
+                }
+            },
+
+            handleTopupStatusChanged(detail) {
+                // Tìm kiếm giao dịch trong danh sách để cập nhật trạng thái realtime
+                const tx = this.pendingTransactions.find(t => t.id === detail.transaction_id);
+                if (tx) {
+                    tx.status = detail.new_status;
+                    if (detail.new_status === 'SUCCESS') {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'success', title: 'Nạp tiền thành công', message: `Giao dịch ${tx.payment_code} đã được xử lý!` }
+                        }));
+                        // Flash hiệu ứng thành công rồi tải lại danh sách
+                        setTimeout(() => {
+                            this.fetchPending();
+                            if (this.activeQrTx && this.activeQrTx.id === tx.id) {
+                                this.activeQrTx = null;
+                                this.topupView = 'form';
+                            }
+                        }, 3000);
+                    } else {
+                        this.fetchPending();
+                        if (this.activeQrTx && this.activeQrTx.id === tx.id) {
+                            this.activeQrTx = null;
+                            this.topupView = 'form';
+                        }
+                    }
+                } else {
+                    this.fetchPending();
+                }
+            },
+
             async fetchHistory(page = 1) {
                 @guest
                     console.warn('[Topup] Blocked: Guest user tried to fetch top-up history.');
@@ -45,6 +123,7 @@
                     this.isLoadingHistory = false;
                 }
             },
+
             selectPaymentMethod(method) {
                 @guest
                     console.warn('[Topup] Blocked: User tried to select payment method without being logged in.');
@@ -55,6 +134,7 @@
                 @endguest
                 this.paymentMethod = method;
             },
+
             async generateQR() {
                 @guest
                     console.warn('[Topup] Blocked: User tried to generate QR code without being logged in.');
@@ -77,15 +157,18 @@
                     return;
                 }
 
-                // Tối ưu: Nếu số tiền không đổi và đã có QR thì không gọi lại API
-                if (this.amount == this.lastGeneratedAmount && this.qrUrl) {
-                    this.topupView = 'qr_display';
+                // Kiểm tra giới hạn 3 giao dịch PENDING ở phía Client
+                const activePendingCount = this.pendingTransactions.filter(t => t.status === 'PENDING').length;
+                if (activePendingCount >= 3) {
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'warning', title: 'Giới hạn giao dịch', message: 'Bạn đang có 3 giao dịch chờ thanh toán. Vui lòng hoàn tất hoặc hủy bớt giao dịch cũ!' }
+                    }));
                     return;
                 }
 
                 this.isLoading = true;
                 try {
-                    const response = await fetch('/api/v1/topup/qrcode', {
+                    const response = await fetch('/api/v1/topup/create', {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: {
@@ -97,10 +180,12 @@
                     });
                     const data = await response.json();
                     if (data.success) {
-                        this.qrUrl = data.qr_url;
-                        this.qrDescription = data.description;
-                        this.lastGeneratedAmount = this.amount; // Lưu lại số tiền đã tạo QR thành công
-                        this.topupView = 'qr_display';
+                        this.fetchPending();
+                        this.showQr(data.transaction);
+                        this.amount = '';
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'success', title: 'Thành công', message: 'Đã tạo giao dịch nạp tiền. Vui lòng quét mã QR thanh toán!' }
+                        }));
                     } else {
                         window.dispatchEvent(new CustomEvent('toast', {
                             detail: { type: 'error', title: '{{ __('Error') }}', message: data.message || '{{ __('An error occurred while generating the payment QR!') }}' }
@@ -112,6 +197,78 @@
                     }));
                 } finally {
                     this.isLoading = false;
+                }
+            },
+
+            showQr(tx) {
+                const bankId = '{{ config('payment.vietqr.bin', '970423') }}';
+                const accountNo = '{{ config('payment.vietqr.account', '10003179213') }}';
+                const accountName = '{{ config('payment.vietqr.name', 'NGUYEN DUC HOANG') }}';
+                const template = '{{ config('payment.vietqr.template', 'compact') }}';
+                const prefix = '{{ config('payment.vietqr.prefix', 'SEVQR ') }}';
+
+                const description = `${prefix.trim()} ${tx.payment_code}`;
+
+                this.qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${tx.amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountName)}`;
+                this.qrDescription = description;
+                this.activeQrTx = tx;
+                this.topupView = 'qr_display';
+            },
+
+            async cancelTx(id) {
+                if (!confirm('Bạn có chắc chắn muốn hủy giao dịch nạp tiền đang chờ này không?')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/v1/topup/${id}/cancel`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                        }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'success', title: 'Hủy thành công', message: data.message }
+                        }));
+                        this.fetchPending();
+                        if (this.activeQrTx && this.activeQrTx.id === id) {
+                            this.activeQrTx = null;
+                            this.topupView = 'form';
+                        }
+                    } else {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'error', title: 'Lỗi', message: data.message }
+                        }));
+                    }
+                } catch (error) {
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'error', title: 'Lỗi kết nối', message: 'Không thể hủy giao dịch. Vui lòng thử lại sau.' }
+                    }));
+                }
+            },
+
+            copyText(text) {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'success', title: 'Đã sao chép', message: 'Nội dung chuyển khoản đã được sao chép vào bộ nhớ tạm.' }
+                        }));
+                    });
+                } else {
+                    // Fallback
+                    const el = document.createElement('textarea');
+                    el.value = text;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'success', title: 'Đã sao chép', message: 'Nội dung chuyển khoản đã được sao chép vào bộ nhớ tạm.' }
+                    }));
                 }
             }
         }">
@@ -255,16 +412,106 @@
                     </div>
 
                     {{-- Nút nạp tiền --}}
-                    <button @click="generateQR()" :disabled="isLoading"
-                        class="w-full flex items-center justify-center h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] gap-2 disabled:opacity-75 disabled:cursor-wait">
+                    <button @click="generateQR()" :disabled="isLoading || pendingTransactions.filter(t => t.status === 'PENDING').length >= 3"
+                        class="w-full flex items-center justify-center h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                         <span class="material-symbols-outlined text-[20px]" x-show="!isLoading">add_card</span>
                         <span class="material-symbols-outlined text-[20px] animate-spin" x-show="isLoading"
                             x-cloak>autorenew</span>
-                        <span x-text="isLoading ? '{{ __('Generating QR...') }}' : '{{ __('Top Up') }}'"></span>
+                        <span x-text="pendingTransactions.filter(t => t.status === 'PENDING').length >= 3 ? 'Giới hạn 3 giao dịch chờ' : (isLoading ? '{{ __('Generating QR...') }}' : '{{ __('Top Up') }}')"></span>
                     </button>
                 </div>
 
             </div>
+
+            {{-- BẢNG GIAO DỊCH ĐANG CHỜ --}}
+            <div x-show="pendingTransactions.length > 0" class="mt-8 bg-app-surface border border-app-border rounded-xl overflow-hidden" x-transition x-cloak>
+                <div class="px-6 py-4 border-b border-app-border flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="size-2 rounded-full bg-primary animate-pulse"></span>
+                        <h2 class="text-sm sm:text-base font-bold text-app-text">Giao dịch nạp tiền đang chờ thanh toán</h2>
+                    </div>
+                    <span class="text-xs font-semibold text-app-muted" x-text="`${pendingTransactions.filter(t => t.status === 'PENDING').length}/3 giao dịch`"></span>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <template x-for="tx in pendingTransactions" :key="tx.id">
+                            <div :class="{
+                                    'border-primary/30 bg-primary/5': tx.status === 'PENDING',
+                                    'border-emerald-500/30 bg-emerald-500/5': tx.status === 'SUCCESS',
+                                    'border-red-500/30 bg-red-500/5': tx.status === 'FAILED' || tx.status === 'CANCELLED' || tx.status === 'EXPIRED',
+                                 }"
+                                 class="relative flex flex-col p-4 rounded-xl border transition-all duration-300 overflow-hidden">
+
+                                <!-- Chi tiết giao dịch -->
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <span class="text-[10px] text-app-muted font-medium uppercase">Mã GD</span>
+                                        <p class="text-sm font-bold text-app-text uppercase" x-text="tx.payment_code"></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] text-app-muted font-medium uppercase">Số tiền</span>
+                                        <p class="text-sm font-bold text-primary" x-text="new Intl.NumberFormat('vi-VN').format(tx.amount) + 'đ'"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Nội dung CK -->
+                                <div class="bg-app-main p-2.5 rounded-lg border border-app-border flex items-center justify-between mb-4">
+                                    <div class="min-w-0 flex-1 pr-2">
+                                        <span class="text-[9px] text-app-muted block uppercase font-bold tracking-wider">Nội dung chuyển khoản</span>
+                                        <span class="text-xs font-mono font-bold text-app-text select-all truncate block" x-text="tx.order_info"></span>
+                                    </div>
+                                    <button @click="copyText(tx.order_info)" class="p-1.5 rounded bg-primary/10 hover:bg-primary/20 text-primary transition-colors shrink-0" title="Sao chép">
+                                        <span class="material-symbols-outlined text-[16px]">content_copy</span>
+                                    </button>
+                                </div>
+
+                                <!-- Trạng thái & Action -->
+                                <div class="flex items-center justify-between mt-auto pt-2.5 border-t border-app-border/40">
+                                    <div class="flex items-center gap-1.5">
+                                        <template x-if="tx.status === 'PENDING'">
+                                            <div class="flex items-center gap-1 text-amber-500 font-bold text-xs">
+                                                <span class="material-symbols-outlined text-[14px] animate-spin">schedule</span>
+                                                <span x-text="tx.timeLeft || '60:00'"></span>
+                                            </div>
+                                        </template>
+                                        <template x-if="tx.status === 'SUCCESS'">
+                                            <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-500">
+                                                <span class="material-symbols-outlined text-[14px]">check_circle</span> Thành công
+                                            </span>
+                                        </template>
+                                        <template x-if="tx.status === 'EXPIRED'">
+                                            <span class="inline-flex items-center gap-1 text-xs font-bold text-app-muted">
+                                                <span class="material-symbols-outlined text-[14px]">error</span> Hết hạn
+                                            </span>
+                                        </template>
+                                        <template x-if="tx.status === 'CANCELLED'">
+                                            <span class="inline-flex items-center gap-1 text-xs font-bold text-red-500">
+                                                <span class="material-symbols-outlined text-[14px]">cancel</span> Đã hủy
+                                            </span>
+                                        </template>
+                                    </div>
+
+                                    <!-- Thao tác -->
+                                    <div class="flex items-center gap-1.5">
+                                        <template x-if="tx.status === 'PENDING'">
+                                            <div class="flex items-center gap-1.5">
+                                                <button @click="showQr(tx)" class="px-2.5 py-1 rounded bg-primary text-white text-[11px] font-bold hover:bg-primary/90 transition-colors flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-[14px]">qr_code</span> Xem QR
+                                                </button>
+                                                <button @click="cancelTx(tx.id)" class="p-1 rounded border border-red-500/20 hover:bg-red-500/10 text-red-500 transition-colors" title="Hủy giao dịch">
+                                                    <span class="material-symbols-outlined text-[15px]">close</span>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         {{-- ============================== --}}
@@ -291,13 +538,17 @@
                     <div class="flex justify-between items-center pb-3 border-b border-app-border">
                         <span class="text-xs sm:text-sm text-app-muted">{{ __('Top Up Amount:') }}</span>
                         <span class="font-bold text-primary text-base sm:text-lg">
-                            <span x-text="new Intl.NumberFormat('vi-VN').format(amount)"></span>đ
+                            <span x-text="activeQrTx ? new Intl.NumberFormat('vi-VN').format(activeQrTx.amount) : '0'"></span>đ
                         </span>
                     </div>
                     <div class="flex flex-col gap-1 pb-3 border-b border-app-border">
                         <span class="text-xs sm:text-sm text-app-muted">{{ __('Transfer Content:') }}</span>
-                        <span class="font-bold text-app-text text-sm sm:text-base text-center tracking-wider py-1"
-                             x-text="qrDescription"></span>
+                        <div class="flex items-center justify-between gap-2 py-1">
+                            <span class="font-bold text-app-text text-sm sm:text-base tracking-wider" x-text="qrDescription"></span>
+                            <button @click="copyText(qrDescription)" class="p-1 rounded bg-primary/10 hover:bg-primary/20 text-primary transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">content_copy</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="pt-1 flex items-start justify-center gap-1.5 px-2">
                         <span class="material-symbols-outlined text-[18px] text-amber-500 mt-0.5 shrink-0">info</span>
@@ -311,10 +562,10 @@
 
                 {{-- Nút hành động --}}
                 <div class="w-full flex flex-col gap-3">
-                    <button @click="window.location.href = '{{ route('app.topup') }}'"
+                    <button @click="topupView = 'form'"
                         class="w-full flex items-center justify-center h-11 bg-primary hover:bg-primary/90 text-white text-sm sm:text-base font-bold rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] gap-2">
                         <span class="material-symbols-outlined text-[20px]">check_circle</span>
-                        {{ __('Topped Up') }}
+                        Tôi đã chuyển khoản xong
                     </button>
                     <button @click="topupView = 'form'"
                         class="w-full flex items-center justify-center h-11 border border-app-border hover:bg-app-main text-app-text text-sm sm:text-base font-bold rounded-xl transition-colors gap-2">

@@ -78,7 +78,9 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('v1/profile/xp-transactions', [ProfileController::class, 'xpTransactions'])->name('api.profile.xp_transactions');
     
     // --- NẠP TIỀN API (Khớp với topup-index.blade.php) ---
-    Route::post('v1/topup/qrcode', [TopupController::class, 'getPaymentQr'])->name('api.topup.qrcode');
+    Route::post('v1/topup/create', [TopupController::class, 'createTopup'])->name('api.topup.create');
+    Route::post('v1/topup/{transaction}/cancel', [TopupController::class, 'cancelTopup'])->name('api.topup.cancel');
+    Route::get('v1/topup/pending', [TopupController::class, 'pendingTransactions'])->name('api.topup.pending');
     Route::get('v1/topup/history', [TopupController::class, 'history'])->name('api.topup.history');
 
     // --- THÔNG BÁO API ---
