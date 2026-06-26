@@ -79,8 +79,9 @@
                 <button @click="openProfile = !openProfile"
                     class="flex items-center rounded-full hover:bg-app-surface/80 cursor-pointer transition-colors p-0.5 outline-none focus:ring-0"
                     :class="openProfile ? 'bg-app-surface' : ''">
-                    <div class="bg-center bg-no-repeat bg-cover rounded-full size-8 sm:size-9 relative border border-app-border"
-                        data-alt="User avatar profile picture" style='background-image: url("{{ $finalAvatar }}");'>
+                    <div class="size-8 sm:size-9 relative">
+                        <img src="{{ $finalAvatar }}" alt="User avatar" 
+                            class="size-full rounded-full object-cover border border-app-border">
                         <div
                             class="absolute bottom-0 right-0 size-2 sm:size-2.5 bg-green-500 border-2 border-app-main rounded-full">
                         </div>

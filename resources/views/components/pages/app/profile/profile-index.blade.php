@@ -55,7 +55,7 @@
                     <div class="lg:col-span-1 flex flex-col gap-4">
                         <div class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col items-center gap-4">
                             <div class="relative group cursor-pointer" x-data="{
-                avatarPreview: '{{ $user->avatar_url }}',
+                avatarPreview: '{{ $user->avatar_url_md }}',
                 avatarPreviewHd: '{{ $user->avatar_url_hd }}',
                 loading: false,
                 handleFileChange(event) {

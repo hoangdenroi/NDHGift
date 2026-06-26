@@ -198,7 +198,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Accessor: Tự động chuyển đổi link avatar thô sang URL kích thước trung bình (240px) sắc nét cho giao diện thường.
+     * Accessor: Tự động chuyển đổi link avatar thô sang URL kích thước nhỏ (96px) để hiển thị sắc nét ở Header và danh sách nhỏ.
      *
      * @param string|null $value
      * @return string|null
@@ -209,7 +209,42 @@ class User extends Authenticatable
             return null;
         }
 
-        // Nếu là link ảnh từ các nhà cung cấp bên ngoài (mạng xã hội)
+        // Nếu là link ảnh từ các mạng xã hội bên ngoài
+        if (str_starts_with($value, 'http') || str_starts_with($value, 'https')) {
+            // Chuẩn hóa link avatar Google sang kích thước nhỏ 96px
+            if (str_contains($value, 'googleusercontent.com')) {
+                return preg_replace('/=s\d+(?:-c)?$/i', '=s96-c', $value);
+            }
+
+            // Chuẩn hóa link avatar Facebook sang kích thước nhỏ
+            if (str_contains($value, 'graph.facebook.com')) {
+                if (str_contains($value, 'type=large') || str_contains($value, 'type=normal')) {
+                    return str_replace(['type=large', 'type=normal'], 'type=square', $value);
+                }
+                if (!str_contains($value, 'width=')) {
+                    return $value . (str_contains($value, '?') ? '&' : '?') . 'width=96&height=96';
+                }
+            }
+
+            return $value;
+        }
+
+        // Đối với ảnh tải lên cục bộ, trả về URL tuyệt đối thông qua asset()
+        return asset(ltrim($value, '/'));
+    }
+
+    /**
+     * Accessor: Lấy URL ảnh đại diện kích thước trung bình (240px) chuyên dùng cho Profile vòng tròn lớn.
+     *
+     * @return string|null
+     */
+    public function getAvatarUrlMdAttribute(): ?string
+    {
+        $value = $this->getRawOriginal('avatar_url');
+        if (empty($value)) {
+            return null;
+        }
+
         if (str_starts_with($value, 'http') || str_starts_with($value, 'https')) {
             // Chuẩn hóa link avatar Google sang kích thước trung bình 240px
             if (str_contains($value, 'googleusercontent.com')) {
@@ -229,7 +264,6 @@ class User extends Authenticatable
             return $value;
         }
 
-        // Đối với ảnh tải lên cục bộ, trả về URL tuyệt đối thông qua asset()
         return asset(ltrim($value, '/'));
     }
 
