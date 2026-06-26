@@ -55,34 +55,34 @@
                 <div class="lg:col-span-1 flex flex-col gap-4">
                     <div class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col items-center gap-4">
                         <div class="relative group cursor-pointer" x-data="{
-                                                                                                avatarPreview: '{{ $user->avatar_url }}',
-                                                                                                loading: false,
-                                                                                                handleFileChange(event) {
-                                                                                                    const file = event.target.files[0];
-                                                                                                    if (file) {
-                                                                                                        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
-                                                                                                        if (!validTypes.includes(file.type)) {
-                                                                                                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Please select a valid image file (jpeg, png, jpg, gif).') }}' } }));
-                                                                                                            event.target.value = '';
-                                                                                                            return;
-                                                                                                        }
-                                                                                                        if (file.size > 2 * 1024 * 1024) {
-                                                                                                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Image size must not exceed 2MB.') }}' } }));
-                                                                                                            event.target.value = '';
-                                                                                                            return;
-                                                                                                        }
+                                                                                                        avatarPreview: '{{ $user->avatar_url }}',
+                                                                                                        loading: false,
+                                                                                                        handleFileChange(event) {
+                                                                                                            const file = event.target.files[0];
+                                                                                                            if (file) {
+                                                                                                                const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                                                                                                                if (!validTypes.includes(file.type)) {
+                                                                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Please select a valid image file (jpeg, png, jpg, gif).') }}' } }));
+                                                                                                                    event.target.value = '';
+                                                                                                                    return;
+                                                                                                                }
+                                                                                                                if (file.size > 2 * 1024 * 1024) {
+                                                                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Error') }}', message: '{{ __('Image size must not exceed 2MB.') }}' } }));
+                                                                                                                    event.target.value = '';
+                                                                                                                    return;
+                                                                                                                }
 
-                                                                                                        this.loading = true;
-                                                                                                        this.avatarPreview = URL.createObjectURL(file);
-                                                                                                        // Tự động submit form sau khi chọn ảnh
-                                                                                                        document.getElementById('profile-form').submit();
-                                                                                                    }
-                                                                                                }
-                                                                                            }" x-init="() => {
-                                                                                                @error('avatar_file')
-                                                                                                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Upload Error') }}', message: @js($message) } }));
-                                                                                                @enderror
-                                                                                            }">
+                                                                                                                this.loading = true;
+                                                                                                                this.avatarPreview = URL.createObjectURL(file);
+                                                                                                                // Tự động submit form sau khi chọn ảnh
+                                                                                                                document.getElementById('profile-form').submit();
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }" x-init="() => {
+                                                                                                        @error('avatar_file')
+                                                                                                            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: '{{ __('Upload Error') }}', message: @js($message) } }));
+                                                                                                        @enderror
+                                                                                                    }">
                             <div @click="$dispatch('open-modal', 'avatar-modal')"
                                 class="size-24 rounded-full overflow-hidden border-4 border-app-border relative hover:border-primary/50 transition-colors">
                                 <template x-if="avatarPreview">
@@ -147,22 +147,26 @@
                             $leftTierConfig = app(\App\Services\UserLevelService::class)->getTierBenefits($user->current_tier);
                         @endphp
                         <div class="flex flex-col items-center gap-1.5 w-full">
-                            <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider flex items-center gap-1"
-                                  style="background-color: {{ $leftTierConfig['color'] }}15; color: {{ $leftTierConfig['color'] }}">
+                            <span
+                                class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider flex items-center gap-1"
+                                style="background-color: {{ $leftTierConfig['color'] }}15; color: {{ $leftTierConfig['color'] }}">
                                 <span>{{ $leftTierConfig['icon'] }}</span>
                                 <span>{{ $leftTierConfig['label'] }}</span>
                                 @if($user->is_tier_frozen)
-                                    <span class="material-symbols-outlined text-[12px] animate-pulse" title="Tài khoản bị đóng băng">ac_unit</span>
+                                    <span class="material-symbols-outlined text-[12px] animate-pulse"
+                                        title="Tài khoản bị đóng băng">ac_unit</span>
                                 @endif
                             </span>
-                            
+
                             {{-- Thanh XP nhỏ gọn --}}
                             @if(!$leftProgress['is_max'])
                                 <div class="w-2/3 flex flex-col gap-1 mt-1">
                                     <div class="w-full h-1.5 bg-app-main border border-app-border rounded-full overflow-hidden">
-                                        <div class="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full" style="width: {{ $leftProgress['percent'] }}%"></div>
+                                        <div class="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full"
+                                            style="width: {{ $leftProgress['percent'] }}%"></div>
                                     </div>
-                                    <span class="text-[9px] text-app-muted text-center">{{ number_format($user->current_xp) }} / {{ number_format($leftProgress['next_tier_xp']) }} XP</span>
+                                    <span class="text-[9px] text-app-muted text-center">{{ number_format($user->current_xp) }} /
+                                        {{ number_format($leftProgress['next_tier_xp']) }} XP</span>
                                 </div>
                             @else
                                 <span class="text-[9px] text-green-500 font-bold tracking-wider uppercase mt-1">MAX LEVEL</span>
@@ -177,13 +181,13 @@
                             <div class="flex items-center justify-between text-sm">
                                 <span class="text-app-muted">{{ __('Account ID') }}</span>
                                 <div class="flex items-center gap-1.5 notranslate" translate="no" x-data="{ 
-                                                                            copied: false,
-                                                                            copyId() {
-                                                                                navigator.clipboard.writeText('{{ $user->unitcode }}');
-                                                                                this.copied = true;
-                                                                                setTimeout(() => this.copied = false, 2000);
-                                                                            }
-                                                                        }">
+                                                                                    copied: false,
+                                                                                    copyId() {
+                                                                                        navigator.clipboard.writeText('{{ $user->unitcode }}');
+                                                                                        this.copied = true;
+                                                                                        setTimeout(() => this.copied = false, 2000);
+                                                                                    }
+                                                                                }">
                                     <span
                                         class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary select-all">{{ $user->unitcode }}</span>
                                     <button @click="copyId"
@@ -217,7 +221,7 @@
                         </a>
 
                         {{-- Nút lịch sử --}}
-                        <a href="#"
+                        <a href="{{ route('app.history.index', ['locale' => app()->getLocale()]) }}"
                             class="flex flex-col items-center justify-center p-4 bg-app-surface border border-app-border rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 group shadow-sm">
                             <span
                                 class="material-symbols-outlined text-[26px] text-app-muted group-hover:text-primary transition-colors duration-300">

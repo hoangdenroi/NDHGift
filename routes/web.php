@@ -3,14 +3,15 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\App\about\AboutController;
+use App\Http\Controllers\App\billing\BillingController;
+use App\Http\Controllers\App\coupon\CouponController;
 use App\Http\Controllers\App\gift\GiftController;
+use App\Http\Controllers\App\history\HistoryController;
 use App\Http\Controllers\App\home\HomeController;
+use App\Http\Controllers\App\notification\NotificationController;
 use App\Http\Controllers\App\profile\ProfileController;
 use App\Http\Controllers\App\support\SupportController;
 use App\Http\Controllers\App\topup\TopupController;
-use App\Http\Controllers\App\billing\BillingController;
-use App\Http\Controllers\App\coupon\CouponController;
-use App\Http\Controllers\App\notification\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,6 +70,9 @@ Route::prefix('{locale}')
             // --- MÃ GIẢM GIÁ (COUPON) ---
             Route::post('/coupon/redeem', [CouponController::class, 'redeem'])->name('app.coupon.redeem');
             Route::post('/api/apply-coupon', [CouponController::class, 'applyCoupon'])->name('api.apply-coupon');
+
+            // --- LỊCH SỬ (HISTORY) ---
+            Route::get('/history', [HistoryController::class, 'index'])->name('app.history.index');
         });
     });
 
@@ -76,7 +80,7 @@ Route::prefix('{locale}')
 Route::middleware('auth')->prefix('api')->group(function () {
     Route::post('v1/settings', [ProfileController::class, 'updateSettings'])->name('api.settings.update');
     Route::get('v1/profile/xp-transactions', [ProfileController::class, 'xpTransactions'])->name('api.profile.xp_transactions');
-    
+
     // --- NẠP TIỀN API (Khớp với topup-index.blade.php) ---
     Route::post('v1/topup/create', [TopupController::class, 'createTopup'])->name('api.topup.create');
     Route::post('v1/topup/{transaction}/cancel', [TopupController::class, 'cancelTopup'])->name('api.topup.cancel');
@@ -89,5 +93,14 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::post('v1/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.read_all');
     Route::post('v1/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('api.notifications.clear_all');
 });
+
+// --- Social Login (Google & Facebook) ---
+Route::get('/auth/{provider}', [App\Http\Controllers\Auth\SocialiteController::class, 'redirect'])
+    ->middleware('throttle:auth')
+    ->name('social.login')
+    ->where('provider', 'google|facebook');
+
+Route::get('/auth/{provider}/callback', [App\Http\Controllers\Auth\SocialiteController::class, 'callback'])
+    ->where('provider', 'google|facebook');
 
 require __DIR__.'/auth.php';

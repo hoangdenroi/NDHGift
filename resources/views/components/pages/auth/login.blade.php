@@ -83,8 +83,8 @@
 
             {{-- Đăng nhập bằng mạng xã hội --}}
             <div class="grid grid-cols-2 gap-3">
-                <a href="javascript:void(0)" id="google-login-btn"
-                    onclick="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', title: '{{ __("Notice") }}', message: '{{ __("Google login feature is under development.") }}' } }));"
+                <a href="{{ route('social.login', ['provider' => 'google']) }}" id="google-login-btn"
+                    onclick="this.href = '{{ route('social.login', ['provider' => 'google']) }}?remember=' + (document.getElementById('remember_me')?.checked ? '1' : '0')"
                     class="flex items-center justify-center gap-2 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium text-sm">
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
                         <path
@@ -102,8 +102,8 @@
                     </svg>
                     Google
                 </a>
-                <a href="javascript:void(0)" id="facebook-login-btn"
-                    onclick="window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'info', title: '{{ __("Notice") }}', message: '{{ __("Facebook login feature is under development.") }}' } }));"
+                <a href="{{ route('social.login', ['provider' => 'facebook']) }}" id="facebook-login-btn"
+                    onclick="this.href = '{{ route('social.login', ['provider' => 'facebook']) }}?remember=' + (document.getElementById('remember_me')?.checked ? '1' : '0')"
                     class="flex items-center justify-center gap-2 h-11 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 font-medium text-sm">
                     <svg class="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
                         <path

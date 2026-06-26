@@ -54,7 +54,7 @@
     </nav>
 
     <div class="flex items-center gap-2 sm:gap-4 lg:flex-1 lg:justify-end">
-        {{-- <x-shared.layouts.app.ui.header-search /> --}}
+        <x-shared.component.app.header.header-ui.header-search />
 
         <!-- Actions -->
         <div class="flex items-center gap-1 sm:gap-2">
@@ -99,22 +99,22 @@
                     x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                     x-cloak
                     class="fixed top-[56px] right-3 w-[calc(100vw-24px)] max-w-[224px]
-                                                                                                                sm:absolute sm:top-full sm:left-auto sm:right-0 sm:translate-x-0 sm:mt-2 sm:w-56
-                                                                                                                bg-app-surface border border-app-border rounded-xl shadow-xl z-[200] origin-top">
+                                                                                                                    sm:absolute sm:top-full sm:left-auto sm:right-0 sm:translate-x-0 sm:mt-2 sm:w-56
+                                                                                                                    bg-app-surface border border-app-border rounded-xl shadow-xl z-[200] origin-top">
 
                     {{-- Mũi tên trỏ vào icon (tự động tính vị trí) --}}
                     <div x-ref="arrowOuter" x-effect="
-                                                                                                        if(openProfile) {
-                                                                                                            $nextTick(() => {
-                                                                                                                let btn = $el.closest('.relative').querySelector('.cursor-pointer');
-                                                                                                                let btnRect = btn.getBoundingClientRect();
-                                                                                                                let btnCenter = btnRect.left + btnRect.width / 2;
-                                                                                                                let dropLeft = $el.parentElement.getBoundingClientRect().left;
-                                                                                                                $refs.arrowOuter.style.left = (btnCenter - dropLeft - 9) + 'px';
-                                                                                                                $refs.arrowInner.style.left = (btnCenter - dropLeft - 7) + 'px';
-                                                                                                            })
-                                                                                                        }
-                                                                                                    "
+                                                                                                            if(openProfile) {
+                                                                                                                $nextTick(() => {
+                                                                                                                    let btn = $el.closest('.relative').querySelector('.cursor-pointer');
+                                                                                                                    let btnRect = btn.getBoundingClientRect();
+                                                                                                                    let btnCenter = btnRect.left + btnRect.width / 2;
+                                                                                                                    let dropLeft = $el.parentElement.getBoundingClientRect().left;
+                                                                                                                    $refs.arrowOuter.style.left = (btnCenter - dropLeft - 9) + 'px';
+                                                                                                                    $refs.arrowInner.style.left = (btnCenter - dropLeft - 7) + 'px';
+                                                                                                                })
+                                                                                                            }
+                                                                                                        "
                         class="absolute -top-[9px] w-0 h-0 border-l-[9px] border-l-transparent border-r-[9px] border-r-transparent border-b-[9px] border-b-app-border">
                     </div>
                     <div x-ref="arrowInner"
@@ -182,8 +182,8 @@
             </div>
         @else
             <div class="flex items-center gap-2">
-                <a href="{{ route('login') }}"
-                    class="px-4 py-2 text-sm font-medium text-app-text hover:bg-app-surface rounded-lg transition-colors">
+                <a href="{{ route('login', ['locale' => app()->getLocale()]) }}" id="header-login-btn"
+                    class="px-5 py-2 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.97]">
                     {{ __('Log in') }}
                 </a>
             </div>
