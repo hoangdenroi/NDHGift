@@ -10,6 +10,10 @@
         --border-main: #e2e8f0; /* Slate 200 */
         --text-main: #0f172a; /* Slate 900 */
         --text-muted: #64748b; /* Slate 500 */
+
+        /* Skeleton Loading — Nền sáng dùng tông xám nhạt, highlight trắng */
+        --skeleton-base: #e2e8f0;
+        --skeleton-shine: #f1f5f9;
     }
 
     .dark {
@@ -19,5 +23,37 @@
         --border-main: #2d3646; /* Custom border-dark */
         --text-main: #f1f5f9; /* Slate 100 */
         --text-muted: #94a3b8; /* Slate 400 */
+
+        /* Skeleton Loading — Nền tối dùng tông slate đậm, highlight sáng hơn một chút */
+        --skeleton-base: #2d3646;
+        --skeleton-shine: #3b4a5e;
+    }
+}
+
+/* ================================================================
+ * SKELETON LOADING SHIMMER
+ * Hiệu ứng ánh sáng gradient lướt qua, mô phỏng đang tải dữ liệu.
+ * Sử dụng: thêm class "skeleton-shimmer" vào bất kỳ phần tử nào.
+ * ================================================================ */
+@layer utilities {
+    .skeleton-shimmer {
+        background: linear-gradient(
+            90deg,
+            var(--skeleton-base) 25%,
+            var(--skeleton-shine) 50%,
+            var(--skeleton-base) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s ease-in-out infinite;
+        border-radius: 0.375rem; /* rounded-md mặc định */
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
     }
 }

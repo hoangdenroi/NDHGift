@@ -262,10 +262,19 @@
 
             {{-- Vùng chứa danh sách và Loading overlay --}}
             <div class="relative min-h-[150px] flex flex-col justify-between">
+                {{-- Skeleton overlay — mô phỏng 5 dòng XP transaction --}}
                 <div x-show="isLoading"
-                    class="absolute inset-0 bg-app-surface/60 backdrop-blur-[1px] flex items-center justify-center z-10"
+                    class="absolute inset-0 bg-app-surface/80 backdrop-blur-[1px] z-10 flex flex-col divide-y divide-app-border/40 p-1"
                     x-cloak>
-                    <div class="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <template x-for="i in 5" :key="'xp-skel-' + i">
+                        <div class="py-3 flex items-center justify-between first:pt-0 last:pb-0">
+                            <div class="flex flex-col gap-1.5 flex-1 pr-4">
+                                <div class="h-3 skeleton-shimmer rounded w-3/4"></div>
+                                <div class="h-2 skeleton-shimmer rounded w-1/3"></div>
+                            </div>
+                            <div class="h-5 skeleton-shimmer rounded-full w-14 shrink-0"></div>
+                        </div>
+                    </template>
                 </div>
 
                 {{-- Empty State --}}

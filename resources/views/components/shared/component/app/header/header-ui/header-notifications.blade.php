@@ -237,9 +237,18 @@
             </div>
         </div>
 
-        {{-- Spinner loading --}}
-        <div x-show="loading" class="flex items-center justify-center py-8">
-            <div class="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+        {{-- Skeleton loading — mô phỏng 3 notification items --}}
+        <div x-show="loading" class="divide-y divide-app-border" x-cloak>
+            <template x-for="i in 3" :key="'noti-skel-' + i">
+                <div class="flex gap-3 px-4 py-3">
+                    <div class="size-9 rounded-full skeleton-shimmer shrink-0"></div>
+                    <div class="flex-1 flex flex-col gap-2 py-0.5">
+                        <div class="h-3 skeleton-shimmer rounded w-3/4"></div>
+                        <div class="h-2.5 skeleton-shimmer rounded w-full"></div>
+                        <div class="h-2 skeleton-shimmer rounded w-1/3 mt-0.5"></div>
+                    </div>
+                </div>
+            </template>
         </div>
 
         {{-- Danh sách thông báo --}}
@@ -361,9 +370,18 @@
                 </template>
             </div>
 
-            {{-- Spinner khi đang tải thêm --}}
-            <div x-show="panelLoading" class="flex items-center justify-center py-4 shrink-0 bg-inherit">
-                <div class="size-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            {{-- Skeleton khi đang tải thêm — mô phỏng 2 notification items --}}
+            <div x-show="panelLoading" class="shrink-0 divide-y divide-app-border" x-cloak>
+                <template x-for="i in 2" :key="'panel-skel-' + i">
+                    <div class="flex gap-3 px-5 py-4">
+                        <div class="size-10 rounded-full skeleton-shimmer shrink-0"></div>
+                        <div class="flex-1 flex flex-col gap-2 py-0.5">
+                            <div class="h-3.5 skeleton-shimmer rounded w-2/3"></div>
+                            <div class="h-2.5 skeleton-shimmer rounded w-full"></div>
+                            <div class="h-2 skeleton-shimmer rounded w-1/4 mt-0.5"></div>
+                        </div>
+                    </div>
+                </template>
             </div>
 
             {{-- Rỗng --}}

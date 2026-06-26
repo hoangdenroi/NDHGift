@@ -2,6 +2,31 @@
 <div x-show="topupView === 'history'" x-transition:enter="transition ease-out duration-200"
     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak>
 
+    {{-- Skeleton loading lần đầu — mô phỏng 4 transaction items --}}
+    <div x-show="transactions.length === 0 && isLoadingHistory"
+        class="bg-app-surface border border-app-border rounded-xl overflow-hidden" x-cloak>
+        <div class="px-6 py-4 border-b border-app-border">
+            <div class="h-4 skeleton-shimmer rounded w-1/3"></div>
+        </div>
+        <div class="p-6 space-y-3">
+            <template x-for="i in 4" :key="'topup-hist-skel-' + i">
+                <div class="flex items-center justify-between p-4 gap-3 rounded-xl border border-app-border">
+                    <div class="flex items-center gap-3 shrink-0">
+                        <div class="size-10 rounded-full skeleton-shimmer shrink-0"></div>
+                        <div class="flex flex-col gap-1.5">
+                            <div class="h-3.5 skeleton-shimmer rounded w-24"></div>
+                            <div class="h-2.5 skeleton-shimmer rounded w-32"></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-1.5">
+                        <div class="h-5 skeleton-shimmer rounded-full w-16"></div>
+                        <div class="h-2.5 skeleton-shimmer rounded w-20"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
     {{-- Trạng thái trống --}}
     <div x-show="transactions.length === 0 && !isLoadingHistory"
         class="bg-app-surface border border-app-border rounded-xl p-12 flex flex-col items-center text-center">
