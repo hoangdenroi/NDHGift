@@ -198,7 +198,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Accessor: Tự động chuyển đổi link avatar thô sang URL đầy đủ và chất lượng cao (HD).
+     * Accessor: Tự động chuyển đổi link avatar thô sang URL kích thước trung bình (240px) sắc nét cho giao diện thường.
      *
      * @param string|null $value
      * @return string|null
@@ -211,9 +211,44 @@ class User extends Authenticatable
 
         // Nếu là link ảnh từ các nhà cung cấp bên ngoài (mạng xã hội)
         if (str_starts_with($value, 'http') || str_starts_with($value, 'https')) {
-            // Chuẩn hóa link avatar Google sang kích thước HD (s500)
+            // Chuẩn hóa link avatar Google sang kích thước trung bình 240px
             if (str_contains($value, 'googleusercontent.com')) {
-                return preg_replace('/=s\d+(?:-c)?$/i', '=s500-c', $value);
+                return preg_replace('/=s\d+(?:-c)?$/i', '=s240-c', $value);
+            }
+
+            // Chuẩn hóa link avatar Facebook sang kích thước trung bình
+            if (str_contains($value, 'graph.facebook.com')) {
+                if (str_contains($value, 'type=large') || str_contains($value, 'type=square')) {
+                    return str_replace(['type=large', 'type=square'], 'type=normal', $value);
+                }
+                if (!str_contains($value, 'width=')) {
+                    return $value . (str_contains($value, '?') ? '&' : '?') . 'width=240&height=240';
+                }
+            }
+
+            return $value;
+        }
+
+        // Đối với ảnh tải lên cục bộ, trả về URL tuyệt đối thông qua asset()
+        return asset(ltrim($value, '/'));
+    }
+
+    /**
+     * Accessor: Lấy URL ảnh đại diện chất lượng cao (HD - 640px) chuyên dùng cho modal phóng to.
+     *
+     * @return string|null
+     */
+    public function getAvatarUrlHdAttribute(): ?string
+    {
+        $value = $this->getRawOriginal('avatar_url');
+        if (empty($value)) {
+            return null;
+        }
+
+        if (str_starts_with($value, 'http') || str_starts_with($value, 'https')) {
+            // Chuẩn hóa link avatar Google sang kích thước HD (s640)
+            if (str_contains($value, 'googleusercontent.com')) {
+                return preg_replace('/=s\d+(?:-c)?$/i', '=s640-c', $value);
             }
 
             // Chuẩn hóa link avatar Facebook sang kích thước lớn
@@ -222,14 +257,13 @@ class User extends Authenticatable
                     return str_replace(['type=normal', 'type=square'], 'type=large', $value);
                 }
                 if (!str_contains($value, 'width=')) {
-                    return $value . (str_contains($value, '?') ? '&' : '?') . 'width=500&height=500';
+                    return $value . (str_contains($value, '?') ? '&' : '?') . 'width=640&height=640';
                 }
             }
 
             return $value;
         }
 
-        // Đối với ảnh tải lên cục bộ, trả về URL tuyệt đối thông qua asset()
         return asset(ltrim($value, '/'));
     }
 

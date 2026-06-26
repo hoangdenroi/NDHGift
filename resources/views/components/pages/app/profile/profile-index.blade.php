@@ -56,6 +56,7 @@
                         <div class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col items-center gap-4">
                             <div class="relative group cursor-pointer" x-data="{
                 avatarPreview: '{{ $user->avatar_url }}',
+                avatarPreviewHd: '{{ $user->avatar_url_hd }}',
                 loading: false,
                 handleFileChange(event) {
                     const file = event.target.files[0];
@@ -74,6 +75,7 @@
 
                         this.loading = true;
                         this.avatarPreview = URL.createObjectURL(file);
+                        this.avatarPreviewHd = this.avatarPreview;
                         // Tự động submit form sau khi chọn ảnh
                         document.getElementById('profile-form').submit();
                     }
@@ -117,8 +119,8 @@
                                         {{-- Khung ảnh --}}
                                         <div
                                             class="w-full rounded-2xl overflow-hidden border border-gray-700/60 bg-[#0f172a] flex items-center justify-center aspect-square max-h-[40vh]">
-                                            <template x-if="avatarPreview">
-                                                <img :src="avatarPreview" alt="Avatar Full" class="size-full object-cover">
+                                            <template x-if="avatarPreviewHd || avatarPreview">
+                                                <img :src="avatarPreviewHd || avatarPreview" alt="Avatar Full" class="size-full object-cover">
                                             </template>
                                             <template x-if="!avatarPreview">
                                                 <div class="size-full flex items-center justify-center bg-[#0f172a]">
