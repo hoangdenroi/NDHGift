@@ -71,11 +71,17 @@ class SocialiteController extends Controller
 
             if ($user) {
                 // Đã có tài khoản với email này, cập nhật social_id và thông tin đăng nhập
-                $user->update([
+                $updateData = [
                     $providerIdField => $socialId,
                     'last_login_at' => now(),
-                    'avatar_url' => $user->avatar_url ?: $avatar, // Chỉ gán avatar MXH nếu chưa có avatar riêng
-                ]);
+                ];
+
+                // Nếu avatar mạng xã hội khác với avatar hiện tại thì cập nhật mới
+                if (!empty($avatar) && $user->avatar_url !== $avatar) {
+                    $updateData['avatar_url'] = $avatar;
+                }
+
+                $user->update($updateData);
             } else {
                 // Chưa có tài khoản, tạo mới
                 // 1. Sinh username từ email

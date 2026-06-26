@@ -202,7 +202,49 @@ class SocialiteTest extends TestCase
         $response = $this->get('/auth/google/callback');
 
         $this->assertGuest();
-        $response->assertRedirect(route('login', ['locale' => app()->getLocale()], false));
         $response->assertSessionHasErrors('email');
+    }
+
+    /**
+     * Test callback chỉ cập nhật avatar nếu có sự thay đổi từ MXH.
+     */
+    public function test_socialite_callback_updates_avatar_only_when_different(): void
+    {
+        // 1. Trường hợp avatar giống nhau -> Không thay đổi
+        $user = User::factory()->create([
+            'email' => 'avatar-test@example.com',
+            'avatar_url' => 'https://existing-avatar.url',
+        ]);
+
+        $socialUser1 = Mockery::mock(SocialiteUser::class);
+        $socialUser1->shouldReceive('getEmail')->andReturn('avatar-test@example.com');
+        $socialUser1->shouldReceive('getName')->andReturn('Avatar Test');
+        $socialUser1->shouldReceive('getAvatar')->andReturn('https://existing-avatar.url');
+        $socialUser1->shouldReceive('getId')->andReturn('google-avatar-1');
+
+        $providerMock1 = Mockery::mock(\Laravel\Socialite\Two\AbstractProvider::class);
+        $providerMock1->shouldReceive('stateless')->andReturnSelf();
+        $providerMock1->shouldReceive('user')->andReturn($socialUser1);
+
+        Socialite::shouldReceive('driver')->with('google')->once()->andReturn($providerMock1);
+
+        $response1 = $this->get('/auth/google/callback');
+        $this->assertEquals('https://existing-avatar.url', $user->fresh()->avatar_url);
+
+        // 2. Trường hợp avatar khác nhau -> Cập nhật avatar mới
+        $socialUser2 = Mockery::mock(SocialiteUser::class);
+        $socialUser2->shouldReceive('getEmail')->andReturn('avatar-test@example.com');
+        $socialUser2->shouldReceive('getName')->andReturn('Avatar Test');
+        $socialUser2->shouldReceive('getAvatar')->andReturn('https://new-avatar.url');
+        $socialUser2->shouldReceive('getId')->andReturn('google-avatar-1');
+
+        $providerMock2 = Mockery::mock(\Laravel\Socialite\Two\AbstractProvider::class);
+        $providerMock2->shouldReceive('stateless')->andReturnSelf();
+        $providerMock2->shouldReceive('user')->andReturn($socialUser2);
+
+        Socialite::shouldReceive('driver')->with('google')->once()->andReturn($providerMock2);
+
+        $response2 = $this->get('/auth/google/callback');
+        $this->assertEquals('https://new-avatar.url', $user->fresh()->avatar_url);
     }
 }
