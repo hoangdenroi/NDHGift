@@ -197,6 +197,53 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    /**
+     * Accessor: Tự động chuyển đổi link avatar thô sang URL đầy đủ và chất lượng cao (HD).
+     *
+     * @param string|null $value
+     * @return string|null
+     */
+    public function getAvatarUrlAttribute(?string $value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        // Nếu là link ảnh từ các nhà cung cấp bên ngoài (mạng xã hội)
+        if (str_starts_with($value, 'http') || str_starts_with($value, 'https')) {
+            // Chuẩn hóa link avatar Google sang kích thước HD (s500)
+            if (str_contains($value, 'googleusercontent.com')) {
+                return preg_replace('/=s\d+(?:-c)?$/i', '=s500-c', $value);
+            }
+
+            // Chuẩn hóa link avatar Facebook sang kích thước lớn
+            if (str_contains($value, 'graph.facebook.com')) {
+                if (str_contains($value, 'type=normal') || str_contains($value, 'type=square')) {
+                    return str_replace(['type=normal', 'type=square'], 'type=large', $value);
+                }
+                if (!str_contains($value, 'width=')) {
+                    return $value . (str_contains($value, '?') ? '&' : '?') . 'width=500&height=500';
+                }
+            }
+
+            return $value;
+        }
+
+        // Đối với ảnh tải lên cục bộ, trả về URL tuyệt đối thông qua asset()
+        return asset(ltrim($value, '/'));
+    }
+
+    /**
+     * Mutator: Lưu giá trị thô cho avatar_url vào database.
+     *
+     * @param string|null $value
+     * @return void
+     */
+    public function setAvatarUrlAttribute(?string $value): void
+    {
+        $this->attributes['avatar_url'] = $value;
+    }
+
     // ===== LEVEL & AFFILIATE GETTERS =====
 
     /**

@@ -77,7 +77,7 @@ class SocialiteController extends Controller
                 ];
 
                 // Nếu avatar mạng xã hội khác với avatar hiện tại thì cập nhật mới
-                if (!empty($avatar) && $user->avatar_url !== $avatar) {
+                if (!empty($avatar) && $user->getRawOriginal('avatar_url') !== $avatar) {
                     $updateData['avatar_url'] = $avatar;
                 }
 

@@ -99,6 +99,41 @@ class ProfileTest extends TestCase
     }
 
     /**
+     * Kiểm tra tải lên ảnh đại diện thành công.
+     */
+    public function test_authenticated_user_can_upload_avatar_successfully(): void
+    {
+        $defaultLocale = config('localization.default_locale', 'vi');
+        $user = User::factory()->create([
+            'fullname' => 'Nguyen Van A',
+            'avatar_url' => null,
+        ]);
+
+        $file = \Illuminate\Http\UploadedFile::fake()->image('avatar.jpg', 100, 100);
+
+        $response = $this->actingAs($user)->post("/{$defaultLocale}/apps/profile", [
+            'fullname' => 'Nguyen Van A',
+            'avatar_file' => $file,
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHas('success', 'Cập nhật thông tin cá nhân thành công!');
+
+        $user->refresh();
+        $this->assertNotNull($user->avatar_url);
+        $this->assertStringContainsString('/uploads/avatars/', $user->avatar_url);
+
+        // Dọn dẹp file thật được sinh ra trong quá trình kiểm thử
+        $rawAvatar = $user->getRawOriginal('avatar_url');
+        if ($rawAvatar) {
+            $filePath = public_path($rawAvatar);
+            if (file_exists($filePath) && is_file($filePath)) {
+                @unlink($filePath);
+            }
+        }
+    }
+
+    /**
      * Kiểm tra validation khi cập nhật với dữ liệu không hợp lệ.
      */
     public function test_user_cannot_update_profile_with_invalid_data(): void

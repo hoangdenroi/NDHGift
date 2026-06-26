@@ -70,8 +70,9 @@ class ProfileController extends Controller
                 // Validate thêm tính hợp lệ của file upload thực tế
                 if ($file->isValid()) {
                     // Xóa file ảnh cũ nếu tồn tại
-                    if ($user->avatar_url && !str_starts_with($user->avatar_url, 'http')) {
-                        $oldFilePath = public_path($user->avatar_url);
+                    $rawAvatar = $user->getRawOriginal('avatar_url');
+                    if ($rawAvatar && !str_starts_with($rawAvatar, 'http')) {
+                        $oldFilePath = public_path($rawAvatar);
                         if (file_exists($oldFilePath) && is_file($oldFilePath)) {
                             @unlink($oldFilePath);
                         }
@@ -87,7 +88,7 @@ class ProfileController extends Controller
                     }
 
                     $file->move($destinationPath, $fileName);
-                    $user->avatar_url = '/uploads/avatars/' . $fileName;
+                    $user->setAttribute('avatar_url', '/uploads/avatars/' . $fileName);
                 }
             }
 
