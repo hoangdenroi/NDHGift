@@ -264,7 +264,7 @@
             <div class="relative min-h-[150px] flex flex-col justify-between">
                 {{-- Skeleton overlay — mô phỏng 5 dòng XP transaction --}}
                 <div x-show="isLoading"
-                    class="absolute inset-0 bg-app-surface/80 backdrop-blur-[1px] z-10 flex flex-col divide-y divide-app-border/40 p-1"
+                    class="absolute inset-0 bg-app-surface z-10 flex flex-col divide-y divide-app-border/40 p-1"
                     x-cloak>
                     <template x-for="i in 5" :key="'xp-skel-' + i">
                         <div class="py-3 flex items-center justify-between first:pt-0 last:pb-0">

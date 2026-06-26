@@ -12,7 +12,7 @@
                 <p class="text-app-muted text-xs sm:text-sm">{{ __('Top up your account to use services') }}</p>
             </div>
             <button
-                @click="if(topupView === 'history') { topupView = 'form'; } else { topupView = 'history'; fetchHistory(1); }"
+                @click="if(topupView === 'history') { topupView = 'form'; } else { topupView = 'history'; if(!historyLoaded) fetchHistory(1); }"
                 x-show="topupView !== 'qr_display'"
                 class="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors">
                 <span class="material-symbols-outlined text-[18px]"
@@ -69,6 +69,7 @@
             currentPage: 1,
             lastPage: 1,
             isLoadingHistory: false,
+            historyLoaded: false,
             txToCancel: null,
 
             init() {
@@ -161,6 +162,7 @@
                         }
                         this.currentPage = data.data.current_page;
                         this.lastPage = data.data.last_page;
+                        this.historyLoaded = true;
                     }
                 } catch (error) {
                     console.error('Lỗi khi tải lịch sử nạp tiền:', error);
