@@ -76,12 +76,26 @@ class SocialiteController extends Controller
                     'last_login_at' => now(),
                 ];
 
+                // Nếu tài khoản cũ chưa xác thực email, tự động xác thực và cộng XP verify_email
+                if (! $user->hasVerifiedEmail()) {
+                    $updateData['email_verified_at'] = now();
+
+                    try {
+                        $verifyEmailXp = (int) config('levels.xp_rules.verify_email.xp', 30);
+                        if ($verifyEmailXp > 0) {
+                            app(\App\Services\UserLevelService::class)->awardXp($user, 'verify_email', $verifyEmailXp);
+                        }
+                    } catch (\Throwable $e) {
+                        Log::error('Lỗi khi cộng XP xác thực email qua Social link: ' . $e->getMessage());
+                    }
+                }
+
                 // Nếu avatar mạng xã hội khác với avatar hiện tại thì cập nhật mới
                 if (!empty($avatar) && $user->getRawOriginal('avatar_url') !== $avatar) {
                     $updateData['avatar_url'] = $avatar;
                 }
 
-                $user->update($updateData);
+                $user->forceFill($updateData)->save();
             } else {
                 // Chưa có tài khoản, tạo mới
                 // 1. Sinh username từ email
@@ -196,8 +210,14 @@ class SocialiteController extends Controller
                     'description' => 'Không được cộng XP đăng ký chào mừng do tự giới thiệu gian lận',
                 ]);
             }
+
+            // Tự động cộng luôn XP xác thực email do tài khoản MXH đã được xác thực tự động
+            $verifyXp = $isFraud ? 0 : (int) config('levels.xp_rules.verify_email.xp', 30);
+            if ($verifyXp > 0) {
+                app(\App\Services\UserLevelService::class)->awardXp($user, 'verify_email', $verifyXp);
+            }
         } catch (\Throwable $e) {
-            Log::error('Lỗi khi cộng XP chào mừng đăng ký MXH: ' . $e->getMessage());
+            Log::error('Lỗi khi cộng XP chào mừng/xác thực đăng ký MXH: ' . $e->getMessage());
         }
 
         // Xử lý gán referred_by hoặc phạt tài khoản chính

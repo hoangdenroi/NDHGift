@@ -104,6 +104,12 @@ class SocialiteTest extends TestCase
         $this->assertNotNull($user->email_verified_at);
         $this->assertEquals('https://avatar.url/avatar.png', $user->avatar_url);
 
+        // Kiểm tra đã cộng 80 XP (50 XP register + 30 XP verify_email)
+        $this->assertEquals(80, $user->userLevel->total_xp);
+        $this->assertEquals(2, XpTransaction::where('user_id', $user->id)->count());
+        $this->assertTrue(XpTransaction::where('user_id', $user->id)->where('source', 'register')->exists());
+        $this->assertTrue(XpTransaction::where('user_id', $user->id)->where('source', 'verify_email')->exists());
+
         $this->assertAuthenticatedAs($user);
         $response->assertRedirect(route('app.home.index', ['locale' => app()->getLocale()], false));
     }
@@ -246,5 +252,39 @@ class SocialiteTest extends TestCase
 
         $response2 = $this->get('/auth/google/callback');
         $this->assertEquals('https://new-avatar.url', $user->fresh()->avatar_url);
+    }
+
+    /**
+     * Test callback với tài khoản cũ chưa xác thực email -> Tự động xác thực và cộng 30 XP.
+     */
+    public function test_socialite_callback_verifies_existing_unverified_user_and_awards_xp(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'unverified@example.com',
+            'email_verified_at' => null,
+            'google_id' => null,
+        ]);
+
+        $socialUser = Mockery::mock(SocialiteUser::class);
+        $socialUser->shouldReceive('getEmail')->andReturn('unverified@example.com');
+        $socialUser->shouldReceive('getName')->andReturn('Unverified User');
+        $socialUser->shouldReceive('getAvatar')->andReturn('https://avatar.url');
+        $socialUser->shouldReceive('getId')->andReturn('google-id-unverified');
+
+        $providerMock = Mockery::mock(\Laravel\Socialite\Two\AbstractProvider::class);
+        $providerMock->shouldReceive('stateless')->andReturnSelf();
+        $providerMock->shouldReceive('user')->andReturn($socialUser);
+
+        Socialite::shouldReceive('driver')->with('google')->andReturn($providerMock);
+
+        $response = $this->get('/auth/google/callback');
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertNotNull($user->fresh()->email_verified_at);
+        $this->assertEquals(30, $user->fresh()->userLevel->total_xp);
+        
+        $xpTx = XpTransaction::where('user_id', $user->id)->first();
+        $this->assertNotNull($xpTx);
+        $this->assertEquals('verify_email', $xpTx->source);
     }
 }
