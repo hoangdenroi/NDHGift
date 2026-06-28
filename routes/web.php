@@ -83,6 +83,10 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('v1/profile/xp-transactions', [ProfileController::class, 'xpTransactions'])->name('api.profile.xp_transactions');
     Route::get('v1/profile/leaderboard', [ProfileController::class, 'leaderboard'])->name('api.profile.leaderboard');
     Route::post('v1/profile/toggle-anonymous', [ProfileController::class, 'toggleAnonymous'])->name('api.profile.toggle_anonymous');
+    Route::post('v1/profile/send-verification', [ProfileController::class, 'sendVerificationEmail'])->name('api.profile.send_verification');
+    Route::post('v1/profile/quests/claim', [ProfileController::class, 'claimQuestXp'])->name('api.profile.claim_quest');
+    Route::post('v1/profile/email/send-otp', [ProfileController::class, 'sendEmailChangeOtp'])->name('api.profile.send_email_otp');
+    Route::post('v1/profile/email/confirm-change', [ProfileController::class, 'confirmEmailChange'])->name('api.profile.confirm_email_change');
 
     // --- NẠP TIỀN API (Khớp với topup-index.blade.php) ---
     Route::post('v1/topup/create', [TopupController::class, 'createTopup'])->name('api.topup.create');

@@ -18,6 +18,69 @@
     openTierDetail(key, label, icon, minXp, discount, adPercent, color) {
         this.selectedTier = { key, label, icon, minXp, discount, adPercent, color };
         $dispatch('open-modal', 'tier-detail-modal');
+    },
+    quests: @js($xpStats),
+    isClaiming: {},
+    currentXp: {{ $user->current_xp }},
+    progressPercent: {{ $progress['percent'] }},
+    progressText: '{{ $progress['is_max'] ? "MAX LEVEL" : number_format($progress['current_xp']) . " / " . number_format($progress['next_tier_xp']) . " XP" }}',
+    progressIsMax: {{ $progress['is_max'] ? 'true' : 'false' }},
+    tierLabel: '{{ $tierConfig['label'] }}',
+    tierIcon: '{{ $tierConfig['icon'] }}',
+    tierColor: '{{ $tierConfig['color'] }}',
+
+    claimQuest(questKey) {
+        if (this.isClaiming[questKey]) return;
+        this.isClaiming[questKey] = true;
+        
+        fetch('{{ route('api.profile.claim_quest') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ quest_key: questKey })
+        })
+        .then(res => res.json())
+        .then(data => {
+            this.isClaiming[questKey] = false;
+            if (data.success) {
+                const quest = this.quests.find(q => q.key === questKey);
+                if (quest) {
+                    quest.completed = 1;
+                }
+                
+                this.currentXp = data.data.total_xp;
+                this.currentTier = data.data.tier;
+                this.tierLabel = data.data.tier_label;
+                this.tierIcon = data.data.tier_icon;
+                this.tierColor = data.data.tier_color;
+                this.progressPercent = data.data.progress.percent;
+                this.progressIsMax = data.data.progress.is_max;
+                this.progressText = data.data.progress.is_max 
+                    ? 'MAX LEVEL' 
+                    : (data.data.progress.current_xp.toLocaleString() + ' / ' + data.data.progress.next_tier_xp.toLocaleString() + ' XP');
+
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { type: 'success', title: 'Nhận thưởng', message: data.message }
+                }));
+
+                if (typeof window.refreshXpHistory === 'function') {
+                    window.refreshXpHistory();
+                }
+            } else {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { type: 'error', title: 'Thất bại', message: data.message }
+                }));
+            }
+        })
+        .catch(() => {
+            this.isClaiming[questKey] = false;
+            window.dispatchEvent(new CustomEvent('toast', {
+                detail: { type: 'error', title: 'Lỗi', message: 'Không thể kết nối đến máy chủ.' }
+            }));
+        });
     }
 }">
     {{-- Header --}}
@@ -60,23 +123,23 @@
                         class="text-xs font-semibold text-app-muted uppercase tracking-wider">{{ __('Current Tier') }}</span>
                     <button @click="$dispatch('open-modal', 'xp-missions-modal')"
                         class="px-2.5 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:scale-[1.03] transition-all cursor-pointer flex items-center gap-1 bg-app-main border border-app-border group"
-                        style="color: {{ $tierConfig['color'] }}; border-color: {{ $tierConfig['color'] }}40"
+                        :style="`color: ${tierColor}; border-color: ${tierColor}40`"
                         title="Xem cách tăng XP">
                         <span class="material-symbols-outlined text-[12px] group-hover:animate-bounce">add_circle</span>
-                        {{ $tierConfig['label'] ?? $currentTier }}
+                        <span x-text="tierLabel"></span>
                     </button>
                 </div>
 
                 {{-- Visual Tier Info --}}
                 <div class="flex items-center gap-4">
                     <span class="text-5xl select-none"
-                        style="filter: drop-shadow(0 4px 6px {{ $tierConfig['color'] }}40)">
-                        {{ $tierConfig['icon'] ?? '🥉' }}
+                        x-text="tierIcon"
+                        :style="`filter: drop-shadow(0 4px 6px ${tierColor}40)`">
                     </span>
                     <div class="flex flex-col">
-                        <span class="text-xl font-bold text-app-text">{{ $tierConfig['label'] }}</span>
+                        <span class="text-xl font-bold text-app-text" x-text="tierLabel"></span>
                         <span class="text-xs text-app-muted mt-0.5">{{ __('Accumulated XP:') }} <strong
-                                class="text-app-text">{{ number_format($user->current_xp) }} XP</strong></span>
+                                class="text-app-text" x-text="`${currentXp.toLocaleString()} XP`"></strong></span>
                     </div>
                 </div>
 
@@ -84,21 +147,16 @@
                 <div class="flex flex-col gap-1.5 mt-2">
                     <div class="flex justify-between text-xs font-semibold">
                         <span class="text-app-muted">{{ __('Progress to Next Level') }}</span>
-                        @if($progress['is_max'])
-                            <span class="text-green-500 font-bold uppercase">{{ __('MAX LEVEL') }}</span>
-                        @else
-                            <span class="text-app-text">{{ number_format($progress['current_xp']) }} /
-                                {{ number_format($progress['next_tier_xp']) }} XP</span>
-                        @endif
+                        <span :class="progressIsMax ? 'text-green-500 font-bold uppercase' : 'text-app-text'" x-text="progressText"></span>
                     </div>
                     <div class="w-full h-3 bg-app-main border border-app-border rounded-full overflow-hidden p-0.5">
                         <div class="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full transition-all duration-500 ease-out"
-                            style="width: {{ $progress['percent'] }}%"></div>
+                            :style="`width: ${progressPercent}%`"></div>
                     </div>
                     @if(!$progress['is_max'])
-                        <span class="text-[11px] text-app-muted">
+                        <span class="text-[11px] text-app-muted" x-show="!progressIsMax">
                             {{ __('Need') }}
-                            <strong>{{ number_format($progress['next_tier_xp'] - $progress['current_xp']) }} XP</strong>
+                            <strong class="text-app-text font-bold" x-text="`${({{ $progress['next_tier_xp'] }} - currentXp).toLocaleString()} XP`"></strong>
                             {{ __('more to reach') }} {{ $progress['next_tier_icon'] }} {{ $progress['next_tier_label'] }}
                         </span>
                     @endif
@@ -264,8 +322,8 @@
             }
         }" class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col gap-4 shadow-sm">
             {{-- Tab Header --}}
-            <div class="flex items-center justify-between border-b border-app-border pb-3">
-                <div class="flex items-center gap-1 bg-app-main rounded-lg p-0.5 border border-app-border">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-app-border pb-3 gap-3">
+                <div class="flex items-center gap-1 bg-app-main rounded-lg p-0.5 border border-app-border self-start">
                     <button @click="tierTab = 'privileges'"
                         :class="tierTab === 'privileges' ? 'bg-app-surface shadow-sm text-app-text border-app-border' : 'text-app-muted hover:text-app-text border-transparent'"
                         class="px-3 py-1.5 rounded-md text-[11px] font-bold transition-all border flex items-center gap-1.5">
@@ -280,15 +338,16 @@
                     </button>
                 </div>
 
-                {{-- Nút toggle ẩn danh (chỉ hiện khi ở tab xếp hạng) --}}
-                <div x-show="tierTab === 'leaderboard'" x-cloak>
-                    <button @click="toggleAnonymous()" :disabled="isTogglingAnonymous"
-                        :class="isAnonymous ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-app-main border-app-border text-app-muted hover:text-app-text hover:border-app-border-hover'"
-                        class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all border flex items-center gap-1 disabled:opacity-50"
-                        :title="isAnonymous ? 'Đang ẩn danh — click để tắt' : 'Bật ẩn danh trên bảng xếp hạng'">
-                        <span class="material-symbols-outlined text-[14px]"
-                            x-text="isAnonymous ? 'visibility_off' : 'visibility'"></span>
-                        <span x-text="isAnonymous ? 'Ẩn danh' : 'Hiện tên'"></span>
+                {{-- Nút toggle ẩn danh (chỉ hiện khi ở tab xếp hạng) dạng switch --}}
+                <div x-show="tierTab === 'leaderboard'" x-cloak
+                    class="flex items-center gap-2 select-none cursor-pointer self-end sm:self-auto" @click="toggleAnonymous()">
+                    <span class="text-[10px] font-bold text-app-muted">Ẩn danh</span>
+                    <button type="button" :disabled="isTogglingAnonymous"
+                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none items-center disabled:opacity-50"
+                        :class="isAnonymous ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-700'"
+                        :title="isAnonymous ? 'Đang ẩn danh — click để hiện tên' : 'Đang hiện tên — click để ẩn danh'">
+                        <span class="pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                            :class="isAnonymous ? 'translate-x-5' : 'translate-x-0'"></span>
                     </button>
                 </div>
             </div>
@@ -297,14 +356,14 @@
             <div x-show="tierTab === 'privileges'" x-cloak class="flex flex-col gap-3">
                 @foreach($configuredTiers as $key => $tier)
                     <div @click="openTierDetail(
-                                '{{ $key }}',
-                                '{{ $tier['label'] }}',
-                                '{{ $tier['icon'] }}',
-                                {{ $tier['min_xp'] }},
-                                {{ $tier['discount'] }},
-                                {{ $tier['ad_percent'] }},
-                                '{{ $tier['color'] }}'
-                            )"
+                                                '{{ $key }}',
+                                                '{{ $tier['label'] }}',
+                                                '{{ $tier['icon'] }}',
+                                                {{ $tier['min_xp'] }},
+                                                {{ $tier['discount'] }},
+                                                {{ $tier['ad_percent'] }},
+                                                '{{ $tier['color'] }}'
+                                            )"
                         class="flex items-center justify-between p-3 rounded-xl cursor-pointer hover:bg-primary/5 hover:border-primary/30 transition-all active:scale-[0.98] {{ $currentTier === $key ? 'bg-primary/5 border border-primary/20 ring-1 ring-primary/30' : 'bg-app-main/40 border border-app-border' }}">
                         <div class="flex items-center gap-2.5">
                             <span class="text-2xl select-none">{{ $tier['icon'] }}</span>
@@ -350,12 +409,12 @@
 
                             {{-- Hạng --}}
                             <div class="flex items-center justify-center size-7 rounded-lg border text-[11px] font-extrabold shrink-0 select-none"
-                                :class="getRankClass(entry.rank)"
-                                x-text="getRankMedal(entry.rank)">
+                                :class="getRankClass(entry.rank)" x-text="getRankMedal(entry.rank)">
                             </div>
 
                             {{-- Avatar --}}
-                            <div class="size-8 rounded-full overflow-hidden bg-app-surface border border-app-border shrink-0 flex items-center justify-center">
+                            <div
+                                class="size-8 rounded-full overflow-hidden bg-app-surface border border-app-border shrink-0 flex items-center justify-center">
                                 <template x-if="entry.avatar_url">
                                     <img :src="entry.avatar_url" alt="Avatar" class="size-full object-cover">
                                 </template>
@@ -367,12 +426,15 @@
                             {{-- Thông tin --}}
                             <div class="flex flex-col gap-0.5 min-w-0 flex-1">
                                 <div class="flex items-center gap-1.5">
-                                    <span class="text-xs font-bold text-app-text truncate" x-text="entry.fullname"></span>
+                                    <span class="text-xs font-bold text-app-text truncate"
+                                        x-text="entry.fullname"></span>
                                     <template x-if="entry.is_current_user">
-                                        <span class="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full shrink-0">Bạn</span>
+                                        <span
+                                            class="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full shrink-0">Bạn</span>
                                     </template>
                                     <template x-if="entry.is_anonymous">
-                                        <span class="material-symbols-outlined text-[12px] text-app-muted shrink-0" title="Ẩn danh">visibility_off</span>
+                                        <span class="material-symbols-outlined text-[12px] text-app-muted shrink-0"
+                                            title="Ẩn danh">visibility_off</span>
                                     </template>
                                 </div>
                                 <div class="flex items-center gap-1">
@@ -382,7 +444,8 @@
                             </div>
 
                             {{-- XP --}}
-                            <span class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full shrink-0 select-none"
+                            <span
+                                class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full shrink-0 select-none"
                                 x-text="entry.total_xp.toLocaleString() + ' XP'">
                             </span>
                         </div>
@@ -392,7 +455,8 @@
                 {{-- Empty State --}}
                 <div x-show="!isLeaderboardLoading && leaderboard.length === 0 && leaderboardLoaded"
                     class="flex flex-col items-center justify-center py-10 text-center" x-cloak>
-                    <span class="material-symbols-outlined text-app-muted/30 text-5xl mb-2 select-none">leaderboard</span>
+                    <span
+                        class="material-symbols-outlined text-app-muted/30 text-5xl mb-2 select-none">leaderboard</span>
                     <p class="text-xs text-app-muted">Chưa có thành viên nào trên bảng xếp hạng.</p>
                 </div>
 
@@ -401,7 +465,8 @@
                     class="p-4 rounded-xl bg-gradient-to-r from-primary/5 to-blue-500/5 border border-primary/20 flex items-center justify-between gap-4"
                     x-cloak>
                     <div class="flex items-center gap-3">
-                        <div class="size-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                        <div
+                            class="size-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
                             <span class="material-symbols-outlined text-[22px]">person_pin</span>
                         </div>
                         <div class="flex flex-col">
@@ -423,7 +488,14 @@
                     x-cloak>
                     <span class="material-symbols-outlined text-[18px]">emoji_events</span>
                     <span class="text-[11px] font-bold">
-                        Bạn đang ở vị trí <strong x-text="'#' + myRank"></strong> — Top <strong x-text="myTopPercent + '%'"></strong> trên toàn hệ thống!
+                        <template x-if="myRank === 1">
+                            <span>Bạn xuất sắc đứng ở vị trí <strong class="text-orange-500 font-extrabold">#1</strong>
+                                trên toàn hệ thống! 🏆</span>
+                        </template>
+                        <template x-if="myRank > 1">
+                            <span>Bạn đang ở vị trí <strong x-text="'#' + myRank"></strong> trên tổng số <strong
+                                    x-text="totalRanked"></strong> thành viên!</span>
+                        </template>
                     </span>
                 </div>
 
@@ -566,96 +638,119 @@
             </p>
 
             <div class="flex flex-col gap-3">
-                @foreach($xpStats as $stat)
+                <template x-for="stat in quests" :key="stat.key">
                     <div
                         class="p-4 bg-app-main border border-app-border rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all hover:border-primary/20 hover:bg-primary/5">
                         <div class="flex items-start gap-3 min-w-0 flex-1">
                             <div
                                 class="size-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
-                                <span class="material-symbols-outlined text-[18px]">
-                                    @if($stat['key'] === 'topup')
-                                        payments
-                                    @elseif($stat['key'] === 'daily_checkin')
-                                        calendar_month
-                                    @elseif($stat['key'] === 'gift_create')
-                                        featured_seasonal_and_gifts
-                                    @elseif($stat['key'] === 'referral_signup')
-                                        person_add
-                                    @elseif($stat['key'] === 'referral_first_deposit')
-                                        handshake
-                                    @elseif($stat['key'] === 'register')
-                                        waving_hand
-                                    @elseif($stat['key'] === 'verify_email')
-                                        verified
-                                    @else
-                                        stars
-                                    @endif
-                                </span>
+                                <span class="material-symbols-outlined text-[18px]" x-text="
+                                    stat.key === 'topup' ? 'payments' :
+                                    stat.key === 'daily_checkin' ? 'calendar_month' :
+                                    stat.key === 'gift_create' ? 'featured_seasonal_and_gifts' :
+                                    stat.key === 'referral_signup' ? 'person_add' :
+                                    stat.key === 'referral_first_deposit' ? 'handshake' :
+                                    stat.key === 'register' ? 'waving_hand' :
+                                    stat.key === 'verify_email' ? 'verified' : 'stars'
+                                "></span>
                             </div>
                             <div class="flex flex-col gap-0.5 min-w-0 flex-1">
-                                <span
-                                    class="text-xs font-bold text-app-text truncate sm:whitespace-normal">{{ $stat['title'] }}</span>
-                                <span class="text-[11px] text-app-muted leading-relaxed">{{ $stat['description'] }}</span>
+                                <span class="text-xs font-bold text-app-text truncate sm:whitespace-normal" x-text="stat.title"></span>
+                                <span class="text-[11px] text-app-muted leading-relaxed" x-text="stat.description"></span>
 
-                                {{-- Hiển thị tiến trình lượt --}}
-                                @if($stat['type'] === 'daily')
+                                {{-- Tiến trình lượt hoặc trạng thái nhận thưởng --}}
+                                <template x-if="stat.type === 'daily'">
                                     <div class="flex items-center gap-1.5 mt-1.5">
-                                        <div
-                                            class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
+                                        <div class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
                                             <div class="h-full bg-primary rounded-full"
-                                                style="width: {{ min(100, ($stat['completed'] / $stat['limit']) * 100) }}%">
+                                                :style="`width: ${Math.min(100, (stat.completed / stat.limit) * 100)}%`">
                                             </div>
                                         </div>
-                                        <span
-                                            class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
-                                            {{ $stat['completed'] }}/{{ $stat['limit'] }} hôm nay
+                                        <span class="text-[9px] font-semibold"
+                                            :class="stat.completed >= stat.limit ? 'text-green-500' : 'text-primary'"
+                                            x-text="`${stat.completed}/${stat.limit} hôm nay`">
                                         </span>
                                     </div>
-                                @elseif($stat['type'] === 'monthly')
+                                </template>
+
+                                <template x-if="stat.type === 'monthly'">
                                     <div class="flex items-center gap-1.5 mt-1.5">
-                                        <div
-                                            class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
+                                        <div class="w-20 h-1 bg-app-surface border border-app-border rounded-full overflow-hidden">
                                             <div class="h-full bg-primary rounded-full"
-                                                style="width: {{ min(100, ($stat['completed'] / $stat['limit']) * 100) }}%">
+                                                :style="`width: ${Math.min(100, (stat.completed / stat.limit) * 100)}%`">
                                             </div>
                                         </div>
-                                        <span
-                                            class="text-[9px] font-semibold {{ $stat['completed'] >= $stat['limit'] ? 'text-green-500' : 'text-primary' }}">
-                                            {{ $stat['completed'] }}/{{ $stat['limit'] }} tháng này
+                                        <span class="text-[9px] font-semibold"
+                                            :class="stat.completed >= stat.limit ? 'text-green-500' : 'text-primary'"
+                                            x-text="`${stat.completed}/${stat.limit} tháng này`">
                                         </span>
                                     </div>
-                                @elseif($stat['type'] === 'checkin')
+                                </template>
+
+                                <template x-if="stat.type === 'checkin'">
                                     <div class="flex items-center gap-2 mt-1.5">
-                                        <span
-                                            class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded {{ $stat['completed'] > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10' }}">
-                                            {{ $stat['completed'] > 0 ? 'Đã điểm danh' : 'Chưa điểm danh' }}
+                                        <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                                            :class="stat.completed > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10'"
+                                            x-text="stat.completed > 0 ? 'Đã điểm danh' : 'Chưa điểm danh'">
                                         </span>
-                                        <span class="text-[9px] font-semibold text-primary">
-                                            Chuỗi: {{ $stat['streak'] }}/7 ngày
-                                        </span>
+                                        <span class="text-[9px] font-semibold text-primary" x-text="`Chuỗi: ${stat.streak}/7 ngày`"></span>
                                     </div>
-                                @elseif($stat['type'] === 'once')
-                                    <span
-                                        class="text-[9px] font-bold mt-1.5 uppercase tracking-wider px-1.5 py-0.5 rounded {{ $stat['completed'] > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10' }}">
-                                        {{ $stat['completed'] > 0 ? 'Đã nhận' : 'Chưa nhận' }}
+                                </template>
+
+                                <template x-if="stat.type === 'once'">
+                                    <span class="text-[9px] font-bold mt-1.5 uppercase tracking-wider px-1.5 py-0.5 rounded self-start"
+                                        :class="stat.completed > 0 ? 'text-green-500 bg-green-500/10' : 'text-amber-500 bg-amber-500/10'"
+                                        x-text="stat.completed > 0 ? 'Đã nhận' : 'Chưa nhận'">
                                     </span>
-                                @endif
+                                </template>
                             </div>
                         </div>
-                        <div class="flex flex-col items-end gap-1 shrink-0 self-start sm:self-center">
-                            <span
-                                class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">
-                                {{ $stat['xp'] }}
-                            </span>
-                            @if($stat['key'] === 'referral_first_deposit')
-                                <span
-                                    class="text-[10px] font-bold text-green-500 bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">
+                        <div class="flex flex-col items-end gap-1.5 shrink-0 self-start sm:self-center">
+                            <span class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full"
+                                x-text="stat.xp"></span>
+                            
+                            <template x-if="stat.key === 'referral_first_deposit'">
+                                <span class="text-[10px] font-bold text-green-500 bg-green-500/10 border border-green-500/20 px-2 py-0.5 rounded-full">
                                     +10% Hoa hồng
                                 </span>
-                            @endif
+                            </template>
+
+                            {{-- Nút hành động cho nhiệm vụ một lần --}}
+                            <template x-if="stat.type === 'once' && stat.completed === 0">
+                                <div class="mt-1">
+                                    <template x-if="stat.is_requirement_met">
+                                        <button type="button" @click="claimQuest(stat.key)" :disabled="isClaiming[stat.key]"
+                                            class="h-7 px-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-bold text-[10px] uppercase tracking-wider rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-1 shadow-sm shadow-orange-500/20">
+                                            <span x-show="isClaiming[stat.key]" class="material-symbols-outlined text-[12px] animate-spin">refresh</span>
+                                            <span>Nhận thưởng</span>
+                                        </button>
+                                    </template>
+                                    <template x-if="!stat.is_requirement_met">
+                                        <div>
+                                            <template x-if="stat.key === 'verify_email'">
+                                                <button type="button" 
+                                                    @click="
+                                                        $dispatch('close-modal', 'xp-missions-modal');
+                                                        setActiveAction('setting');
+                                                        $nextTick(() => {
+                                                            settingTab = 'security';
+                                                            activeSecurityCollapse = 'verification';
+                                                        });
+                                                    "
+                                                    class="h-7 px-3 bg-primary hover:bg-primary/95 text-white font-bold text-[10px] uppercase tracking-wider rounded-lg transition-all active:scale-[0.98] shadow-sm shadow-primary/20">
+                                                    Xác thực ngay
+                                                </button>
+                                            </template>
+                                            <template x-if="stat.key !== 'verify_email'">
+                                                <span class="text-[10px] text-app-muted italic">Chưa đủ điều kiện</span>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
                         </div>
                     </div>
-                @endforeach
+                </template>
             </div>
         </div>
 

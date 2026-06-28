@@ -458,6 +458,7 @@ class UserLevelService
                 'completed' => $hasRegisterXp,
                 'limit' => 1,
                 'type' => 'once',
+                'is_requirement_met' => true,
             ],
             [
                 'key' => 'verify_email',
@@ -467,6 +468,7 @@ class UserLevelService
                 'completed' => $hasVerifyEmailXp,
                 'limit' => 1,
                 'type' => 'once',
+                'is_requirement_met' => $user->hasVerifiedEmail(),
             ],
         ];
     }
@@ -486,6 +488,7 @@ class UserLevelService
                 ->where('users.is_deleted', false)
                 ->where('user_levels.total_xp', '>', 0)
                 ->orderByDesc('user_levels.total_xp')
+                ->orderBy('user_levels.tier_achieved_at')
                 ->limit(10)
                 ->select([
                     'user_levels.user_id',
@@ -552,12 +555,18 @@ class UserLevelService
             ];
         }
 
-        // Đếm số user có XP cao hơn user hiện tại → thứ hạng = count + 1
+        // Đếm số user đứng trước (XP cao hơn OR bằng XP nhưng đạt mốc trước)
         $higherCount = UserLevel::query()
             ->join('users', 'user_levels.user_id', '=', 'users.id')
             ->where('users.status', 'active')
             ->where('users.is_deleted', false)
-            ->where('user_levels.total_xp', '>', $userLevel->total_xp)
+            ->where(function ($query) use ($userLevel) {
+                $query->where('user_levels.total_xp', '>', $userLevel->total_xp)
+                    ->orWhere(function ($q) use ($userLevel) {
+                        $q->where('user_levels.total_xp', '=', $userLevel->total_xp)
+                          ->where('user_levels.tier_achieved_at', '<', $userLevel->tier_achieved_at);
+                    });
+            })
             ->count();
 
         $rank = $higherCount + 1;

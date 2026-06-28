@@ -1,7 +1,125 @@
 {{-- Component Cài đặt tài khoản & trải nghiệm --}}
 <div class="bg-app-surface border border-app-border rounded-xl overflow-hidden shadow-sm" x-data="{
-    settingTab: 'menu', // 'menu', 'theme', 'language', 'notifications', 'security'
-    activeSecurityCollapse: null, // null, 'password', 'email'
+    settingTab: new URLSearchParams(window.location.search).get('subtab') || 'menu', // 'menu', 'theme', 'language', 'notifications', 'security'
+    activeSecurityCollapse: new URLSearchParams(window.location.search).get('collapse') || null, // null, 'password', 'email', 'verification'
+    emailStep: 'input', // 'input', 'otp'
+    newEmail: '{{ auth()->user()->email }}',
+    otpCode: '',
+    isSendingOtp: false,
+    isConfirmingEmail: false,
+    otpCooldown: 0,
+    otpInterval: null,
+    isSendingVerification: false,
+    verificationCooldown: 0,
+    verificationInterval: null,
+    startOtpCooldown() {
+        this.otpCooldown = 60;
+        if (this.otpInterval) clearInterval(this.otpInterval);
+        this.otpInterval = setInterval(() => {
+            if (this.otpCooldown > 0) {
+                this.otpCooldown--;
+            } else {
+                clearInterval(this.otpInterval);
+            }
+        }, 1000);
+    },
+    sendOtp() {
+        if (!this.newEmail || this.newEmail === '{{ auth()->user()->email }}') {
+            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: 'Vui lòng nhập địa chỉ email mới khác email hiện tại.' } }));
+            return;
+        }
+        this.isSendingOtp = true;
+        fetch('{{ route('api.profile.send_email_otp') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email: this.newEmail })
+        })
+        .then(res => res.json())
+        .then(data => {
+            this.isSendingOtp = false;
+            if (data.success) {
+                this.emailStep = 'otp';
+                this.startOtpCooldown();
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', title: 'Thành công', message: data.message } }));
+            } else {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: data.message } }));
+            }
+        })
+        .catch(() => {
+            this.isSendingOtp = false;
+            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: 'Không thể kết nối đến máy chủ.' } }));
+        });
+    },
+    confirmEmailChange() {
+        if (!this.otpCode || this.otpCode.length !== 6) {
+            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: 'Vui lòng nhập mã OTP gồm 6 chữ số.' } }));
+            return;
+        }
+        this.isConfirmingEmail = true;
+        fetch('{{ route('api.profile.confirm_email_change') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email: this.newEmail, otp: this.otpCode })
+        })
+        .then(res => res.json())
+        .then(data => {
+            this.isConfirmingEmail = false;
+            if (data.success) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', title: 'Thành công', message: data.message } }));
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: data.message } }));
+            }
+        })
+        .catch(() => {
+            this.isConfirmingEmail = false;
+            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: 'Không thể kết nối đến máy chủ.' } }));
+        });
+    },
+    startVerificationCooldown() {
+        this.verificationCooldown = 60;
+        if (this.verificationInterval) clearInterval(this.verificationInterval);
+        this.verificationInterval = setInterval(() => {
+            if (this.verificationCooldown > 0) {
+                this.verificationCooldown--;
+            } else {
+                clearInterval(this.verificationInterval);
+            }
+        }, 1000);
+    },
+    sendVerificationEmail() {
+        this.isSendingVerification = true;
+        fetch('{{ route('api.profile.send_verification') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            this.isSendingVerification = false;
+            if (data.success) {
+                this.startVerificationCooldown();
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', title: 'Thành công', message: data.message } }));
+            } else {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: data.message } }));
+            }
+        })
+        .catch(() => {
+            this.isSendingVerification = false;
+            window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', title: 'Lỗi', message: 'Không thể kết nối đến máy chủ.' } }));
+        });
+    },
     themeMode: (function() {
         try {
             return JSON.parse(localStorage.getItem('theme') || '{}').mode || 'auto';
@@ -520,13 +638,16 @@
                     <div class="flex items-center gap-3">
                         <span
                             class="material-symbols-outlined text-[22px] text-app-muted group-hover:text-primary transition-colors">mail</span>
-                        <span class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">{{ __('Update Email') }}</span>
+                        <div class="flex flex-col gap-0.5">
+                            <span class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">{{ __('Update Email') }}</span>
+                            <span class="text-[11px] text-app-muted">{{ __('Current email:') }} <span class="text-app-text">{{ auth()->user()->email }}</span></span>
+                        </div>
                     </div>
                     <span class="material-symbols-outlined text-[20px] text-app-muted transition-transform duration-300"
                         :class="activeSecurityCollapse === 'email' ? 'rotate-90 text-primary' : ''">chevron_right</span>
                 </button>
 
-                <!-- Body Accordion (Form đổi email) -->
+                <!-- Body Accordion (Form đổi email qua OTP) -->
                 <div x-show="activeSecurityCollapse === 'email'"
                     x-transition:enter="transition-all ease-out duration-200"
                     x-transition:enter-start="opacity-0 transform -translate-y-2"
@@ -534,28 +655,120 @@
                     x-transition:leave="transition-all ease-in duration-150"
                     x-transition:leave-start="opacity-100 transform translate-y-0"
                     x-transition:leave-end="opacity-0 transform -translate-y-2"
-                    class="px-4 pb-5 pt-2 border-t border-app-border/50 bg-app-surface/50">
+                    class="px-4 pb-5 pt-3 border-t border-app-border/50 bg-app-surface/50">
 
-                    <form method="post" action="{{ route('app.profile.update', ['locale' => app()->getLocale()]) }}"
-                        class="space-y-4">
-                        @csrf
-
+                    <!-- Bước 1: Nhập email mới -->
+                    <div x-show="emailStep === 'input'" class="space-y-4">
                         <div>
                             <label for="update_email_address"
                                 class="block text-xs font-semibold text-app-text mb-1.5">{{ __('New Email Address') }}</label>
-                            <input id="update_email_address" name="email" type="email"
-                                value="{{ old('email', auth()->user()->email) }}"
+                            <input id="update_email_address" x-model="newEmail" type="email"
                                 class="w-full h-10 px-3 bg-app-main border border-app-border rounded-xl text-sm text-app-text focus:border-primary focus:ring-0 transition-colors outline-none"
                                 required placeholder="{{ __('New Email Address') }}" />
                         </div>
 
                         <div class="pt-2">
-                            <button type="submit"
-                                class="h-10 px-5 bg-primary hover:bg-primary/90 text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2">
-                                {{ __('Save Email') }}
+                            <button type="button" @click="sendOtp" :disabled="isSendingOtp"
+                                class="h-10 px-5 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2">
+                                <span x-show="isSendingOtp" class="material-symbols-outlined text-[18px] animate-spin">refresh</span>
+                                <span x-text="isSendingOtp ? 'Đang gửi...' : 'Gửi mã xác thực'"></span>
                             </button>
                         </div>
-                    </form>
+                    </div>
+
+                    <!-- Bước 2: Nhập OTP -->
+                    <div x-show="emailStep === 'otp'" class="space-y-4" x-cloak>
+                        <div class="p-3.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs leading-relaxed">
+                            Mã xác thực gồm 6 chữ số đã được gửi tới địa chỉ email mới của bạn (<strong x-text="newEmail"></strong>). Vui lòng kiểm tra hộp thư đến (và cả thư rác/spam).
+                        </div>
+
+                        <div>
+                            <label for="email_otp_code"
+                                class="block text-xs font-semibold text-app-text mb-1.5">Mã xác thực OTP (6 chữ số)</label>
+                            <input id="email_otp_code" x-model="otpCode" type="text" maxlength="6"
+                                class="w-full h-10 px-3 bg-app-main border border-app-border rounded-xl text-sm text-app-text focus:border-primary focus:ring-0 transition-colors outline-none tracking-[0.25em] text-center font-bold"
+                                required placeholder="------" />
+                        </div>
+
+                        <div class="flex items-center gap-3 pt-2">
+                            <button type="button" @click="confirmEmailChange" :disabled="isConfirmingEmail"
+                                class="h-10 px-5 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2">
+                                <span x-show="isConfirmingEmail" class="material-symbols-outlined text-[18px] animate-spin">refresh</span>
+                                <span x-text="isConfirmingEmail ? 'Đang xác nhận...' : 'Xác nhận đổi email'"></span>
+                            </button>
+
+                            <button type="button" @click="sendOtp" :disabled="otpCooldown > 0 || isSendingOtp"
+                                class="h-10 px-4 bg-app-main border border-app-border hover:border-primary/50 text-app-text font-semibold text-sm rounded-xl transition-all active:scale-[0.98] disabled:opacity-50">
+                                <span x-text="otpCooldown > 0 ? `Gửi lại sau (${otpCooldown}s)` : 'Gửi lại mã'"></span>
+                            </button>
+
+                            <button type="button" @click="emailStep = 'input'"
+                                class="h-10 px-4 text-app-muted hover:text-app-text text-sm font-semibold transition-colors">
+                                Quay lại
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Accordion 3: Xác thực tài khoản --}}
+            <div class="border border-app-border rounded-xl bg-app-main/10 overflow-hidden transition-all duration-300">
+                <!-- Tiêu đề Accordion -->
+                <button type="button"
+                    @click="activeSecurityCollapse = (activeSecurityCollapse === 'verification' ? null : 'verification')"
+                    class="w-full flex items-center justify-between p-4 hover:bg-primary/5 transition-all text-left group">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="material-symbols-outlined text-[22px] text-app-muted group-hover:text-primary transition-colors">verified_user</span>
+                        <div class="flex flex-col gap-0.5">
+                            <span class="text-sm font-semibold text-app-text group-hover:text-primary transition-colors">Xác thực tài khoản</span>
+                            <span class="text-[11px] text-app-muted">
+                                Trạng thái: 
+                                @if(auth()->user()->hasVerifiedEmail())
+                                    <span class="text-green-500 font-bold">Đã xác thực</span>
+                                @else
+                                    <span class="text-red-500 font-bold">Chưa xác thực</span>
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-[20px] text-app-muted transition-transform duration-300"
+                        :class="activeSecurityCollapse === 'verification' ? 'rotate-90 text-primary' : ''">chevron_right</span>
+                </button>
+
+                <!-- Body Accordion -->
+                <div x-show="activeSecurityCollapse === 'verification'"
+                    x-transition:enter="transition-all ease-out duration-200"
+                    x-transition:enter-start="opacity-0 transform -translate-y-2"
+                    x-transition:enter-end="opacity-100 transform translate-y-0"
+                    x-transition:leave="transition-all ease-in duration-150"
+                    x-transition:leave-start="opacity-100 transform translate-y-0"
+                    x-transition:leave-end="opacity-0 transform -translate-y-2"
+                    class="px-4 pb-5 pt-3 border-t border-app-border/50 bg-app-surface/50">
+
+                    @if(auth()->user()->hasVerifiedEmail())
+                        <div class="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400">
+                            <span class="material-symbols-outlined text-[28px] shrink-0">verified</span>
+                            <div class="text-xs leading-relaxed">
+                                <strong class="text-sm block mb-0.5">Tài khoản đã xác thực!</strong>
+                                Địa chỉ email của bạn (<strong class="underline">{{ auth()->user()->email }}</strong>) đã được xác thực bảo mật thành công. Bạn đã đủ điều kiện nhận các đặc quyền và thưởng XP tương ứng.
+                            </div>
+                        </div>
+                    @else
+                        <div class="space-y-4">
+                            <div class="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs leading-relaxed">
+                                Tài khoản của bạn hiện chưa xác thực email. Vui lòng nhấn nút gửi email xác thực dưới đây, hệ thống sẽ gửi một liên kết xác nhận vào hòm thư <strong class="underline">{{ auth()->user()->email }}</strong> của bạn.
+                            </div>
+
+                            <div class="pt-2">
+                                <button type="button" @click="sendVerificationEmail" :disabled="isSendingVerification || verificationCooldown > 0"
+                                    class="h-10 px-5 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-semibold text-sm rounded-xl transition-all shadow-sm shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2">
+                                    <span x-show="isSendingVerification" class="material-symbols-outlined text-[18px] animate-spin">refresh</span>
+                                    <span x-text="isSendingVerification ? 'Đang gửi...' : (verificationCooldown > 0 ? `Gửi lại sau (${verificationCooldown}s)` : 'Gửi email xác thực')"></span>
+                                </button>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
