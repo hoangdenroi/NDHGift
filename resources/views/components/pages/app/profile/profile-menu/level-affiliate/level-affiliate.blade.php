@@ -22,7 +22,7 @@
         $dispatch('open-modal', 'tier-detail-modal');
     },
     quests: @js($xpStats),
-    isClaiming: {},
+    isClaiming: { register: false, verify_email: false },
     currentXp: {{ $user->current_xp }},
     progressPercent: {{ $progress['percent'] }},
     progressText: '{{ $progress['is_max'] ? "MAX LEVEL" : number_format($progress['current_xp']) . " / " . number_format($progress['next_tier_xp']) . " XP" }}',
