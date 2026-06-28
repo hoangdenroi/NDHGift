@@ -12,7 +12,9 @@
     $xpStats = $levelService->getXpEarningStats($user);
 @endphp
 
-<div class="flex flex-col gap-6" x-data="{
+<div class="flex flex-col gap-6" 
+    @claim-quest.window="claimQuest($event.detail)"
+    x-data="{
     selectedTier: null,
     currentTier: '{{ $currentTier }}',
     openTierDetail(key, label, icon, minXp, discount, adPercent, color) {
@@ -31,7 +33,7 @@
 
     claimQuest(questKey) {
         if (this.isClaiming[questKey]) return;
-        this.isClaiming[questKey] = true;
+        this.isClaiming = { ...this.isClaiming, [questKey]: true };
         
         fetch('{{ route('api.profile.claim_quest') }}', {
             method: 'POST',
@@ -44,7 +46,7 @@
         })
         .then(res => res.json())
         .then(data => {
-            this.isClaiming[questKey] = false;
+            this.isClaiming = { ...this.isClaiming, [questKey]: false };
             if (data.success) {
                 const quest = this.quests.find(q => q.key === questKey);
                 if (quest) {
@@ -76,7 +78,7 @@
             }
         })
         .catch(() => {
-            this.isClaiming[questKey] = false;
+            this.isClaiming = { ...this.isClaiming, [questKey]: false };
             window.dispatchEvent(new CustomEvent('toast', {
                 detail: { type: 'error', title: 'Lỗi', message: 'Không thể kết nối đến máy chủ.' }
             }));
@@ -719,7 +721,7 @@
                             <template x-if="stat.type === 'once' && stat.completed === 0">
                                 <div class="mt-1">
                                     <template x-if="stat.is_requirement_met">
-                                        <button type="button" @click="claimQuest(stat.key)" :disabled="isClaiming[stat.key]"
+                                        <button type="button" @click="$dispatch('claim-quest', stat.key)" :disabled="isClaiming[stat.key]"
                                             class="h-7 px-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-bold text-[10px] uppercase tracking-wider rounded-lg transition-all active:scale-[0.98] flex items-center justify-center gap-1 shadow-sm shadow-orange-500/20">
                                             <span x-show="isClaiming[stat.key]" class="material-symbols-outlined text-[12px] animate-spin">refresh</span>
                                             <span>Nhận thưởng</span>
