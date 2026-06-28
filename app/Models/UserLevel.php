@@ -50,6 +50,7 @@ class UserLevel extends Model
         'is_frozen' => 'boolean',
         'last_xp_earned_at' => 'datetime',
         'tier_achieved_at' => 'datetime',
+        'metadata' => 'array',
     ];
 
     /**

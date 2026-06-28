@@ -5,12 +5,21 @@ declare(strict_types=1);
 namespace App\Http\Controllers\App\profile;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Profile\ToggleAnonymousRequest;
+use App\Services\UserLevelService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 class ProfileController extends Controller
 {
+    /**
+     * Khởi tạo controller — inject service qua constructor.
+     */
+    public function __construct(
+        protected UserLevelService $userLevelService
+    ) {}
     /**
      * Hiển thị trang Hồ sơ cá nhân.
      */
@@ -205,5 +214,70 @@ class ProfileController extends Controller
             'total' => $transactions->total(),
             'per_page' => $transactions->perPage(),
         ]);
+    }
+
+    /**
+     * Lấy dữ liệu bảng xếp hạng XP và thứ hạng cá nhân.
+     */
+    public function leaderboard(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yêu cầu đăng nhập.',
+            ], 401);
+        }
+
+        $leaderboardData = $this->userLevelService->getLeaderboard();
+        $userRanking = $this->userLevelService->getUserRanking($user);
+
+        // Đánh dấu dòng nào là user hiện tại trong top 10
+        $top = array_map(function (array $entry) use ($user) {
+            $entry['is_current_user'] = $entry['user_id'] === $user->id;
+            return $entry;
+        }, $leaderboardData['top']);
+
+        // Lấy trạng thái ẩn danh hiện tại của user
+        $userLevel = $user->userLevel;
+        $metadata = $userLevel?->metadata ?? [];
+        $isAnonymous = (bool) ($metadata['is_anonymous_leaderboard'] ?? false);
+
+        return response()->json([
+            'success' => true,
+            'top' => $top,
+            'total_ranked' => $leaderboardData['total_ranked'],
+            'my_rank' => $userRanking['rank'],
+            'my_top_percent' => $userRanking['top_percent'],
+            'my_in_top_10' => $userRanking['in_top_10'],
+            'is_anonymous' => $isAnonymous,
+        ]);
+    }
+
+    /**
+     * Toggle trạng thái ẩn danh trên bảng xếp hạng.
+     */
+    public function toggleAnonymous(ToggleAnonymousRequest $request): JsonResponse
+    {
+        $user = $request->user();
+
+        try {
+            $newState = $this->userLevelService->toggleAnonymous($user);
+
+            return response()->json([
+                'success' => true,
+                'is_anonymous' => $newState,
+                'message' => $newState
+                    ? 'Đã bật chế độ ẩn danh trên bảng xếp hạng.'
+                    : 'Đã tắt chế độ ẩn danh trên bảng xếp hạng.',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Lỗi toggle ẩn danh leaderboard User ID ' . $user->id . ': ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Đã có lỗi xảy ra, vui lòng thử lại sau.',
+            ], 500);
+        }
     }
 }

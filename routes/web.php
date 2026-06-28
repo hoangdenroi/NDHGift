@@ -12,6 +12,7 @@ use App\Http\Controllers\App\notification\NotificationController;
 use App\Http\Controllers\App\profile\ProfileController;
 use App\Http\Controllers\App\support\SupportController;
 use App\Http\Controllers\App\topup\TopupController;
+use App\Http\Controllers\Auth\SocialiteController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -80,6 +81,8 @@ Route::prefix('{locale}')
 Route::middleware('auth')->prefix('api')->group(function () {
     Route::post('v1/settings', [ProfileController::class, 'updateSettings'])->name('api.settings.update');
     Route::get('v1/profile/xp-transactions', [ProfileController::class, 'xpTransactions'])->name('api.profile.xp_transactions');
+    Route::get('v1/profile/leaderboard', [ProfileController::class, 'leaderboard'])->name('api.profile.leaderboard');
+    Route::post('v1/profile/toggle-anonymous', [ProfileController::class, 'toggleAnonymous'])->name('api.profile.toggle_anonymous');
 
     // --- NẠP TIỀN API (Khớp với topup-index.blade.php) ---
     Route::post('v1/topup/create', [TopupController::class, 'createTopup'])->name('api.topup.create');
@@ -95,12 +98,12 @@ Route::middleware('auth')->prefix('api')->group(function () {
 });
 
 // --- Social Login (Google & Facebook) ---
-Route::get('/auth/{provider}', [App\Http\Controllers\Auth\SocialiteController::class, 'redirect'])
+Route::get('/auth/{provider}', [SocialiteController::class, 'redirect'])
     ->middleware('throttle:auth')
     ->name('social.login')
     ->where('provider', 'google|facebook');
 
-Route::get('/auth/{provider}/callback', [App\Http\Controllers\Auth\SocialiteController::class, 'callback'])
+Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback'])
     ->where('provider', 'google|facebook');
 
 require __DIR__.'/auth.php';

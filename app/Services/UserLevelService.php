@@ -472,6 +472,156 @@ class UserLevelService
     }
 
     /**
+     * Lấy bảng xếp hạng top 10 user có XP cao nhất.
+     * Cache 5 phút để giảm tải database.
+     *
+     * @return array{top: list<array>, total_ranked: int}
+     */
+    public function getLeaderboard(): array
+    {
+        return \Illuminate\Support\Facades\Cache::remember('leaderboard:top10', now()->addMinutes(5), function () {
+            $topUsers = UserLevel::query()
+                ->join('users', 'user_levels.user_id', '=', 'users.id')
+                ->where('users.status', 'active')
+                ->where('users.is_deleted', false)
+                ->where('user_levels.total_xp', '>', 0)
+                ->orderByDesc('user_levels.total_xp')
+                ->limit(10)
+                ->select([
+                    'user_levels.user_id',
+                    'user_levels.total_xp',
+                    'user_levels.tier',
+                    'user_levels.metadata',
+                    'users.fullname',
+                    'users.avatar_url',
+                ])
+                ->get();
+
+            $configuredTiers = config('levels.tiers', []);
+            $rank = 0;
+
+            $top = $topUsers->map(function ($item) use ($configuredTiers, &$rank) {
+                $rank++;
+                $metadata = is_string($item->metadata) ? json_decode($item->metadata, true) : ($item->metadata ?? []);
+                $isAnonymous = (bool) ($metadata['is_anonymous_leaderboard'] ?? false);
+                $tierConfig = $configuredTiers[$item->tier] ?? $configuredTiers['bronze'];
+
+                return [
+                    'rank' => $rank,
+                    'user_id' => $item->user_id,
+                    'fullname' => $isAnonymous ? 'Thành viên ẩn danh' : ($item->fullname ?? 'Thành viên'),
+                    'avatar_url' => $isAnonymous ? null : $item->avatar_url,
+                    'total_xp' => $item->total_xp,
+                    'tier' => $item->tier,
+                    'tier_icon' => $tierConfig['icon'] ?? '🥉',
+                    'tier_label' => $tierConfig['label'] ?? 'Bronze Member',
+                    'tier_color' => $tierConfig['color'] ?? '#CD7F32',
+                    'is_anonymous' => $isAnonymous,
+                ];
+            })->all();
+
+            // Tổng số user có XP > 0 (dùng để tính top %)
+            $totalRanked = UserLevel::query()
+                ->join('users', 'user_levels.user_id', '=', 'users.id')
+                ->where('users.status', 'active')
+                ->where('users.is_deleted', false)
+                ->where('user_levels.total_xp', '>', 0)
+                ->count();
+
+            return [
+                'top' => $top,
+                'total_ranked' => $totalRanked,
+            ];
+        });
+    }
+
+    /**
+     * Lấy thứ hạng và phần trăm top của user hiện tại trên bảng xếp hạng.
+     *
+     * @return array{rank: int, total_ranked: int, top_percent: float, in_top_10: bool}
+     */
+    public function getUserRanking(User $user): array
+    {
+        $userLevel = UserLevel::where('user_id', $user->id)->first();
+        if (! $userLevel || $userLevel->total_xp <= 0) {
+            return [
+                'rank' => 0,
+                'total_ranked' => 0,
+                'top_percent' => 100.0,
+                'in_top_10' => false,
+            ];
+        }
+
+        // Đếm số user có XP cao hơn user hiện tại → thứ hạng = count + 1
+        $higherCount = UserLevel::query()
+            ->join('users', 'user_levels.user_id', '=', 'users.id')
+            ->where('users.status', 'active')
+            ->where('users.is_deleted', false)
+            ->where('user_levels.total_xp', '>', $userLevel->total_xp)
+            ->count();
+
+        $rank = $higherCount + 1;
+
+        // Tổng user có XP > 0
+        $totalRanked = UserLevel::query()
+            ->join('users', 'user_levels.user_id', '=', 'users.id')
+            ->where('users.status', 'active')
+            ->where('users.is_deleted', false)
+            ->where('user_levels.total_xp', '>', 0)
+            ->count();
+
+        $topPercent = $totalRanked > 0
+            ? round(($rank / $totalRanked) * 100, 1)
+            : 100.0;
+
+        return [
+            'rank' => $rank,
+            'total_ranked' => $totalRanked,
+            'top_percent' => $topPercent,
+            'in_top_10' => $rank <= 10,
+        ];
+    }
+
+    /**
+     * Toggle trạng thái ẩn danh trên bảng xếp hạng.
+     * Lưu vào cột metadata (JSON) của user_levels, xóa cache leaderboard để cập nhật ngay.
+     *
+     * @return bool Trạng thái ẩn danh mới sau khi toggle
+     */
+    public function toggleAnonymous(User $user): bool
+    {
+        return DB::transaction(function () use ($user) {
+            $userLevel = UserLevel::where('user_id', $user->id)->lockForUpdate()->first();
+            if (! $userLevel) {
+                $userLevel = UserLevel::create([
+                    'user_id' => $user->id,
+                    'total_xp' => 0,
+                    'tier' => 'bronze',
+                    'is_frozen' => false,
+                    'last_xp_earned_at' => now(),
+                    'tier_achieved_at' => now(),
+                ]);
+            }
+
+            $metadata = $userLevel->metadata ?? [];
+            if (is_string($metadata)) {
+                $metadata = json_decode($metadata, true) ?? [];
+            }
+
+            $currentState = (bool) ($metadata['is_anonymous_leaderboard'] ?? false);
+            $metadata['is_anonymous_leaderboard'] = ! $currentState;
+
+            $userLevel->metadata = $metadata;
+            $userLevel->save();
+
+            // Xóa cache leaderboard để phản ánh thay đổi ngay lập tức
+            \Illuminate\Support\Facades\Cache::forget('leaderboard:top10');
+
+            return ! $currentState;
+        });
+    }
+
+    /**
      * Thực hiện điểm danh hàng ngày cho người dùng.
      *
      * @return array|null Trả về thông tin điểm danh hoặc null nếu hôm nay đã điểm danh

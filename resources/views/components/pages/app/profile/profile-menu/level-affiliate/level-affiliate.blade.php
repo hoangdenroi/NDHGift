@@ -184,13 +184,117 @@
 
     {{-- Row 2 Grid: Tiers List & XP History --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {{-- 3. Danh sách cấp bậc & Yêu cầu --}}
-        <div class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col gap-4 shadow-sm">
-            <h3 class="text-sm font-bold text-app-text border-b border-app-border pb-3 flex items-center gap-2">
-                <span class="material-symbols-outlined text-orange-500 text-[20px]">military_tech</span>
-                {{ __('Tier Privilege Table') }}
-            </h3>
-            <div class="flex flex-col gap-3">
+        {{-- 3. Danh sách cấp bậc & Bảng xếp hạng (Tab Switch) --}}
+        <div x-data="{
+            tierTab: 'privileges',
+            leaderboard: [],
+            totalRanked: 0,
+            myRank: 0,
+            myTopPercent: 100,
+            myInTop10: false,
+            isAnonymous: false,
+            isLeaderboardLoading: false,
+            isTogglingAnonymous: false,
+            leaderboardLoaded: false,
+            async fetchLeaderboard() {
+                if (this.isLeaderboardLoading) return;
+                this.isLeaderboardLoading = true;
+                try {
+                    const res = await fetch('/api/v1/profile/leaderboard');
+                    const data = await res.json();
+                    if (data.success) {
+                        this.leaderboard = data.top;
+                        this.totalRanked = data.total_ranked;
+                        this.myRank = data.my_rank;
+                        this.myTopPercent = data.my_top_percent;
+                        this.myInTop10 = data.my_in_top_10;
+                        this.isAnonymous = data.is_anonymous;
+                        this.leaderboardLoaded = true;
+                    }
+                } catch (e) {
+                    console.error('Lỗi tải bảng xếp hạng:', e);
+                } finally {
+                    this.isLeaderboardLoading = false;
+                }
+            },
+            async toggleAnonymous() {
+                if (this.isTogglingAnonymous) return;
+                this.isTogglingAnonymous = true;
+                try {
+                    const res = await fetch('/api/v1/profile/toggle-anonymous', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.isAnonymous = data.is_anonymous;
+                        // Tải lại leaderboard để cập nhật tên hiển thị
+                        this.leaderboardLoaded = false;
+                        await this.fetchLeaderboard();
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { type: 'success', title: '{{ __('Success') }}', message: data.message }
+                        }));
+                    }
+                } catch (e) {
+                    console.error('Lỗi toggle ẩn danh:', e);
+                } finally {
+                    this.isTogglingAnonymous = false;
+                }
+            },
+            switchToLeaderboard() {
+                this.tierTab = 'leaderboard';
+                if (!this.leaderboardLoaded) {
+                    this.fetchLeaderboard();
+                }
+            },
+            getRankMedal(rank) {
+                if (rank === 1) return '🥇';
+                if (rank === 2) return '🥈';
+                if (rank === 3) return '🥉';
+                return '#' + rank;
+            },
+            getRankClass(rank) {
+                if (rank === 1) return 'text-amber-400 bg-amber-500/10 border-amber-500/30';
+                if (rank === 2) return 'text-gray-300 bg-gray-400/10 border-gray-400/30';
+                if (rank === 3) return 'text-orange-400 bg-orange-500/10 border-orange-500/30';
+                return 'text-app-muted bg-app-main border-app-border';
+            }
+        }" class="bg-app-surface border border-app-border rounded-xl p-6 flex flex-col gap-4 shadow-sm">
+            {{-- Tab Header --}}
+            <div class="flex items-center justify-between border-b border-app-border pb-3">
+                <div class="flex items-center gap-1 bg-app-main rounded-lg p-0.5 border border-app-border">
+                    <button @click="tierTab = 'privileges'"
+                        :class="tierTab === 'privileges' ? 'bg-app-surface shadow-sm text-app-text border-app-border' : 'text-app-muted hover:text-app-text border-transparent'"
+                        class="px-3 py-1.5 rounded-md text-[11px] font-bold transition-all border flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[14px] text-orange-500">military_tech</span>
+                        Đặc quyền
+                    </button>
+                    <button @click="switchToLeaderboard()"
+                        :class="tierTab === 'leaderboard' ? 'bg-app-surface shadow-sm text-app-text border-app-border' : 'text-app-muted hover:text-app-text border-transparent'"
+                        class="px-3 py-1.5 rounded-md text-[11px] font-bold transition-all border flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[14px] text-blue-500">leaderboard</span>
+                        Xếp hạng
+                    </button>
+                </div>
+
+                {{-- Nút toggle ẩn danh (chỉ hiện khi ở tab xếp hạng) --}}
+                <div x-show="tierTab === 'leaderboard'" x-cloak>
+                    <button @click="toggleAnonymous()" :disabled="isTogglingAnonymous"
+                        :class="isAnonymous ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-app-main border-app-border text-app-muted hover:text-app-text hover:border-app-border-hover'"
+                        class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all border flex items-center gap-1 disabled:opacity-50"
+                        :title="isAnonymous ? 'Đang ẩn danh — click để tắt' : 'Bật ẩn danh trên bảng xếp hạng'">
+                        <span class="material-symbols-outlined text-[14px]"
+                            x-text="isAnonymous ? 'visibility_off' : 'visibility'"></span>
+                        <span x-text="isAnonymous ? 'Ẩn danh' : 'Hiện tên'"></span>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Tab Content: Đặc quyền --}}
+            <div x-show="tierTab === 'privileges'" x-cloak class="flex flex-col gap-3">
                 @foreach($configuredTiers as $key => $tier)
                     <div @click="openTierDetail(
                                 '{{ $key }}',
@@ -216,6 +320,120 @@
                         </div>
                     </div>
                 @endforeach
+            </div>
+
+            {{-- Tab Content: Bảng xếp hạng --}}
+            <div x-show="tierTab === 'leaderboard'" x-cloak class="flex flex-col gap-4">
+
+                {{-- Skeleton Loading --}}
+                <div x-show="isLeaderboardLoading" class="flex flex-col gap-2.5" x-cloak>
+                    <template x-for="i in 10" :key="'lb-skel-' + i">
+                        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-app-main/40 border border-app-border">
+                            <div class="size-6 skeleton-shimmer rounded-lg shrink-0"></div>
+                            <div class="size-8 skeleton-shimmer rounded-full shrink-0"></div>
+                            <div class="flex flex-col gap-1 flex-1">
+                                <div class="h-3 skeleton-shimmer rounded w-2/3"></div>
+                                <div class="h-2 skeleton-shimmer rounded w-1/3"></div>
+                            </div>
+                            <div class="h-4 skeleton-shimmer rounded-full w-16 shrink-0"></div>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- Leaderboard List --}}
+                <div x-show="!isLeaderboardLoading && leaderboard.length > 0" class="flex flex-col gap-2" x-cloak>
+                    <template x-for="entry in leaderboard" :key="'lb-' + entry.rank">
+                        <div class="flex items-center gap-3 p-2.5 rounded-xl transition-all"
+                            :class="entry.is_current_user
+                                ? 'bg-primary/10 border border-primary/30 ring-1 ring-primary/20'
+                                : (entry.rank <= 3 ? 'bg-app-main/60 border border-app-border hover:border-primary/20' : 'bg-app-main/40 border border-app-border hover:bg-app-main/60')">
+
+                            {{-- Hạng --}}
+                            <div class="flex items-center justify-center size-7 rounded-lg border text-[11px] font-extrabold shrink-0 select-none"
+                                :class="getRankClass(entry.rank)"
+                                x-text="getRankMedal(entry.rank)">
+                            </div>
+
+                            {{-- Avatar --}}
+                            <div class="size-8 rounded-full overflow-hidden bg-app-surface border border-app-border shrink-0 flex items-center justify-center">
+                                <template x-if="entry.avatar_url">
+                                    <img :src="entry.avatar_url" alt="Avatar" class="size-full object-cover">
+                                </template>
+                                <template x-if="!entry.avatar_url">
+                                    <span class="material-symbols-outlined text-app-muted text-[18px]">person</span>
+                                </template>
+                            </div>
+
+                            {{-- Thông tin --}}
+                            <div class="flex flex-col gap-0.5 min-w-0 flex-1">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-xs font-bold text-app-text truncate" x-text="entry.fullname"></span>
+                                    <template x-if="entry.is_current_user">
+                                        <span class="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full shrink-0">Bạn</span>
+                                    </template>
+                                    <template x-if="entry.is_anonymous">
+                                        <span class="material-symbols-outlined text-[12px] text-app-muted shrink-0" title="Ẩn danh">visibility_off</span>
+                                    </template>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-[10px] select-none" x-text="entry.tier_icon"></span>
+                                    <span class="text-[10px] text-app-muted" x-text="entry.tier_label"></span>
+                                </div>
+                            </div>
+
+                            {{-- XP --}}
+                            <span class="text-[11px] font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full shrink-0 select-none"
+                                x-text="entry.total_xp.toLocaleString() + ' XP'">
+                            </span>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- Empty State --}}
+                <div x-show="!isLeaderboardLoading && leaderboard.length === 0 && leaderboardLoaded"
+                    class="flex flex-col items-center justify-center py-10 text-center" x-cloak>
+                    <span class="material-symbols-outlined text-app-muted/30 text-5xl mb-2 select-none">leaderboard</span>
+                    <p class="text-xs text-app-muted">Chưa có thành viên nào trên bảng xếp hạng.</p>
+                </div>
+
+                {{-- Card Vị trí của bạn (chỉ hiện khi không nằm top 10) --}}
+                <div x-show="!isLeaderboardLoading && leaderboardLoaded && !myInTop10 && myRank > 0"
+                    class="p-4 rounded-xl bg-gradient-to-r from-primary/5 to-blue-500/5 border border-primary/20 flex items-center justify-between gap-4"
+                    x-cloak>
+                    <div class="flex items-center gap-3">
+                        <div class="size-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined text-[22px]">person_pin</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-app-text">Vị trí của bạn</span>
+                            <span class="text-[10px] text-app-muted mt-0.5">
+                                Xếp hạng <strong class="text-app-text" x-text="'#' + myRank"></strong>
+                                trên <strong x-text="totalRanked.toLocaleString()"></strong> thành viên
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-1 shrink-0">
+                        <span class="text-sm font-extrabold text-primary" x-text="'Top ' + myTopPercent + '%'"></span>
+                    </div>
+                </div>
+
+                {{-- Card Vị trí của bạn (khi nằm trong top 10) --}}
+                <div x-show="!isLeaderboardLoading && leaderboardLoaded && myInTop10 && myRank > 0"
+                    class="p-3 rounded-xl bg-green-500/5 border border-green-500/20 flex items-center gap-2 text-green-600 dark:text-green-400"
+                    x-cloak>
+                    <span class="material-symbols-outlined text-[18px]">emoji_events</span>
+                    <span class="text-[11px] font-bold">
+                        Bạn đang ở vị trí <strong x-text="'#' + myRank"></strong> — Top <strong x-text="myTopPercent + '%'"></strong> trên toàn hệ thống!
+                    </span>
+                </div>
+
+                {{-- Khi user chưa có XP --}}
+                <div x-show="!isLeaderboardLoading && leaderboardLoaded && myRank === 0"
+                    class="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 flex items-center gap-2 text-amber-600 dark:text-amber-400"
+                    x-cloak>
+                    <span class="material-symbols-outlined text-[18px]">info</span>
+                    <span class="text-[11px] font-bold">Hãy tích lũy XP để xuất hiện trên bảng xếp hạng!</span>
+                </div>
             </div>
         </div>
 
