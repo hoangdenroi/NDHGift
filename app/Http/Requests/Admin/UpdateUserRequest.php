@@ -35,6 +35,7 @@ class UpdateUserRequest extends FormRequest
             'role' => ['required', 'string', 'in:admin,user'],
             'status' => ['required', 'string', 'in:active,suspended'],
             'balance' => ['nullable', 'numeric', 'min:0'],
+            'avatar_url' => ['nullable', 'string', 'max:2048'],
         ];
     }
 

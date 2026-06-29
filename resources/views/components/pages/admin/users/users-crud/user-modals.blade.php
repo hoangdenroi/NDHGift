@@ -1,6 +1,6 @@
 {{-- ==========================================
-     MODAL TẠO NGƯỜI DÙNG MỚI
-     ========================================== --}}
+MODAL TẠO NGƯỜI DÙNG MỚI
+========================================== --}}
 <x-shared.ui.modal name="create-user" maxWidth="lg">
     <form method="POST" action="{{ route('admin.users.store') }}">
         @csrf
@@ -16,13 +16,15 @@
             <div class="flex flex-col gap-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tên đăng nhập <span class="text-rose-500">*</span></label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tên đăng nhập
+                            <span class="text-rose-500">*</span></label>
                         <input type="text" name="username" required
                             class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             placeholder="vd: nguyenvana">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Họ và tên <span class="text-rose-500">*</span></label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Họ và tên <span
+                                class="text-rose-500">*</span></label>
                         <input type="text" name="fullname" required
                             class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             placeholder="Nguyễn Văn A">
@@ -30,13 +32,15 @@
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email <span class="text-rose-500">*</span></label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email <span
+                                class="text-rose-500">*</span></label>
                         <input type="email" name="email" required
                             class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             placeholder="email@example.com">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Số điện thoại</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Số điện
+                            thoại</label>
                         <input type="text" name="phone"
                             class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             placeholder="0901234567">
@@ -44,13 +48,15 @@
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mật khẩu <span class="text-rose-500">*</span></label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mật khẩu <span
+                                class="text-rose-500">*</span></label>
                         <input type="password" name="password" required
                             class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             placeholder="Tối thiểu 8 ký tự">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Xác nhận mật khẩu <span class="text-rose-500">*</span></label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Xác nhận mật
+                            khẩu <span class="text-rose-500">*</span></label>
                         <input type="password" name="password_confirmation" required
                             class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             placeholder="Nhập lại mật khẩu">
@@ -66,7 +72,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Trạng thái</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Trạng
+                            thái</label>
                         <select name="status"
                             class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
                             <option value="active">Hoạt động</option>
@@ -74,7 +81,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Số dư (VND)</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Số dư
+                            (VND)</label>
                         <input type="number" name="balance" value="0" min="0" step="1000"
                             class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
                     </div>
@@ -82,7 +90,8 @@
             </div>
         </div>
 
-        <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 dark:bg-background-dark/50 border-t border-slate-200 dark:border-border-dark">
+        <div
+            class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 dark:bg-background-dark/50 border-t border-slate-200 dark:border-border-dark">
             <button type="button" x-on:click="$dispatch('close-modal', 'create-user')"
                 class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                 Hủy bỏ
@@ -96,12 +105,11 @@
 </x-shared.ui.modal>
 
 {{-- ==========================================
-     MODAL CHỈNH SỬA NGƯỜI DÙNG
-     ========================================== --}}
+MODAL CHỈNH SỬA NGƯỜI DÙNG
+========================================== --}}
 <div x-data="{
-        editUser: { id: null, username: '', fullname: '', email: '', phone: '', status: 'active', role: 'user', balance: 0 },
-    }"
-    @open-edit-user.window="editUser = $event.detail; $dispatch('open-modal', 'edit-user')">
+        editUser: { id: null, username: '', fullname: '', email: '', phone: '', status: 'active', role: 'user', balance: 0, avatar_url: '' },
+    }" @open-edit-user.window="editUser = $event.detail; $dispatch('open-modal', 'edit-user')">
 
     <x-shared.ui.modal name="edit-user" maxWidth="lg">
         <form :action="'{{ route('admin.users.index') }}/' + editUser.id" method="POST">
@@ -109,86 +117,116 @@
             @method('PUT')
             <div class="p-6">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Chỉnh sửa người dùng</h3>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[24px]">edit</span>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Cập nhật người dùng</h3>
+                    </div>
                     <button type="button" x-on:click="$dispatch('close-modal', 'edit-user')"
                         class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
 
+                {{-- Hidden fields để submit các giá trị disabled bắt buộc lên backend --}}
+                <input type="hidden" name="username" :value="editUser.username">
+                <input type="hidden" name="fullname" :value="editUser.fullname">
+                <input type="hidden" name="email" :value="editUser.email">
+                <input type="hidden" name="phone" :value="editUser.phone">
+
                 <div class="flex flex-col gap-4">
+                    {{-- Dòng 1: Họ tên | Email --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tên đăng nhập</label>
-                            <input type="text" name="username" x-model="editUser.username" required
-                                class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                            <label class="block text-sm font-medium text-slate-400 dark:text-slate-500 mb-1">Họ
+                                tên</label>
+                            <input type="text" :value="editUser.fullname" disabled
+                                class="w-full bg-slate-100 dark:bg-slate-800/30 border border-slate-200 dark:border-border-dark/50 rounded-lg px-3 py-2 text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Họ và tên</label>
-                            <input type="text" name="fullname" x-model="editUser.fullname" required
-                                class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                            <label
+                                class="block text-sm font-medium text-slate-400 dark:text-slate-500 mb-1">Email</label>
+                            <input type="email" :value="editUser.email" disabled
+                                class="w-full bg-slate-100 dark:bg-slate-800/30 border border-slate-200 dark:border-border-dark/50 rounded-lg px-3 py-2 text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed">
                         </div>
                     </div>
+
+                    {{-- Dòng 2: Số điện thoại --}}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 dark:text-slate-500 mb-1">Số điện
+                            thoại</label>
+                        <input type="text" :value="editUser.phone || 'Chưa cập nhật'" disabled
+                            class="w-full bg-slate-100 dark:bg-slate-800/30 border border-slate-200 dark:border-border-dark/50 rounded-lg px-3 py-2 text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                    </div>
+
+                    {{-- Tiêu đề phụ: QUẢN LÝ TÀI KHOẢN --}}
+                    <div class="flex items-center gap-2 border-t border-slate-100 dark:border-border-dark/50 pt-4 mt-2">
+                        <span
+                            class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-[18px]">manage_accounts</span>
+                        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Quản
+                            lý tài khoản</span>
+                    </div>
+
+                    {{-- Dòng 3: Trạng thái | Số dư (VND) --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
-                            <input type="email" name="email" x-model="editUser.email" required
-                                class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Trạng
+                                thái</label>
+                            <div class="relative">
+                                <select name="status" x-model="editUser.status"
+                                    class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg pl-3 pr-8 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none cursor-pointer">
+                                    <option value="active">Hoạt động</option>
+                                    <option value="suspended">Bị khóa</option>
+                                </select>
+                                <span
+                                    class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none text-[18px]">expand_more</span>
+                            </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Số điện thoại</label>
-                            <input type="text" name="phone" x-model="editUser.phone"
-                                class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mật khẩu mới <span class="text-slate-400 text-xs">(để trống nếu không đổi)</span></label>
-                            <input type="password" name="password"
-                                class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                                placeholder="Tối thiểu 8 ký tự">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Xác nhận mật khẩu</label>
-                            <input type="password" name="password_confirmation"
-                                class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                                placeholder="Nhập lại mật khẩu mới">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Vai trò</label>
-                            <select name="role" x-model="editUser.role"
-                                class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
-                                <option value="user">Người dùng</option>
-                                <option value="admin">Quản trị viên</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Trạng thái</label>
-                            <select name="status" x-model="editUser.status"
-                                class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
-                                <option value="active">Hoạt động</option>
-                                <option value="suspended">Bị khóa</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Số dư (VND)</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Số dư
+                                (VND)</label>
                             <input type="number" name="balance" x-model="editUser.balance" min="0" step="1000"
                                 class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
                         </div>
                     </div>
+
+                    {{-- Dòng 4: Vai trò --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Vai
+                                trò</label>
+                            <div class="relative">
+                                <select name="role" x-model="editUser.role"
+                                    class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg pl-3 pr-8 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none cursor-pointer">
+                                    <option value="user">Người dùng</option>
+                                    <option value="admin">Quản trị viên</option>
+                                </select>
+                                <span
+                                    class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none text-[18px]">expand_more</span>
+                            </div>
+                        </div>
+                        <div></div>
+                    </div>
+
+                    {{-- Dòng 5: Avatar URL --}}
+                    {{-- <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Avatar
+                            URL</label>
+                        <input type="text" name="avatar_url" x-model="editUser.avatar_url"
+                            class="w-full bg-slate-50 dark:bg-background-dark border border-slate-200 dark:border-border-dark rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                            placeholder="https://example.com/avatar.png">
+                    </div> --}}
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 dark:bg-background-dark/50 border-t border-slate-200 dark:border-border-dark">
+            <div
+                class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 dark:bg-background-dark/50 border-t border-slate-200 dark:border-border-dark">
                 <button type="button" x-on:click="$dispatch('close-modal', 'edit-user')"
                     class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    Hủy bỏ
+                    Hủy
                 </button>
                 <button type="submit"
                     class="px-4 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-sm shadow-primary/25">
-                    Lưu thay đổi
+                    Cập nhật
                 </button>
             </div>
         </form>
@@ -196,12 +234,11 @@
 </div>
 
 {{-- ==========================================
-     MODAL KHÓA/MỞ KHÓA TÀI KHOẢN
-     ========================================== --}}
+MODAL KHÓA/MỞ KHÓA TÀI KHOẢN
+========================================== --}}
 <div x-data="{
         toggleUser: { id: null, fullname: '', status: 'active' },
-    }"
-    @open-toggle-status.window="toggleUser = $event.detail; $dispatch('open-modal', 'toggle-status')">
+    }" @open-toggle-status.window="toggleUser = $event.detail; $dispatch('open-modal', 'toggle-status')">
 
     <x-shared.ui.modal name="toggle-status" maxWidth="md">
         <form :action="'{{ route('admin.users.index') }}/' + toggleUser.id + '/toggle-status'" method="POST">
@@ -219,7 +256,8 @@
                         <h3 class="text-lg font-bold text-slate-900 dark:text-white"
                             x-text="toggleUser.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'"></h3>
                         <p class="text-sm text-slate-500">
-                            <span x-text="toggleUser.status === 'active' ? 'Khóa tài khoản của' : 'Mở khóa tài khoản cho'"></span>
+                            <span
+                                x-text="toggleUser.status === 'active' ? 'Khóa tài khoản của' : 'Mở khóa tài khoản cho'"></span>
                             <span class="font-bold text-slate-900 dark:text-white" x-text="toggleUser.fullname"></span>?
                         </p>
                     </div>
@@ -234,7 +272,8 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 dark:bg-background-dark/50 border-t border-slate-200 dark:border-border-dark">
+            <div
+                class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 dark:bg-background-dark/50 border-t border-slate-200 dark:border-border-dark">
                 <button type="button" x-on:click="$dispatch('close-modal', 'toggle-status')"
                     class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                     Hủy bỏ
@@ -250,12 +289,11 @@
 </div>
 
 {{-- ==========================================
-     MODAL XÓA NGƯỜI DÙNG
-     ========================================== --}}
+MODAL XÓA NGƯỜI DÙNG
+========================================== --}}
 <div x-data="{
         deleteUser: { id: null, fullname: '' },
-    }"
-    @open-delete-user.window="deleteUser = $event.detail; $dispatch('open-modal', 'delete-user')">
+    }" @open-delete-user.window="deleteUser = $event.detail; $dispatch('open-modal', 'delete-user')">
 
     <x-shared.ui.modal name="delete-user" maxWidth="md">
         <form :action="'{{ route('admin.users.index') }}/' + deleteUser.id" method="POST">
@@ -269,11 +307,13 @@
                     <div>
                         <h3 class="text-lg font-bold text-slate-900 dark:text-white">Xóa người dùng</h3>
                         <p class="text-sm text-slate-500">
-                            Bạn có chắc muốn xóa <span class="font-bold text-slate-900 dark:text-white" x-text="deleteUser.fullname"></span>?
+                            Bạn có chắc muốn xóa <span class="font-bold text-slate-900 dark:text-white"
+                                x-text="deleteUser.fullname"></span>?
                         </p>
                     </div>
                 </div>
-                <div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3">
+                <div
+                    class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3">
                     <p class="text-sm text-amber-700 dark:text-amber-400">
                         <span class="material-symbols-outlined text-[16px] align-text-bottom mr-1">warning</span>
                         Hành động này sẽ xóa mềm tài khoản. Dữ liệu vẫn được giữ lại trong hệ thống.
@@ -281,7 +321,8 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 dark:bg-background-dark/50 border-t border-slate-200 dark:border-border-dark">
+            <div
+                class="flex items-center justify-end gap-3 px-6 py-4 bg-slate-50 dark:bg-background-dark/50 border-t border-slate-200 dark:border-border-dark">
                 <button type="button" x-on:click="$dispatch('close-modal', 'delete-user')"
                     class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                     Hủy bỏ
