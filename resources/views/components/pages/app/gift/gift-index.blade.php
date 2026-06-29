@@ -274,25 +274,32 @@
                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
 
                         <!-- Lớp phủ overlay khi hover -->
-                        <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <div
+                            class="absolute inset-0 bg-black/40 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                             <!-- Nút Xem mẫu ở giữa ảnh -->
-                            <a :href="gift.demo_url" class="flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/50 text-white rounded-full text-[10px] sm:text-xs font-bold transform scale-90 group-hover:scale-100 transition-all duration-300 shadow-md">
-                                <span class="material-symbols-outlined text-[14px] sm:text-[16px] select-none">visibility</span>
-                                <span class="whitespace-nowrap">{{ __('Xem mẫu') }}</span>
+                            <a :href="gift.demo_url"
+                                class="flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/50 text-white rounded-full text-[10px] sm:text-xs font-bold transform scale-90 group-hover:scale-100 transition-all duration-300 shadow-md">
+                                <span
+                                    class="material-symbols-outlined text-[14px] sm:text-[16px] select-none">visibility</span>
+                                <span class="whitespace-nowrap">{{ __('Xem chi tiết') }}</span>
                             </a>
                         </div>
 
                         <!-- Nhãn Hot Trend ở góc trên bên trái (nếu có is_hot) -->
                         <template x-if="gift.is_hot">
-                            <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg bg-red-600 text-[9px] sm:text-[10px] font-bold text-white uppercase tracking-wider select-none flex items-center gap-0.5 shadow-sm">
-                                <span class="material-symbols-outlined text-[10px] sm:text-[12px] fill-current">local_fire_department</span>
+                            <span
+                                class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg bg-red-600 text-[9px] sm:text-[10px] font-bold text-white uppercase tracking-wider select-none flex items-center gap-0.5 shadow-sm">
+                                <span
+                                    class="material-symbols-outlined text-[10px] sm:text-[12px] fill-current">local_fire_department</span>
                                 <span>HOT</span>
                             </span>
                         </template>
 
                         <!-- Nhãn Star ở góc trên bên phải khi hover -->
-                        <div class="absolute top-2.5 right-2.5 px-1.5 py-0.5 rounded-lg bg-black/50 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-white flex items-center gap-0.5 select-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-sm">
-                            <span class="material-symbols-outlined text-[10px] sm:text-[12px] text-yellow-400 fill-current">star</span>
+                        <div
+                            class="absolute top-2.5 right-2.5 px-1.5 py-0.5 rounded-lg bg-black/50 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-white flex items-center gap-0.5 select-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-sm">
+                            <span
+                                class="material-symbols-outlined text-[10px] sm:text-[12px] text-yellow-400 fill-current">star</span>
                             <span x-text="formatNumber(gift.stars)"></span>
                         </div>
                     </div>
@@ -302,48 +309,63 @@
                         <div class="space-y-1">
                             <h3 class="text-xs sm:text-sm font-bold text-app-text line-clamp-2 leading-snug group-hover:text-primary transition-colors duration-200"
                                 x-text="gift.title"></h3>
-                            
+
                             <!-- Dòng thống kê: Đã bán & Giá cũ -->
                             <div class="flex items-center justify-between mt-2 gap-1">
                                 <!-- Đã bán (Lửa đỏ) -->
-                                <div class="flex items-center gap-0.5 text-[10px] sm:text-xs font-semibold text-rose-500">
-                                    <span class="material-symbols-outlined text-[13px] sm:text-[15px] text-rose-500 fill-current select-none">local_fire_department</span>
+                                <div
+                                    class="flex items-center gap-0.5 text-[10px] sm:text-xs font-semibold text-rose-500">
+                                    <span
+                                        class="material-symbols-outlined text-[13px] sm:text-[15px] text-rose-500 fill-current select-none">local_fire_department</span>
                                     <span>{{ __('Đã bán:') }} <span x-text="gift.sold"></span></span>
                                 </div>
                                 <!-- Giá cũ -->
-                                <div class="text-[10px] sm:text-xs text-app-muted/80 line-through whitespace-nowrap" x-text="new Intl.NumberFormat('vi-VN').format(gift.old_price) + ' VND'"></div>
+                                <div class="text-[10px] sm:text-xs text-app-muted/80 line-through whitespace-nowrap"
+                                    x-text="new Intl.NumberFormat('vi-VN').format(gift.old_price) + ' VND'"></div>
                             </div>
 
                             <!-- Dòng giá mới & nhãn giảm giá -->
                             <div class="flex items-center justify-end gap-1 mt-0.5">
-                                <span class="text-xs sm:text-base font-bold text-rose-600 whitespace-nowrap" x-text="new Intl.NumberFormat('vi-VN').format(gift.price) + ' VND'"></span>
-                                <span class="text-[9px] sm:text-[10px] font-bold text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-1 py-0.5 rounded whitespace-nowrap" x-text="'-' + gift.discount + '%'"></span>
+                                <span class="text-xs sm:text-base font-bold text-rose-600 whitespace-nowrap"
+                                    x-text="new Intl.NumberFormat('vi-VN').format(gift.price) + ' VND'"></span>
+                                <span
+                                    class="text-[9px] sm:text-[10px] font-bold text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-1 py-0.5 rounded whitespace-nowrap"
+                                    x-text="'-' + gift.discount + '%'"></span>
                             </div>
                         </div>
 
                         <!-- Nhóm nút hành động: Mua ngay & Xem demo -->
                         <div class="grid grid-cols-2 gap-1.5 sm:gap-2 mt-2">
                             <!-- Nút Mua ngay -->
-                            <button class="flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-1.5 sm:px-3 bg-primary hover:bg-primary/95 text-white rounded-xl text-[10px] sm:text-xs font-bold transition-all shadow-sm shadow-primary/10 active:scale-[0.97]">
-                                <span class="material-symbols-outlined text-[14px] sm:text-[16px] select-none">credit_card</span>
+                            <button
+                                class="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-2 px-1 sm:px-3 bg-primary hover:bg-primary/95 text-white rounded-xl text-[9px] sm:text-xs font-bold transition-all shadow-sm shadow-primary/10 active:scale-[0.97] whitespace-nowrap">
+                                <span
+                                    class="material-symbols-outlined text-[12px] sm:text-[16px] select-none">credit_card</span>
                                 <span>{{ __('Mua ngay') }}</span>
                             </button>
                             <!-- Nút Xem demo -->
-                            <a :href="gift.demo_url" class="flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-1.5 sm:px-3 bg-app-surface hover:bg-app-main/5 border border-app-border text-app-text rounded-xl text-[10px] sm:text-xs font-bold transition-all active:scale-[0.97]">
-                                <span class="material-symbols-outlined text-[14px] sm:text-[16px] select-none">visibility</span>
+                            <a :href="gift.demo_url"
+                                class="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-2 px-1 sm:px-3 bg-app-surface hover:bg-app-main/5 border border-app-border text-app-text rounded-xl text-[9px] sm:text-xs font-bold transition-all active:scale-[0.97] whitespace-nowrap">
+                                <span
+                                    class="material-symbols-outlined text-[12px] sm:text-[16px] select-none">visibility</span>
                                 <span>{{ __('Xem demo') }}</span>
                             </a>
                         </div>
 
                         <!-- Liên kết hướng dẫn & video hướng dẫn -->
-                        <div class="flex items-center justify-center gap-2 sm:gap-3 text-[10px] sm:text-xs mt-2 pt-2 border-t border-app-border/40">
-                            <a :href="gift.guide_url" class="flex items-center gap-0.5 sm:gap-1 text-primary font-semibold whitespace-nowrap">
-                                <span class="material-symbols-outlined text-[13px] sm:text-[15px] select-none">help</span>
+                        <div
+                            class="flex items-center justify-center gap-2 sm:gap-3 text-[9px] sm:text-[11px] mt-2 pt-2 border-t border-app-border/40">
+                            <a :href="gift.guide_url"
+                                class="flex items-center gap-0.5 sm:gap-1 text-primary font-semibold whitespace-nowrap">
+                                <span
+                                    class="material-symbols-outlined text-[11px] sm:text-[14px] select-none">help</span>
                                 <span>{{ __('Hướng dẫn') }}</span>
                             </a>
                             <span class="text-app-border select-none">|</span>
-                            <a :href="gift.video_url" class="flex items-center gap-0.5 sm:gap-1 text-rose-500 font-semibold whitespace-nowrap">
-                                <span class="material-symbols-outlined text-[13px] sm:text-[15px] select-none">play_circle</span>
+                            <a :href="gift.video_url"
+                                class="flex items-center gap-0.5 sm:gap-1 text-rose-500 font-semibold whitespace-nowrap">
+                                <span
+                                    class="material-symbols-outlined text-[11px] sm:text-[14px] select-none">play_circle</span>
                                 <span>{{ __('Video hướng dẫn') }}</span>
                             </a>
                         </div>
