@@ -45,20 +45,115 @@
             { id: 'valentine', label: '{{ __('Lễ Tình Nhân') }}', icon: 'ac_unit' }
         ],
         gifts: [
-            { id: 1, title: '{{ __('Thiệp Sinh Nhật 3D') }}', category: 'birthday', uses: '1.2k', gradient: 'from-amber-400 via-orange-500 to-yellow-500', icon: 'cake', desc: '{{ __('Thiết kế hiện đại với nến lung linh và hiệu ứng bóng bay rực rỡ.') }}', tag: '{{ __('Sinh nhật') }}' },
-            { id: 2, title: '{{ __('Thư Tình Yêu Ngọt Ngào') }}', category: 'love', uses: '3.4k', gradient: 'from-pink-500 via-rose-500 to-red-500', icon: 'favorite', desc: '{{ __('Bày tỏ lời yêu thương lãng mạn kèm nhạc nền và hiệu ứng trái tim rơi.') }}', tag: '{{ __('Tình yêu') }}' },
-            { id: 3, title: '{{ __('Lời Cảm Ơn Chân Thành') }}', category: 'thank', uses: '890', gradient: 'from-teal-400 via-emerald-500 to-cyan-500', icon: 'volunteer_activism', desc: '{{ __('Thiết kế trang nhã, tinh tế giúp bạn bày tỏ lòng biết ơn sâu sắc.') }}', tag: '{{ __('Cảm ơn') }}' },
-            { id: 4, title: '{{ __('Kỷ Niệm Ngày Chung Đôi') }}', category: 'anniversary', uses: '1.9k', gradient: 'from-violet-500 via-fuchsia-600 to-purple-650', icon: 'celebration', desc: '{{ __('Ghi lại dấu mốc thời gian đáng nhớ của hai người kèm thư viện ảnh.') }}', tag: '{{ __('Kỷ niệm') }}' },
-            { id: 5, title: '{{ __('Giáng Sinh Ấm Áp') }}', category: 'christmas', uses: '2.4k', gradient: 'from-red-650 via-rose-700 to-emerald-700', icon: 'ac_unit', desc: '{{ __('Chúc mừng mùa Giáng Sinh với tuyết rơi nhẹ nhàng và nhạc Noel.') }}', tag: '{{ __('Lễ hội') }}' },
-            { id: 6, title: '{{ __('Hộp Quà Bí Mật') }}', category: 'birthday', uses: '1.5k', gradient: 'from-yellow-400 via-amber-500 to-orange-500', icon: 'featured_seasonal', desc: '{{ __('Hộp quà ảo mở ra những điều bất ngờ đầy thú vị dành cho người nhận.') }}', tag: '{{ __('Sinh nhật') }}' },
-            { id: 7, title: '{{ __('Chúc Ngủ Ngon') }}', category: 'love', uses: '760', gradient: 'from-slate-900 via-indigo-950 to-slate-900', icon: 'nights_stay', desc: '{{ __('Một lời chúc ngọt ngào trước khi chìm vào giấc ngủ với bầu trời sao.') }}', tag: '{{ __('Tình yêu') }}' },
-            { id: 8, title: '{{ __('Chúc Mừng Năm Mới') }}', category: 'anniversary', uses: '3.1k', gradient: 'from-red-500 via-orange-500 to-yellow-500', icon: 'local_fire_department', desc: '{{ __('Lời chúc năm mới an khang thịnh vượng kèm hiệu ứng pháo hoa.') }}', tag: '{{ __('Kỷ niệm') }}' }
+            { 
+                id: 1, 
+                title: '{{ __('Birthday special - Bánh sinh nhật 3D thổi nến cắt bánh') }}', 
+                category: 'birthday', 
+                sold: 12, 
+                image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
+                old_price: 69998.6, 
+                price: 49999, 
+                discount: 40,
+                demo_url: '#',
+                guide_url: '#',
+                video_url: '#'
+            },
+            { 
+                id: 2, 
+                title: '{{ __('Web Trái Tim 3D – Gửi Yêu Thương Bay Lên 💖') }}', 
+                category: 'love', 
+                sold: 389, 
+                image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
+                old_price: 55998.6, 
+                price: 39999, 
+                discount: 40,
+                demo_url: '#',
+                guide_url: '#',
+                video_url: '#'
+            },
+            { 
+                id: 3, 
+                title: '{{ __('Thiệp Sinh Nhật 3D Lung Linh') }}', 
+                category: 'birthday', 
+                sold: 154, 
+                image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
+                old_price: 79998.6, 
+                price: 49999, 
+                discount: 37,
+                demo_url: '#',
+                guide_url: '#',
+                video_url: '#'
+            },
+            { 
+                id: 4, 
+                title: '{{ __('Thư Tình Yêu 3D Lãng Mạn') }}', 
+                category: 'love', 
+                sold: 840, 
+                image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
+                old_price: 65998.6, 
+                price: 39999, 
+                discount: 39,
+                demo_url: '#',
+                guide_url: '#',
+                video_url: '#'
+            },
+            { 
+                id: 5, 
+                title: '{{ __('Lời Cảm Ơn 3D Sâu Sắc') }}', 
+                category: 'thank', 
+                sold: 92, 
+                image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
+                old_price: 49998.6, 
+                price: 29999, 
+                discount: 40,
+                demo_url: '#',
+                guide_url: '#',
+                video_url: '#'
+            },
+            { 
+                id: 6, 
+                title: '{{ __('Kỷ Niệm Ngày Chung Đôi 3D') }}', 
+                category: 'anniversary', 
+                sold: 215, 
+                image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
+                old_price: 79998.6, 
+                price: 49999, 
+                discount: 37,
+                demo_url: '#',
+                guide_url: '#',
+                video_url: '#'
+            },
+            { 
+                id: 7, 
+                title: '{{ __('Giáng Sinh Ấm Áp 3D') }}', 
+                category: 'christmas', 
+                sold: 312, 
+                image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
+                old_price: 89998.6, 
+                price: 59999, 
+                discount: 33,
+                demo_url: '#',
+                guide_url: '#',
+                video_url: '#'
+            },
+            { 
+                id: 8, 
+                title: '{{ __('Hộp Quà Bí Mật 3D') }}', 
+                category: 'birthday', 
+                sold: 450, 
+                image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
+                old_price: 59998.6, 
+                price: 39999, 
+                discount: 33,
+                demo_url: '#',
+                guide_url: '#',
+                video_url: '#'
+            }
         ],
         get filteredGifts() {
             return this.gifts.filter(gift => {
                 const matchesCategory = this.activeCategory === 'all' || gift.category === this.activeCategory;
-                const matchesSearch = gift.title.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
-                                      gift.desc.toLowerCase().includes(this.searchQuery.toLowerCase());
+                const matchesSearch = gift.title.toLowerCase().includes(this.searchQuery.toLowerCase());
                 return matchesCategory && matchesSearch;
             });
         }
@@ -149,52 +244,61 @@
                 <div
                     class="group bg-app-surface border border-app-border rounded-2xl overflow-hidden hover:shadow-md hover:border-primary/20 transition-all duration-300 flex flex-col relative">
 
-                    {{-- Ảnh bìa mẫu (Gradient màu sắc + Icon) --}}
-                    <div :class="gift.gradient"
-                        class="relative w-full h-28 sm:h-36 bg-gradient-to-br flex items-center justify-center overflow-hidden">
-                        {{-- Hiệu ứng bóng sáng phía sau --}}
-                        <div
-                            class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        </div>
-
-                        {{-- Icon trung tâm --}}
-                        <span
-                            class="material-symbols-outlined text-[36px] sm:text-[48px] text-white/95 drop-shadow-md transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-350 select-none"
-                            x-text="gift.icon"></span>
-
-                        {{-- Nhãn chủ đề (Tag) --}}
-                        <span
-                            class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg bg-black/30 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-white uppercase tracking-wider select-none"
-                            x-text="gift.tag"></span>
-
-                        {{-- Lượt dùng --}}
-                        <span
-                            class="absolute top-2.5 right-2.5 px-1.5 py-0.5 rounded-lg bg-black/30 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-white/90 flex items-center gap-0.5 select-none">
-                            <span
-                                class="material-symbols-outlined text-[11px] sm:text-[12px] text-amber-400 fill-current">star</span>
-                            <span x-text="gift.uses"></span>
-                        </span>
+                    {{-- Ảnh bìa mẫu --}}
+                    <div class="relative w-full h-32 sm:h-44 bg-app-main/5 overflow-hidden">
+                        <img :src="gift.image" :alt="gift.title"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
 
                     {{-- Thông tin chi tiết --}}
-                    <div class="p-3 sm:p-4 flex-1 flex flex-col justify-between gap-2.5">
+                    <div class="p-3 sm:p-4 flex-1 flex flex-col justify-between gap-2">
                         <div class="space-y-1">
-                            <h3 class="text-xs sm:text-sm font-bold text-app-text line-clamp-1 group-hover:text-primary transition-colors duration-200"
+                            <h3 class="text-xs sm:text-sm font-bold text-app-text line-clamp-2 leading-snug group-hover:text-primary transition-colors duration-200"
                                 x-text="gift.title"></h3>
-                            <p class="text-[10px] sm:text-xs text-app-muted line-clamp-2 leading-normal"
-                                x-text="gift.desc"></p>
+                            
+                            <!-- Dòng thống kê: Đã bán & Giá cũ -->
+                            <div class="flex items-center justify-between mt-2 gap-1">
+                                <!-- Đã bán (Lửa đỏ) -->
+                                <div class="flex items-center gap-0.5 text-[10px] sm:text-xs font-semibold text-rose-500">
+                                    <span class="material-symbols-outlined text-[13px] sm:text-[15px] text-rose-500 fill-current select-none">local_fire_department</span>
+                                    <span>{{ __('Đã bán:') }} <span x-text="gift.sold"></span></span>
+                                </div>
+                                <!-- Giá cũ -->
+                                <div class="text-[10px] sm:text-xs text-app-muted/80 line-through whitespace-nowrap" x-text="new Intl.NumberFormat('vi-VN').format(gift.old_price) + ' VND'"></div>
+                            </div>
+
+                            <!-- Dòng giá mới & nhãn giảm giá -->
+                            <div class="flex items-center justify-end gap-1 mt-0.5">
+                                <span class="text-xs sm:text-base font-bold text-rose-600 whitespace-nowrap" x-text="new Intl.NumberFormat('vi-VN').format(gift.price) + ' VND'"></span>
+                                <span class="text-[9px] sm:text-[10px] font-bold text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-1 py-0.5 rounded whitespace-nowrap" x-text="'-' + gift.discount + '%'"></span>
+                            </div>
                         </div>
 
-                        {{-- Phần chân card --}}
-                        <div class="flex items-center justify-between pt-2 border-t border-app-border/40 mt-auto">
-                            <span class="text-[9px] sm:text-[11px] text-app-muted flex items-center gap-1 select-none">
-                                <span class="material-symbols-outlined text-[12px] sm:text-[14px]">visibility</span>
-                                {{ __('Xem thử') }}
-                            </span>
-                            <button
-                                class="size-6 sm:size-8 rounded-full bg-primary hover:bg-primary/95 text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm shadow-primary/10">
-                                <span class="material-symbols-outlined text-[14px] sm:text-[18px]">add</span>
+                        <!-- Nhóm nút hành động: Mua ngay & Xem demo -->
+                        <div class="grid grid-cols-2 gap-1.5 sm:gap-2 mt-2">
+                            <!-- Nút Mua ngay -->
+                            <button class="flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-1.5 sm:px-3 bg-primary hover:bg-primary/95 text-white rounded-xl text-[10px] sm:text-xs font-bold transition-all shadow-sm shadow-primary/10 active:scale-[0.97]">
+                                <span class="material-symbols-outlined text-[14px] sm:text-[16px] select-none">credit_card</span>
+                                <span>{{ __('Mua ngay') }}</span>
                             </button>
+                            <!-- Nút Xem demo -->
+                            <a :href="gift.demo_url" class="flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-1.5 sm:px-3 bg-app-surface hover:bg-app-main/5 border border-app-border text-app-text rounded-xl text-[10px] sm:text-xs font-bold transition-all active:scale-[0.97]">
+                                <span class="material-symbols-outlined text-[14px] sm:text-[16px] select-none">visibility</span>
+                                <span>{{ __('Xem demo') }}</span>
+                            </a>
+                        </div>
+
+                        <!-- Liên kết hướng dẫn & video hướng dẫn -->
+                        <div class="flex items-center justify-center gap-2 sm:gap-3 text-[10px] sm:text-xs mt-2 pt-2 border-t border-app-border/40">
+                            <a :href="gift.guide_url" class="flex items-center gap-0.5 sm:gap-1 text-primary hover:underline font-semibold whitespace-nowrap">
+                                <span class="material-symbols-outlined text-[13px] sm:text-[15px] select-none">help</span>
+                                <span>{{ __('Hướng dẫn') }}</span>
+                            </a>
+                            <span class="text-app-border select-none">|</span>
+                            <a :href="gift.video_url" class="flex items-center gap-0.5 sm:gap-1 text-rose-500 hover:underline font-semibold whitespace-nowrap">
+                                <span class="material-symbols-outlined text-[13px] sm:text-[15px] select-none">play_circle</span>
+                                <span>{{ __('Video hướng dẫn') }}</span>
+                            </a>
                         </div>
                     </div>
                 </div>
