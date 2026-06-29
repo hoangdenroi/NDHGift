@@ -43,6 +43,8 @@ class User extends Authenticatable
         'last_login_at',
         'affiliate_code',
         'referred_by',
+        'banned_reason',
+        'suspended_at',
     ];
 
     /**
@@ -71,6 +73,7 @@ class User extends Authenticatable
             'is_deleted' => 'boolean',
             'settings' => 'array',
             'metadata' => 'array',
+            'suspended_at' => 'datetime',
         ];
     }
 

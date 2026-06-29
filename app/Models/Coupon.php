@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Traits\HasBaseColumns;
+use Database\Factories\CouponFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -15,7 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Coupon extends Model
 {
-    use HasBaseColumns;
+    /** @use HasFactory<CouponFactory> */
+    use HasBaseColumns, HasFactory;
 
     protected $fillable = [
         'code',
