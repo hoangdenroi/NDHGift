@@ -69,23 +69,6 @@
             </div>
         </a>
 
-        <!-- Quản lý mẫu quà tặng -->
-        <a class="group relative block focus:outline-none" href="#">
-            <div class="hover:bg-slate-100 dark:hover:bg-[#1e2430] transition-all overflow-hidden"
-                :class="sidebarMini ? '{{$itemWrapperMini}}' : '{{$itemWrapperFull}}'">
-                <div class="flex items-center transition-colors {{ $innerDefault }}"
-                    :class="sidebarMini ? 'justify-center w-full' : 'gap-3 w-full'">
-                    <span class="material-symbols-outlined text-[20px] flex-shrink-0">redeem</span>
-                    <span x-show="!sidebarMini" class="text-sm whitespace-nowrap">Quản lý mẫu quà tặng</span>
-                </div>
-            </div>
-
-            <div x-show="sidebarMini"
-                class="absolute left-full top-0 hidden group-hover:flex items-center h-[3rem] min-w-[220px] px-5 bg-slate-100 dark:bg-[#1e2430] text-slate-900 dark:text-white text-sm font-bold shadow-lg shadow-black/10 dark:shadow-none border-y border-r border-slate-200 dark:border-border-dark z-50 whitespace-nowrap rounded-r-lg uppercase tracking-wide">
-                Quản lý mẫu quà tặng
-            </div>
-        </a>
-
         <!-- Quản lý mã giảm giá -->
         <a class="group relative block focus:outline-none" href="{{ route('admin.coupons.index') }}">
             <div class="{{ request()->routeIs('admin.coupons.*') ? 'bg-primary/10 dark:bg-[#1e2430]' : 'hover:bg-slate-100 dark:hover:bg-[#1e2430]' }} transition-all overflow-hidden"
@@ -103,23 +86,6 @@
             </div>
         </a>
 
-        <!-- Quản lý giao dịch -->
-        <a class="group relative block focus:outline-none" href="#">
-            <div class="hover:bg-slate-100 dark:hover:bg-[#1e2430] transition-all overflow-hidden"
-                :class="sidebarMini ? '{{$itemWrapperMini}}' : '{{$itemWrapperFull}}'">
-                <div class="flex items-center transition-colors {{ $innerDefault }}"
-                    :class="sidebarMini ? 'justify-center w-full' : 'gap-3 w-full'">
-                    <span class="material-symbols-outlined text-[20px] flex-shrink-0">payments</span>
-                    <span x-show="!sidebarMini" class="text-sm whitespace-nowrap">Quản lý giao dịch</span>
-                </div>
-            </div>
-
-            <div x-show="sidebarMini"
-                class="absolute left-full top-0 hidden group-hover:flex items-center h-[3rem] min-w-[220px] px-5 bg-slate-100 dark:bg-[#1e2430] text-slate-900 dark:text-white text-sm font-bold shadow-lg shadow-black/10 dark:shadow-none border-y border-r border-slate-200 dark:border-border-dark z-50 whitespace-nowrap rounded-r-lg uppercase tracking-wide">
-                Quản lý giao dịch
-            </div>
-        </a>
-
         <!-- Quản lý thông báo -->
         <a class="group relative block focus:outline-none" href="{{ route('admin.notifications.index') }}">
             <div class="{{ request()->routeIs('admin.notifications.*') ? 'bg-primary/10 dark:bg-[#1e2430]' : 'hover:bg-slate-100 dark:hover:bg-[#1e2430]' }} transition-all overflow-hidden"
@@ -134,6 +100,57 @@
             <div x-show="sidebarMini"
                 class="absolute left-full top-0 hidden group-hover:flex items-center h-[3rem] min-w-[220px] px-5 bg-slate-100 dark:bg-[#1e2430] text-slate-900 dark:text-white text-sm font-bold shadow-lg shadow-black/10 dark:shadow-none border-y border-r border-slate-200 dark:border-border-dark z-50 whitespace-nowrap rounded-r-lg uppercase tracking-wide">
                 Quản lý thông báo
+            </div>
+        </a>
+
+        <!-- Quản lý danh mục quà tặng -->
+        <a class="group relative block focus:outline-none" href="{{ route('admin.gift-categories.index') }}">
+            <div class="{{ request()->routeIs('admin.gift-categories.*') ? 'bg-primary/10 dark:bg-[#1e2430]' : 'hover:bg-slate-100 dark:hover:bg-[#1e2430]' }} transition-all overflow-hidden"
+                :class="sidebarMini ? '{{$itemWrapperMini}}' : '{{$itemWrapperFull}}'">
+                <div class="flex items-center transition-colors {{ request()->routeIs('admin.gift-categories.*') ? $innerActive : $innerDefault }}"
+                    :class="sidebarMini ? 'justify-center w-full' : 'gap-3 w-full'">
+                    <span class="material-symbols-outlined text-[20px] flex-shrink-0">category</span>
+                    <span x-show="!sidebarMini" class="text-sm whitespace-nowrap">Quản lý danh mục</span>
+                </div>
+            </div>
+
+            <div x-show="sidebarMini"
+                class="absolute left-full top-0 hidden group-hover:flex items-center h-[3rem] min-w-[220px] px-5 bg-slate-100 dark:bg-[#1e2430] text-slate-900 dark:text-white text-sm font-bold shadow-lg shadow-black/10 dark:shadow-none border-y border-r border-slate-200 dark:border-border-dark z-50 whitespace-nowrap rounded-r-lg uppercase tracking-wide">
+                Quản lý danh mục
+            </div>
+        </a>
+
+        <!-- Quản lý mẫu quà tặng -->
+        <a class="group relative block focus:outline-none" href="#">
+            <div class="hover:bg-slate-100 dark:hover:bg-[#1e2430] transition-all overflow-hidden"
+                :class="sidebarMini ? '{{$itemWrapperMini}}' : '{{$itemWrapperFull}}'">
+                <div class="flex items-center transition-colors {{ $innerDefault }}"
+                    :class="sidebarMini ? 'justify-center w-full' : 'gap-3 w-full'">
+                    <span class="material-symbols-outlined text-[20px] flex-shrink-0">redeem</span>
+                    <span x-show="!sidebarMini" class="text-sm whitespace-nowrap">Quản lý mẫu quà tặng</span>
+                </div>
+            </div>
+
+            <div x-show="sidebarMini"
+                class="absolute left-full top-0 hidden group-hover:flex items-center h-[3rem] min-w-[220px] px-5 bg-slate-100 dark:bg-[#1e2430] text-slate-900 dark:text-white text-sm font-bold shadow-lg shadow-black/10 dark:shadow-none border-y border-r border-slate-200 dark:border-border-dark z-50 whitespace-nowrap rounded-r-lg uppercase tracking-wide">
+                Quản lý mẫu quà tặng
+            </div>
+        </a>
+
+        <!-- Quản lý giao dịch -->
+        <a class="group relative block focus:outline-none" href="#">
+            <div class="hover:bg-slate-100 dark:hover:bg-[#1e2430] transition-all overflow-hidden"
+                :class="sidebarMini ? '{{$itemWrapperMini}}' : '{{$itemWrapperFull}}'">
+                <div class="flex items-center transition-colors {{ $innerDefault }}"
+                    :class="sidebarMini ? 'justify-center w-full' : 'gap-3 w-full'">
+                    <span class="material-symbols-outlined text-[20px] flex-shrink-0">payments</span>
+                    <span x-show="!sidebarMini" class="text-sm whitespace-nowrap">Quản lý giao dịch</span>
+                </div>
+            </div>
+
+            <div x-show="sidebarMini"
+                class="absolute left-full top-0 hidden group-hover:flex items-center h-[3rem] min-w-[220px] px-5 bg-slate-100 dark:bg-[#1e2430] text-slate-900 dark:text-white text-sm font-bold shadow-lg shadow-black/10 dark:shadow-none border-y border-r border-slate-200 dark:border-border-dark z-50 whitespace-nowrap rounded-r-lg uppercase tracking-wide">
+                Quản lý giao dịch
             </div>
         </a>
 

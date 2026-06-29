@@ -35,14 +35,9 @@
         searchQuery: '',
         categories: [
             { id: 'all', label: '{{ __('All') }}', icon: 'grid_view' },
-            { id: 'birthday', label: '{{ __('Birthday') }}', icon: 'cake' },
-            { id: 'love', label: '{{ __('Love') }}', icon: 'favorite' },
-            { id: 'thank', label: '{{ __('Thank You') }}', icon: 'volunteer_activism' },
-            { id: 'anniversary', label: '{{ __('Anniversary') }}', icon: 'celebration' },
-            { id: 'christmas', label: '{{ __('Christmas') }}', icon: 'ac_unit' },
-            { id: 'tet', label: '{{ __('Tết') }}', icon: 'ac_unit' },
-            { id: 'mid_autumn', label: '{{ __('Tết Trung Thu') }}', icon: 'ac_unit' },
-            { id: 'valentine', label: '{{ __('Lễ Tình Nhân') }}', icon: 'ac_unit' }
+            @foreach($categories as $category)
+            { id: '{{ $category->slug }}', label: '{{ __($category->name) }}', icon: '{{ $category->icon }}' },
+            @endforeach
         ],
         gifts: [
             { 

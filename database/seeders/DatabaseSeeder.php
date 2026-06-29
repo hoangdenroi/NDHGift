@@ -72,5 +72,8 @@ class DatabaseSeeder extends Seeder
 
         // 3. Tạo thêm 10 users ngẫu nhiên phục vụ test phân trang/giao diện
         User::factory(10)->create();
+
+        // 4. Tạo các danh mục quà tặng mẫu
+        $this->call(GiftCategorySeeder::class);
     }
 }
