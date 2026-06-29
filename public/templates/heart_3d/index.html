@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trái Tim 3D - Gửi Trao Yêu Thương 💖</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Quicksand', sans-serif;
+            color: #fff;
+        }
+
+        #webgl-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* UI Overlays */
+        .overlay {
+            position: absolute;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        /* Header Info */
+        .header-info {
+            top: 24px;
+            left: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-shadow: 0 2px 10px rgba(244, 63, 94, 0.4);
+        }
+
+        .header-info h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: #fb7185;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .header-info p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 1px;
+        }
+
+        /* Controls */
+        .top-right-controls {
+            top: 24px;
+            right: 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-icon:hover {
+            background: rgba(244, 63, 94, 0.2);
+            border-color: #f43f5e;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+        }
+
+        /* Lời chúc ở giữa dưới */
+        .message-box {
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background: rgba(10, 10, 12, 0.55);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            border-radius: 16px;
+            padding: 20px 24px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            animation: slideUp 1s ease-out;
+            transition: all 0.5s ease;
+        }
+
+        .message-box:hover {
+            border-color: rgba(244, 63, 94, 0.5);
+            box-shadow: 0 15px 40px rgba(244, 63, 94, 0.15);
+        }
+
+        .message-box .title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            color: #fda4af;
+            margin-bottom: 8px;
+        }
+
+        .message-box .content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #e2e8f0;
+            margin-bottom: 12px;
+        }
+
+        .message-box .sender {
+            font-size: 0.8rem;
+            color: #fb7185;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        /* Thư chúc mừng nhảy ra ban đầu */
+        .intro-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+
+        .envelope {
+            width: 320px;
+            background: #111;
+            border: 1px solid #f43f5e;
+            border-radius: 20px;
+            padding: 30px 24px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(244, 63, 94, 0.25);
+            transform: scale(0.9);
+            animation: pulseModal 2s infinite alternate;
+        }
+
+        .envelope i {
+            font-size: 3.5rem;
+            color: #f43f5e;
+            margin-bottom: 20px;
+            animation: bounceIcon 1s infinite alternate;
+        }
+
+        .envelope h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #fda4af;
+        }
+
+        .envelope p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .btn-open {
+            background: linear-gradient(135deg, #f43f5e, #be123c);
+            color: white;
+            border: none;
+            padding: 12px 36px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
+        }
+
+        .btn-open:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 63, 94, 0.6);
+        }
+
+        /* Animations */
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(244, 63, 94, 0.5), 0 0 20px rgba(244, 63, 94, 0.3);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(244, 63, 94, 0.8), 0 0 30px rgba(244, 63, 94, 0.5);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 50px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulseModal {
+            from { transform: scale(0.96); }
+            to { transform: scale(1.02); }
+        }
+
+        @keyframes bounceIcon {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- Intro Modal (Thư mời nhận quà) -->
+    <div id="intro-modal" class="intro-modal">
+        <div class="envelope">
+            <i class="fa-solid fa-heart-circle-bolt"></i>
+            <h2 id="intro-title">Món Quà Bí Mật 💖</h2>
+            <p id="intro-desc">Ai đó đã gửi cho bạn một thông điệp yêu thương đặc biệt ẩn chứa trong không gian 3D kỳ diệu.</p>
+            <button class="btn-open" onclick="openGift()">Khám phá ngay</button>
+        </div>
+    </div>
+
+    <!-- WebGL Canvas -->
+    <div id="webgl-container"></div>
+
+    <!-- UI Overlay Elements -->
+    <div class="overlay header-info">
+        <h1 id="top-title">NDHGift 💖</h1>
+        <p id="sub-title">Không gian tình yêu 3D</p>
+    </div>
+
+    <div class="overlay top-right-controls">
+        <button class="btn-icon" onclick="toggleAudio()" title="Bật/Tắt Nhạc">
+            <i id="audio-icon" class="fa-solid fa-volume-xmark"></i>
+        </button>
+        <button class="btn-icon" onclick="resetCamera()" title="Đặt lại góc nhìn">
+            <i class="fa-solid fa-arrows-to-eye"></i>
+        </button>
+    </div>
+
+    <!-- Hộp lời chúc -->
+    <div id="message-box" class="overlay message-box" style="display: none;">
+        <div class="title" id="gift-title">Gửi em yêu 💖</div>
+        <div class="content" id="gift-message">Mỗi giây phút bên em đều là những khoảnh khắc ngọt ngào nhất cuộc đời anh. Chúc em mãi luôn vui tươi và hạnh phúc!</div>
+        <div class="sender" id="gift-sender">Từ: Anh yêu của em</div>
+    </div>
+
+    <!-- Background Audio -->
+    <audio id="bg-music" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // --- 1. CONFIG & DATA ---
+        let giftData = {
+            sender_name: "Anh yêu",
+            receiver_name: "Em yêu",
+            title: "Gửi người anh thương 💖",
+            message: "Em là điều tuyệt vời nhất mà anh có được trong cuộc đời này. Chúc cho tình yêu của chúng ta mãi mãi bền chặt và rực rỡ như hàng triệu vì sao trong dải ngân hà này! 💕",
+            settings: {
+                music_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+                spiral_texts: [
+                    "Anh yêu em nhiều lắm!",
+                    "Em là duy nhất của anh 💖",
+                    "Mãi mãi bên em!",
+                    "Trọn đời bên nhau 💕",
+                    "Yêu em hơn mỗi ngày!"
+                ]
+            }
+        };
+
+        // Nhận dữ liệu động qua API nếu có tham số id
+        const urlParams = new URLSearchParams(window.location.search);
+        const giftId = urlParams.get('id');
+
+        async function fetchGiftData() {
+            if (!giftId) return;
+            try {
+                const response = await fetch(`/api/gifts/${giftId}`);
+                if (response.ok) {
+                    const resData = await response.json();
+                    if (resData.data) {
+                        const d = resData.data;
+                        giftData.sender_name = d.sender_name;
+                        giftData.receiver_name = d.receiver_name;
+                        giftData.title = d.title;
+                        giftData.message = d.message;
+                        if (d.settings) {
+                            giftData.settings = { ...giftData.settings, ...d.settings };
+                        }
+                        updateUI();
+                    }
+                }
+            } catch (err) {
+                console.error("Không thể tải thông tin quà tặng từ API:", err);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('intro-title').innerText = giftData.title;
+            document.getElementById('top-title').innerText = `${giftData.receiver_name} 💖`;
+            document.getElementById('gift-title').innerText = giftData.title;
+            document.getElementById('gift-message').innerText = giftData.message;
+            document.getElementById('gift-sender').innerText = `Từ: ${giftData.sender_name}`;
+            
+            // Cập nhật nhạc nếu có config riêng
+            if (giftData.settings.music_url) {
+                const audio = document.getElementById('bg-music');
+                audio.src = giftData.settings.music_url;
+            }
+        }
+
+        // --- 2. THREE.JS ENGINE ---
+        let scene, camera, renderer, controls;
+        let heartPoints, starfield, textCylinder;
+        let heartGeometry, starGeometry;
+        const container = document.getElementById('webgl-container');
+        
+        function initThree() {
+            // Scene
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x000000, 0.005);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+            camera.position.set(0, 5, 30);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxDistance = 80;
+            controls.minDistance = 10;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.5;
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            // Build objects
+            createStarfield();
+            createHeart();
+            createTextCylinder();
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // Tạo dải sao nền lấp lánh
+        function createStarfield() {
+            const starsCount = 1500;
+            starGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(starsCount * 3);
+            const colors = new Float32Array(starsCount * 3);
+
+            for (let i = 0; i < starsCount; i++) {
+                // Toạ độ ngẫu nhiên xung quanh
+                positions[i * 3] = (Math.random() - 0.5) * 200;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 200;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 200;
+
+                // Màu ngẫu nhiên (trắng nhạt, hồng nhẹ, xanh nhạt)
+                const r = 0.8 + Math.random() * 0.2;
+                const g = 0.8 + Math.random() * 0.2;
+                const b = 0.9 + Math.random() * 0.1;
+                colors[i * 3] = r;
+                colors[i * 3 + 1] = g;
+                colors[i * 3 + 2] = b;
+            }
+
+            starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            // Custom Star Texture (Sử dụng canvas vẽ hình tròn phát sáng)
+            const starTexture = createCircleTexture(16, '#ffffff');
+
+            const starMaterial = new THREE.PointsMaterial({
+                size: 0.8,
+                map: starTexture,
+                transparent: true,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            starfield = new THREE.Points(starGeometry, starMaterial);
+            scene.add(starfield);
+        }
+
+        // Tạo hình trái tim 3D bằng hạt
+        function createHeart() {
+            const heartParticlesCount = 6000;
+            heartGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(heartParticlesCount * 3);
+            const sizes = new Float32Array(heartParticlesCount);
+
+            // Công thức toán học tạo vỏ trái tim 3D lồi lõm tuyệt đẹp
+            for (let i = 0; i < heartParticlesCount; i++) {
+                // u: góc dọc, v: góc ngang
+                const u = Math.random() * Math.PI; // 0 -> PI
+                const v = (Math.random() - 0.5) * Math.PI * 2; // -PI -> PI
+
+                // Công thức tham số bề mặt trái tim 3D
+                const sinU = Math.sin(u);
+                const cosU = Math.cos(u);
+                const sinV = Math.sin(v);
+                const cosV = Math.cos(v);
+
+                // X, Y, Z cơ bản
+                let x = 16 * Math.pow(sinU, 3) * sinV;
+                let y = 13 * cosU - 5 * Math.cos(2*u) - 2 * Math.cos(3*u) - Math.cos(4*u);
+                let z = 16 * Math.pow(sinU, 3) * cosV;
+
+                // Thêm độ dày ngẫu nhiên bên trong lõi để trái tim trông dày dặn
+                const scale = 0.5 + Math.random() * 0.5;
+                positions[i * 3] = x * scale * 0.6;
+                positions[i * 3 + 1] = y * scale * 0.6 + 3.0; // Dịch lên trên một chút
+                positions[i * 3 + 2] = z * scale * 0.6;
+
+                sizes[i] = 1.0 + Math.random() * 1.5;
+            }
+
+            heartGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const heartTexture = createCircleTexture(32, '#fb7185', true);
+
+            const heartMaterial = new THREE.PointsMaterial({
+                size: 0.45,
+                map: heartTexture,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                color: 0xff69b4 // Hotpink
+            });
+
+            heartPoints = new THREE.Points(heartGeometry, heartMaterial);
+            scene.add(heartPoints);
+        }
+
+        // Tạo vòng chữ chạy xoay tròn ở dưới
+        function createTextCylinder() {
+            // 1. Tạo Canvas 2D vẽ chữ chạy ngang
+            const textCanvas = document.createElement('canvas');
+            textCanvas.width = 2048;
+            textCanvas.height = 256;
+            const ctx = textCanvas.getContext('2d');
+
+            // Thiết kế nền canvas trong suốt
+            ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+            ctx.fillRect(0, 0, textCanvas.width, textCanvas.height);
+
+            // Font chữ và kiểu dáng
+            ctx.font = 'bold 36px "Quicksand", sans-serif';
+            ctx.fillStyle = '#fb7185';
+            ctx.shadowColor = '#f43f5e';
+            ctx.shadowBlur = 15;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+
+            // Ghép danh sách chữ chạy thành một chuỗi dài lặp lại
+            const phrase = giftData.settings.spiral_texts.join("   💖   ") + "   💖   ";
+            let repeatedText = phrase;
+            while(ctx.measureText(repeatedText).width < textCanvas.width) {
+                repeatedText += phrase;
+            }
+
+            // Vẽ chữ lên canvas
+            ctx.fillText(repeatedText, 10, textCanvas.height / 2);
+
+            // 2. Map CanvasTexture vào Cylinder (hình trụ) hoặc Cone loe
+            const texture = new THREE.CanvasTexture(textCanvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+
+            // Cylinder hở 2 đầu, trong suốt 2 mặt
+            const geometry = new THREE.CylinderGeometry(12, 10, 2.5, 64, 1, true);
+            const material = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                side: THREE.DoubleSide,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+
+            textCylinder = new THREE.Mesh(geometry, material);
+            textCylinder.position.set(0, -6, 0); // Đặt ở chân trái tim
+            scene.add(textCylinder);
+
+            // Thêm một vòng bụi hạt particles xoay quanh vòng chữ
+            createSpiralDust();
+        }
+
+        // Bụi hạt galaxy xoay xung quanh vòng chữ
+        let dustPoints;
+        function createSpiralDust() {
+            const count = 400;
+            const geom = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+
+            for(let i=0; i<count; i++) {
+                const angle = (i / count) * Math.PI * 6; // Xoắn ốc
+                const radius = 10 + (Math.random() - 0.5) * 2;
+                positions[i*3] = Math.cos(angle) * radius;
+                positions[i*3+1] = -6 + (Math.random() - 0.5) * 1.5;
+                positions[i*3+2] = Math.sin(angle) * radius;
+            }
+
+            geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const dustTexture = createCircleTexture(16, '#f43f5e');
+            const mat = new THREE.PointsMaterial({
+                size: 0.3,
+                map: dustTexture,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                color: 0xffb7c5
+            });
+
+            dustPoints = new THREE.Points(geom, mat);
+            scene.add(dustPoints);
+        }
+
+        // Helper tạo CanvasTexture hình tròn phát sáng (glow circle)
+        function createCircleTexture(size, colorHex, glow = false) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            const center = size / 2;
+
+            if (glow) {
+                const grad = ctx.createRadialGradient(center, center, 0, center, center, center);
+                grad.addColorStop(0, colorHex);
+                grad.addColorStop(0.3, 'rgba(244, 63, 94, 0.8)');
+                grad.addColorStop(0.7, 'rgba(244, 63, 94, 0.2)');
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = grad;
+            } else {
+                ctx.fillStyle = colorHex;
+            }
+
+            ctx.beginPath();
+            ctx.arc(center, center, center, 0, Math.PI * 2);
+            ctx.fill();
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        // --- 3. ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // 1. Nhịp đập trái tim (heartbeat pulse effect)
+            const pulse = 1.0 + 0.08 * Math.pow(Math.sin(elapsedTime * 2.8), 4);
+            // Thêm chút đập phụ nhẹ tạo cảm giác đập kép thực tế
+            const doublePulse = pulse + 0.03 * Math.pow(Math.sin(elapsedTime * 5.6), 2);
+            heartPoints.scale.set(doublePulse, doublePulse, doublePulse);
+
+            // Cho trái tim tự xoay nhẹ
+            heartPoints.rotation.y = elapsedTime * 0.15;
+
+            // 2. Chữ chạy xoay tròn
+            if (textCylinder) {
+                // Xoay cylinder
+                textCylinder.rotation.y = -elapsedTime * 0.25;
+                // Tạo hiệu ứng chữ chạy cuốn trôi (offset texture)
+                textCylinder.material.map.offset.x = elapsedTime * 0.05;
+            }
+
+            // 3. Vòng bụi hạt galaxy xoay ngược chiều tạo tương phản
+            if (dustPoints) {
+                dustPoints.rotation.y = elapsedTime * 0.35;
+            }
+
+            // 4. Các vì sao bay chậm rãi
+            if (starfield) {
+                starfield.rotation.y = elapsedTime * 0.02;
+                starfield.rotation.x = elapsedTime * 0.01;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- 4. CONTROLS & AUDIO ---
+        let audioPlay = false;
+        const audio = document.getElementById('bg-music');
+        const audioIcon = document.getElementById('audio-icon');
+
+        function toggleAudio() {
+            if (audioPlay) {
+                audio.pause();
+                audioIcon.className = "fa-solid fa-volume-xmark";
+                audioPlay = false;
+            } else {
+                // Trình duyệt yêu cầu user click trước khi play audio
+                audio.play().then(() => {
+                    audioIcon.className = "fa-solid fa-volume-high";
+                    audioPlay = true;
+                }).catch(err => {
+                    console.log("Chưa thể phát nhạc tự động:", err);
+                });
+            }
+        }
+
+        function resetCamera() {
+            controls.reset();
+            camera.position.set(0, 5, 30);
+        }
+
+        function openGift() {
+            // Mở nhạc tự động
+            toggleAudio();
+
+            // Ẩn modal thư mời
+            const modal = document.getElementById('intro-modal');
+            modal.style.opacity = 0;
+            setTimeout(() => {
+                modal.style.display = 'none';
+                // Hiện hộp lời chúc
+                document.getElementById('message-box').style.display = 'block';
+            }, 800);
+        }
+
+        // --- 5. INITIALIZE ---
+        fetchGiftData().then(() => {
+            initThree();
+            animate();
+        });
+    </script>
+</body>
+</html>

@@ -121,10 +121,10 @@
         </a>
 
         <!-- Quản lý mẫu quà tặng -->
-        <a class="group relative block focus:outline-none" href="#">
-            <div class="hover:bg-slate-100 dark:hover:bg-[#1e2430] transition-all overflow-hidden"
+        <a class="group relative block focus:outline-none" href="{{ route('admin.gift-templates.index') }}">
+            <div class="{{ request()->routeIs('admin.gift-templates.*') ? 'bg-primary/10 dark:bg-[#1e2430]' : 'hover:bg-slate-100 dark:hover:bg-[#1e2430]' }} transition-all overflow-hidden"
                 :class="sidebarMini ? '{{$itemWrapperMini}}' : '{{$itemWrapperFull}}'">
-                <div class="flex items-center transition-colors {{ $innerDefault }}"
+                <div class="flex items-center transition-colors {{ request()->routeIs('admin.gift-templates.*') ? $innerActive : $innerDefault }}"
                     :class="sidebarMini ? 'justify-center w-full' : 'gap-3 w-full'">
                     <span class="material-symbols-outlined text-[20px] flex-shrink-0">redeem</span>
                     <span x-show="!sidebarMini" class="text-sm whitespace-nowrap">Quản lý mẫu quà tặng</span>

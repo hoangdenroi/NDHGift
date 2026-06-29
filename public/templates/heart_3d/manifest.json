@@ -1,0 +1,57 @@
+{
+    "name": "Web Trái Tim 3D – Gửi Yêu Thương Bay Lên 💖",
+    "code": "heart_3d",
+    "version": "1.0.0",
+    "description": "Không gian 3D tương tác với hàng ngàn hạt particles tạo hình trái tim bay bổng, kèm theo vòng xoay văn bản chứa lời chúc yêu thương lấp lánh.",
+    "preview": "/templates/heart_3d/preview.png",
+    "fields": [
+        {
+            "name": "receiver_name",
+            "label": "Tên người nhận",
+            "type": "text",
+            "required": true,
+            "default": "Em yêu",
+            "placeholder": "Nhập tên người nhận (VD: Lan Anh, Bé Heo...)"
+        },
+        {
+            "name": "sender_name",
+            "label": "Tên người gửi",
+            "type": "text",
+            "required": true,
+            "default": "Anh yêu",
+            "placeholder": "Nhập tên người gửi (VD: Đức Hoàng...)"
+        },
+        {
+            "name": "title",
+            "label": "Tiêu đề quà tặng",
+            "type": "text",
+            "required": true,
+            "default": "Gửi người anh thương 💖",
+            "placeholder": "VD: Mãi Yêu Em, Happy Valentine..."
+        },
+        {
+            "name": "message",
+            "label": "Lời nhắn gửi / Lời chúc",
+            "type": "textarea",
+            "required": true,
+            "default": "Em là điều tuyệt vời nhất mà anh có được trong cuộc đời này. Chúc cho tình yêu của chúng ta mãi mãi bền chặt và rực rỡ như hàng triệu vì sao trong dải ngân hà này! 💕",
+            "placeholder": "Viết lời chúc yêu thương gửi đến người ấy..."
+        },
+        {
+            "name": "music_url",
+            "label": "Nhạc nền MP3 (URL)",
+            "type": "text",
+            "required": false,
+            "default": "https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3",
+            "placeholder": "Nhập link file nhạc mp3 (để trống nếu dùng nhạc mặc định)"
+        },
+        {
+            "name": "spiral_texts",
+            "label": "Các dòng chữ chạy xoay tròn ở dưới (cách nhau bởi dấu phẩy)",
+            "type": "text",
+            "required": false,
+            "default": "Anh yêu em nhiều lắm!,Em là duy nhất của anh 💖,Mãi mãi bên em!,Trọn đời bên nhau 💕,Yêu em hơn mỗi ngày!",
+            "placeholder": "VD: Anh yêu em!,Mãi bên nhau!,Love you..."
+        }
+    ]
+}

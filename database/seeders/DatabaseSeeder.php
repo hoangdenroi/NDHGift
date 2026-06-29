@@ -75,5 +75,8 @@ class DatabaseSeeder extends Seeder
 
         // 4. Tạo các danh mục quà tặng mẫu
         $this->call(GiftCategorySeeder::class);
+
+        // 5. Tạo các mẫu quà tặng 3D mẫu
+        $this->call(GiftTemplateSeeder::class);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Admin\Coupon\CouponController;
 use App\Http\Controllers\Admin\dashboard\DashboardController;
 use App\Http\Controllers\Admin\GiftCategoryController;
+use App\Http\Controllers\Admin\GiftTemplateController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
 use App\Http\Controllers\Admin\User\UserController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,10 @@ Route::middleware(['auth', 'role:admin'])->group(function (): void {
     // === QUẢN LÝ DANH MỤC QUÀ TẶNG ===
     Route::resource('gift-categories', GiftCategoryController::class)->except(['create', 'show', 'edit'])->names('admin.gift-categories');
     Route::patch('gift-categories/{gift_category}/toggle-active', [GiftCategoryController::class, 'toggleActive'])->name('admin.gift-categories.toggle-active');
+
+    // === QUẢN LÝ MẪU QUÀ TẶNG ===
+    Route::resource('gift-templates', GiftTemplateController::class)->except(['create', 'show', 'edit'])->names('admin.gift-templates');
+    Route::patch('gift-templates/{gift_template}/toggle-active', [GiftTemplateController::class, 'toggleActive'])->name('admin.gift-templates.toggle-active');
 
     // === QUẢN LÝ THÔNG BÁO (giao diện tĩnh) ===
     Route::get('notifications', [NotificationController::class, 'index'])->name('admin.notifications.index');
