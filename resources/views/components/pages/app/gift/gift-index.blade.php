@@ -179,7 +179,7 @@
                                 <span class="text-xs sm:text-base font-bold text-rose-600 whitespace-nowrap"
                                     x-text="new Intl.NumberFormat('vi-VN').format(gift.price) + ' VND'"></span>
                                 <span
-                                    class="text-[9px] sm:text-[10px] font-bold text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-1 py-0.5 rounded whitespace-nowrap"
+                                    class="text-[9px] sm:text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 px-1 py-0.5 rounded whitespace-nowrap"
                                     x-text="'-' + gift.discount + '%'"></span>
                             </div>
                         </div>
@@ -235,34 +235,11 @@
         </div>
 
         <!-- Modal Xác nhận thanh toán -->
-        <div x-show="showPaymentModal" 
-             class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50 flex items-center justify-center"
-             x-cloak
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0">
-            
-            <!-- Lớp phủ mờ (Overlay) -->
-            <div class="fixed inset-0 transform transition-all" @click="closePaymentModal()">
-                <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
-            </div>
-
-            <!-- Hộp thoại Modal -->
-            <div x-show="showPaymentModal"
-                 class="w-[calc(100%-2rem)] max-w-md bg-app-surface border border-app-border rounded-3xl overflow-hidden shadow-2xl p-6 relative flex flex-col gap-4 text-app-text transform transition-all"
-                 x-transition:enter="ease-out duration-300"
-                 x-transition:enter-start="opacity-0 scale-95 translate-y-4"
-                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                 x-transition:leave="ease-in duration-200"
-                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                 x-transition:leave-end="opacity-0 scale-95 translate-y-4">
-                
+        <x-shared.ui.modal name="confirm-payment" maxWidth="md">
+            <div class="p-6 flex flex-col gap-4 text-app-text">
                 <!-- Tiêu đề và biểu tượng -->
                 <div class="flex flex-col items-center text-center gap-2">
-                    <span class="material-symbols-outlined text-emerald-500 text-4xl fill-emerald-500/10">verified</span>
+                    <span class="material-symbols-outlined text-primary text-4xl fill-primary/10">verified</span>
                     <h2 class="text-xl font-bold text-app-text">{{ __('Xác nhận thanh toán') }}</h2>
                     <p class="text-app-muted text-xs">{{ __('Vui lòng kiểm tra thông tin bên dưới') }}</p>
                 </div>
@@ -271,7 +248,8 @@
                 <div class="bg-app-main/10 border border-app-border/60 rounded-2xl p-4 flex flex-col gap-3">
                     <div class="flex items-center justify-between gap-4 py-1 border-b border-app-border/40">
                         <span class="text-xs text-app-muted font-medium">{{ __('Gói dịch vụ') }}</span>
-                        <span class="text-xs font-bold text-app-text text-right line-clamp-1" x-text="selectedGift?.title"></span>
+                        <span class="text-xs font-bold text-app-text text-right line-clamp-1"
+                            x-text="selectedGift?.title"></span>
                     </div>
                     <div class="flex items-center justify-between gap-4 py-1 border-b border-app-border/40">
                         <span class="text-xs text-app-muted font-medium">{{ __('Thời hạn') }}</span>
@@ -279,31 +257,33 @@
                     </div>
                     <div class="flex items-center justify-between gap-4 py-1">
                         <span class="text-xs text-app-muted font-medium">{{ __('Trang quà tặng') }}</span>
-                        <span class="text-xs font-bold text-app-text text-right line-clamp-1 max-w-[200px]">{{ __('Bạn nhận được món quà từ...') }}</span>
+                        <span
+                            class="text-xs font-bold text-app-text text-right line-clamp-1 max-w-[200px]">{{ __('Bạn nhận được món quà từ...') }}</span>
                     </div>
                 </div>
 
                 <!-- Ô nhập mã giảm giá -->
                 <div class="flex flex-col gap-2">
-                    <label class="text-xs font-bold text-emerald-500 flex items-center gap-1">
+                    <label class="text-xs font-bold text-primary flex items-center gap-1">
                         <span class="material-symbols-outlined text-base">local_offer</span>
                         {{ __('Mã giảm giá') }}
                     </label>
                     <div class="flex items-center gap-2">
                         <input type="text" x-model="couponCode" placeholder="NHẬP MÃ GIẢM GIÁ (NẾU CÓ)..."
-                               :disabled="isApplyingCoupon || couponDiscount > 0"
-                               class="flex-1 h-10 px-3 bg-app-main/20 border border-app-border rounded-xl text-xs text-app-text font-mono uppercase tracking-wider focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 outline-none transition-all disabled:opacity-60" />
-                        <button type="button" @click="applyCoupon()" :disabled="isApplyingCoupon || !couponCode.trim() || couponDiscount > 0"
-                                class="h-10 px-4 bg-emerald-600 hover:bg-emerald-600/90 disabled:opacity-50 text-white text-xs font-bold rounded-xl flex items-center gap-1 transition-all active:scale-[0.98]">
-                            <span x-show="isApplyingCoupon" class="animate-spin border-2 border-white/30 border-t-white rounded-full size-3.5 inline-block"></span>
+                            :disabled="isApplyingCoupon || couponDiscount > 0"
+                            class="flex-1 h-10 px-3 bg-app-main/20 border border-app-border rounded-xl text-xs text-app-text font-mono uppercase tracking-wider focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all disabled:opacity-60" />
+                        <button type="button" @click="applyCoupon()"
+                            :disabled="isApplyingCoupon || !couponCode.trim() || couponDiscount > 0"
+                            class="h-10 px-4 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white text-xs font-bold rounded-xl flex items-center gap-1 transition-all active:scale-[0.98]">
+                            <span x-show="isApplyingCoupon"
+                                class="animate-spin border-2 border-white/30 border-t-white rounded-full size-3.5 inline-block"></span>
                             <span class="material-symbols-outlined text-base" x-show="!isApplyingCoupon">check</span>
                             <span>{{ __('Áp dụng') }}</span>
                         </button>
                     </div>
                     <!-- Thông báo lỗi hoặc thành công của Coupon -->
-                    <div class="text-[10px] font-semibold mt-0.5" 
-                         :class="couponError ? 'text-red-500' : 'text-emerald-500'" 
-                         x-show="couponError || couponSuccessMessage">
+                    <div class="text-[10px] font-semibold mt-0.5" :class="couponError ? 'text-red-500' : 'text-primary'"
+                        x-show="couponError || couponSuccessMessage">
                         <span x-text="couponError || couponSuccessMessage"></span>
                     </div>
                 </div>
@@ -311,8 +291,8 @@
                 <!-- Tổng thanh toán -->
                 <div class="flex items-center justify-between border-t border-app-border/40 pt-4 mt-2">
                     <span class="text-sm font-bold text-app-text">{{ __('Tổng thanh toán') }}</span>
-                    <span class="text-lg font-extrabold text-emerald-500" 
-                          x-text="new Intl.NumberFormat('vi-VN').format(totalPayment) + 'đ'"></span>
+                    <span class="text-lg font-extrabold text-primary"
+                        x-text="new Intl.NumberFormat('vi-VN').format(totalPayment) + 'đ'"></span>
                 </div>
 
                 <!-- Chú thích trừ tiền -->
@@ -324,27 +304,28 @@
                 <!-- Hủy và Xác nhận thanh toán -->
                 <div class="grid grid-cols-2 gap-3 mt-2">
                     <button type="button" @click="closePaymentModal()"
-                            class="py-2.5 px-4 bg-app-main/20 hover:bg-app-main/30 text-app-text text-xs font-bold rounded-xl transition-all active:scale-[0.98]">
+                        class="py-2.5 px-4 bg-gray-500/20 hover:bg-app-main/30 text-app-text text-xs font-bold rounded-xl transition-all active:scale-[0.98]">
                         {{ __('Hủy') }}
                     </button>
                     <button type="button" @click="submitPayment()" :disabled="isSubmittingPayment"
-                            class="py-2.5 px-4 bg-gradient-to-r from-emerald-500 via-emerald-600 to-indigo-600 hover:opacity-95 disabled:opacity-50 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-[0.98]">
-                        <span x-show="isSubmittingPayment" class="animate-spin border-2 border-white/30 border-t-white rounded-full size-3.5 inline-block"></span>
+                        class="py-2.5 px-4 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-[0.98]">
+                        <span x-show="isSubmittingPayment"
+                            class="animate-spin border-2 border-white/30 border-t-white rounded-full size-3.5 inline-block"></span>
                         <span class="material-symbols-outlined text-base">credit_card</span>
                         <span>{{ __('Xác nhận thanh toán') }}</span>
                     </button>
                 </div>
 
                 <!-- Số dư tài khoản dưới cùng -->
-                <div class="flex items-center justify-center gap-1 mt-2 text-xs font-medium text-app-muted border-t border-app-border/40 pt-3">
+                <div
+                    class="flex items-center justify-center gap-1 mt-2 text-xs font-medium text-app-muted border-t border-app-border/40 pt-3">
                     <span class="material-symbols-outlined text-[16px] text-app-muted">account_balance_wallet</span>
                     <span>{{ __('Số dư khả dụng:') }}</span>
-                    <span class="font-bold text-app-text" 
-                          x-text="new Intl.NumberFormat('vi-VN').format(userBalance) + 'đ'"></span>
+                    <span class="font-bold text-app-text"
+                        x-text="new Intl.NumberFormat('vi-VN').format(userBalance) + 'đ'"></span>
                 </div>
-
             </div>
-        </div>
+        </x-shared.ui.modal>
     </div>
 
     @push('scripts')
@@ -358,123 +339,123 @@
                         @foreach($categories as $category)
                             { id: '{{ $category->slug }}', label: '{{ __($category->name) }}', icon: '{{ $category->icon }}' },
                         @endforeach
-                    ],
+                            ],
                     gifts: [
-                        { 
-                            id: 1, 
-                            title: '{{ __('Birthday special - Bánh sinh nhật 3D thổi nến cắt bánh') }}', 
-                            category: 'birthday', 
-                            sold: 12, 
+                        {
+                            id: 1,
+                            title: '{{ __('Birthday special - Bánh sinh nhật 3D thổi nến cắt bánh') }}',
+                            category: 'birthday',
+                            sold: 12,
                             stars: 1200,
                             is_hot: true,
-                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
-                            old_price: 69998.6, 
-                            price: 49999, 
+                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}',
+                            old_price: 69998.6,
+                            price: 49999,
                             discount: 40,
                             demo_url: '#',
                             guide_url: '#',
                             video_url: '#'
                         },
-                        { 
-                            id: 2, 
-                            title: '{{ __('Web Trái Tim 3D – Gửi Yêu Thương Bay Lên 💖') }}', 
-                            category: 'love', 
-                            sold: 389, 
+                        {
+                            id: 2,
+                            title: '{{ __('Web Trái Tim 3D – Gửi Yêu Thương Bay Lên 💖') }}',
+                            category: 'love',
+                            sold: 389,
                             stars: 35000,
                             is_hot: true,
-                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
-                            old_price: 55998.6, 
-                            price: 39999, 
+                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}',
+                            old_price: 55998.6,
+                            price: 39999,
                             discount: 40,
                             demo_url: '#',
                             guide_url: '#',
                             video_url: '#'
                         },
-                        { 
-                            id: 3, 
-                            title: '{{ __('Thiệp Sinh Nhật 3D Lung Linh') }}', 
-                            category: 'birthday', 
-                            sold: 154, 
+                        {
+                            id: 3,
+                            title: '{{ __('Thiệp Sinh Nhật 3D Lung Linh') }}',
+                            category: 'birthday',
+                            sold: 154,
                             stars: 950,
                             is_hot: false,
-                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
-                            old_price: 79998.6, 
-                            price: 49999, 
+                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}',
+                            old_price: 79998.6,
+                            price: 49999,
                             discount: 37,
                             demo_url: '#',
                             guide_url: '#',
                             video_url: '#'
                         },
-                        { 
-                            id: 4, 
-                            title: '{{ __('Thư Tình Yêu 3D Lãng Mạn') }}', 
-                            category: 'love', 
-                            sold: 840, 
+                        {
+                            id: 4,
+                            title: '{{ __('Thư Tình Yêu 3D Lãng Mạn') }}',
+                            category: 'love',
+                            sold: 840,
                             stars: 105000,
                             is_hot: true,
-                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
-                            old_price: 65998.6, 
-                            price: 39999, 
+                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}',
+                            old_price: 65998.6,
+                            price: 39999,
                             discount: 39,
                             demo_url: '#',
                             guide_url: '#',
                             video_url: '#'
                         },
-                        { 
-                            id: 5, 
-                            title: '{{ __('Lời Cảm Ơn 3D Sâu Sắc') }}', 
-                            category: 'thank', 
-                            sold: 92, 
+                        {
+                            id: 5,
+                            title: '{{ __('Lời Cảm Ơn 3D Sâu Sắc') }}',
+                            category: 'thank',
+                            sold: 92,
                             stars: 84,
                             is_hot: false,
-                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
-                            old_price: 49998.6, 
-                            price: 29999, 
+                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}',
+                            old_price: 49998.6,
+                            price: 29999,
                             discount: 40,
                             demo_url: '#',
                             guide_url: '#',
                             video_url: '#'
                         },
-                        { 
-                            id: 6, 
-                            title: '{{ __('Kỷ Niệm Ngày Chung Đôi 3D') }}', 
-                            category: 'anniversary', 
-                            sold: 215, 
+                        {
+                            id: 6,
+                            title: '{{ __('Kỷ Niệm Ngày Chung Đôi 3D') }}',
+                            category: 'anniversary',
+                            sold: 215,
                             stars: 1500,
                             is_hot: true,
-                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
-                            old_price: 79998.6, 
-                            price: 49999, 
+                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}',
+                            old_price: 79998.6,
+                            price: 49999,
                             discount: 37,
                             demo_url: '#',
                             guide_url: '#',
                             video_url: '#'
                         },
-                        { 
-                            id: 7, 
-                            title: '{{ __('Giáng Sinh Ấm Áp 3D') }}', 
-                            category: 'christmas', 
-                            sold: 312, 
+                        {
+                            id: 7,
+                            title: '{{ __('Giáng Sinh Ấm Áp 3D') }}',
+                            category: 'christmas',
+                            sold: 312,
                             stars: 3100,
                             is_hot: false,
-                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
-                            old_price: 89998.6, 
-                            price: 59999, 
+                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}',
+                            old_price: 89998.6,
+                            price: 59999,
                             discount: 33,
                             demo_url: '#',
                             guide_url: '#',
                             video_url: '#'
                         },
-                        { 
-                            id: 8, 
-                            title: '{{ __('Hộp Quà Bí Mật 3D') }}', 
-                            category: 'birthday', 
-                            sold: 450, 
+                        {
+                            id: 8,
+                            title: '{{ __('Hộp Quà Bí Mật 3D') }}',
+                            category: 'birthday',
+                            sold: 450,
                             stars: 12000,
                             is_hot: true,
-                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
-                            old_price: 59998.6, 
-                            price: 39999, 
+                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}',
+                            old_price: 59998.6,
+                            price: 39999,
                             discount: 33,
                             demo_url: '#',
                             guide_url: '#',
@@ -495,8 +476,6 @@
                             return matchesCategory && matchesSearch;
                         });
                     },
-                    // Trạng thái modal thanh toán quà tặng
-                    showPaymentModal: false,
                     selectedGift: null,
                     couponCode: '',
                     couponDiscount: 0,
@@ -521,10 +500,10 @@
                         this.couponDiscount = 0;
                         this.couponError = '';
                         this.couponSuccessMessage = '';
-                        this.showPaymentModal = true;
+                        window.dispatchEvent(new CustomEvent('open-modal', { detail: 'confirm-payment' }));
                     },
                     closePaymentModal() {
-                        this.showPaymentModal = false;
+                        window.dispatchEvent(new CustomEvent('close-modal', { detail: 'confirm-payment' }));
                         // Tránh nhấp nháy giao diện khi ẩn modal
                         setTimeout(() => {
                             this.selectedGift = null;
@@ -597,13 +576,13 @@
                         }
 
                         this.isSubmittingPayment = true;
-                        
+
                         try {
                             // Mô phỏng xử lý thanh toán 1.5s
                             await new Promise(resolve => setTimeout(resolve, 1500));
-                            
+
                             this.userBalance -= this.totalPayment;
-                            
+
                             window.dispatchEvent(new CustomEvent('toast', {
                                 detail: {
                                     type: 'success',
@@ -613,7 +592,7 @@
                             }));
 
                             this.closePaymentModal();
-                            
+
                             // Tải lại trang sau khi thanh toán thành công
                             setTimeout(() => {
                                 window.location.reload();
