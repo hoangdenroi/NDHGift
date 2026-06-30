@@ -72,4 +72,26 @@ class GiftTest extends TestCase
         $response3->assertSee('Eloquent Updated Name');
         $response3->assertDontSee('Original Name');
     }
+
+    /**
+     * Kiểm tra khách (guest) truy cập trang danh sách quà tặng.
+     */
+    public function test_guest_can_access_gift_page(): void
+    {
+        $response = $this->get('/vi/apps/gift');
+        $response->assertStatus(200);
+        $response->assertSee('NDHGift');
+    }
+
+    /**
+     * Kiểm tra người dùng đã đăng nhập truy cập trang danh sách quà tặng.
+     */
+    public function test_authenticated_user_can_access_gift_page(): void
+    {
+        $user = \App\Models\User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/vi/apps/gift');
+        $response->assertStatus(200);
+        $response->assertSee('NDHGift');
+    }
 }

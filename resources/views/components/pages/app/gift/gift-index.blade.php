@@ -30,152 +30,7 @@
     </div>
 
     {{-- Khởi tạo Alpine.js cho giao diện danh sách quà tặng --}}
-    <div x-data="{
-        activeCategory: 'all',
-        searchQuery: '',
-        categories: [
-            { id: 'all', label: '{{ __('All') }}', icon: 'grid_view' },
-            @foreach($categories as $category)
-            { id: '{{ $category->slug }}', label: '{{ __($category->name) }}', icon: '{{ $category->icon }}' },
-            @endforeach
-        ],
-        gifts: [
-            { 
-                id: 1, 
-                title: '{{ __('Birthday special - Bánh sinh nhật 3D thổi nến cắt bánh') }}', 
-                category: 'birthday', 
-                sold: 12, 
-                stars: 1200,
-                is_hot: true,
-                image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
-                old_price: 69998.6, 
-                price: 49999, 
-                discount: 40,
-                demo_url: '#',
-                guide_url: '#',
-                video_url: '#'
-            },
-            { 
-                id: 2, 
-                title: '{{ __('Web Trái Tim 3D – Gửi Yêu Thương Bay Lên 💖') }}', 
-                category: 'love', 
-                sold: 389, 
-                stars: 35000,
-                is_hot: true,
-                image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
-                old_price: 55998.6, 
-                price: 39999, 
-                discount: 40,
-                demo_url: '#',
-                guide_url: '#',
-                video_url: '#'
-            },
-            { 
-                id: 3, 
-                title: '{{ __('Thiệp Sinh Nhật 3D Lung Linh') }}', 
-                category: 'birthday', 
-                sold: 154, 
-                stars: 950,
-                is_hot: false,
-                image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
-                old_price: 79998.6, 
-                price: 49999, 
-                discount: 37,
-                demo_url: '#',
-                guide_url: '#',
-                video_url: '#'
-            },
-            { 
-                id: 4, 
-                title: '{{ __('Thư Tình Yêu 3D Lãng Mạn') }}', 
-                category: 'love', 
-                sold: 840, 
-                stars: 105000,
-                is_hot: true,
-                image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
-                old_price: 65998.6, 
-                price: 39999, 
-                discount: 39,
-                demo_url: '#',
-                guide_url: '#',
-                video_url: '#'
-            },
-            { 
-                id: 5, 
-                title: '{{ __('Lời Cảm Ơn 3D Sâu Sắc') }}', 
-                category: 'thank', 
-                sold: 92, 
-                stars: 84,
-                is_hot: false,
-                image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
-                old_price: 49998.6, 
-                price: 29999, 
-                discount: 40,
-                demo_url: '#',
-                guide_url: '#',
-                video_url: '#'
-            },
-            { 
-                id: 6, 
-                title: '{{ __('Kỷ Niệm Ngày Chung Đôi 3D') }}', 
-                category: 'anniversary', 
-                sold: 215, 
-                stars: 1500,
-                is_hot: true,
-                image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
-                old_price: 79998.6, 
-                price: 49999, 
-                discount: 37,
-                demo_url: '#',
-                guide_url: '#',
-                video_url: '#'
-            },
-            { 
-                id: 7, 
-                title: '{{ __('Giáng Sinh Ấm Áp 3D') }}', 
-                category: 'christmas', 
-                sold: 312, 
-                stars: 3100,
-                is_hot: false,
-                image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
-                old_price: 89998.6, 
-                price: 59999, 
-                discount: 33,
-                demo_url: '#',
-                guide_url: '#',
-                video_url: '#'
-            },
-            { 
-                id: 8, 
-                title: '{{ __('Hộp Quà Bí Mật 3D') }}', 
-                category: 'birthday', 
-                sold: 450, 
-                stars: 12000,
-                is_hot: true,
-                image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
-                old_price: 59998.6, 
-                price: 39999, 
-                discount: 33,
-                demo_url: '#',
-                guide_url: '#',
-                video_url: '#'
-            }
-        ],
-        formatNumber(num) {
-            if (num >= 1000) {
-                let formatted = (num / 1000).toFixed(1);
-                return formatted.endsWith('.0') ? formatted.slice(0, -2) + 'k' : formatted + 'k';
-            }
-            return num;
-        },
-        get filteredGifts() {
-            return this.gifts.filter(gift => {
-                const matchesCategory = this.activeCategory === 'all' || gift.category === this.activeCategory;
-                const matchesSearch = gift.title.toLowerCase().includes(this.searchQuery.toLowerCase());
-                return matchesCategory && matchesSearch;
-            });
-        }
-    }" class="space-y-6 mt-6">
+    <div x-data="giftPage()" class="space-y-6 mt-6">
 
         {{-- Thanh tìm kiếm & Tabs chủ đề --}}
         <div class="grid grid-cols-12 gap-4 items-center border-b border-app-border/40 pb-4">
@@ -332,7 +187,7 @@
                         <!-- Nhóm nút hành động: Mua ngay & Xem demo -->
                         <div class="grid grid-cols-2 gap-1.5 sm:gap-2 mt-2">
                             <!-- Nút Mua ngay -->
-                            <button
+                            <button @click="openPaymentModal(gift)"
                                 class="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-2 px-1 sm:px-3 bg-primary hover:bg-primary/95 text-white rounded-xl text-[9px] sm:text-xs font-bold transition-all shadow-sm shadow-primary/10 active:scale-[0.97] whitespace-nowrap">
                                 <span
                                     class="material-symbols-outlined text-[12px] sm:text-[16px] select-none">credit_card</span>
@@ -342,7 +197,7 @@
                             <a :href="gift.demo_url"
                                 class="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-2 px-1 sm:px-3 bg-app-surface hover:bg-app-main/5 border border-app-border text-app-text rounded-xl text-[9px] sm:text-xs font-bold transition-all active:scale-[0.97] whitespace-nowrap">
                                 <span
-                                    class="material-symbols-outlined text-[12px] sm:text-[16px] select-none">visibility</span>
+                                    class="material-symbols-outlined text-[12px] sm:text-[16px] select-none">open_in_new</span>
                                 <span>{{ __('Xem demo') }}</span>
                             </a>
                         </div>
@@ -378,5 +233,400 @@
             <p class="text-sm font-semibold text-app-text">{{ __('Không tìm thấy mẫu quà tặng') }}</p>
             <p class="text-xs text-app-muted mt-1">{{ __('Thử thay đổi từ khóa tìm kiếm hoặc chọn chủ đề khác.') }}</p>
         </div>
+
+        <!-- Modal Xác nhận thanh toán -->
+        <div x-show="showPaymentModal" 
+             class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50 flex items-center justify-center"
+             x-cloak
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+            
+            <!-- Lớp phủ mờ (Overlay) -->
+            <div class="fixed inset-0 transform transition-all" @click="closePaymentModal()">
+                <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+            </div>
+
+            <!-- Hộp thoại Modal -->
+            <div x-show="showPaymentModal"
+                 class="w-[calc(100%-2rem)] max-w-md bg-app-surface border border-app-border rounded-3xl overflow-hidden shadow-2xl p-6 relative flex flex-col gap-4 text-app-text transform transition-all"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 scale-95 translate-y-4">
+                
+                <!-- Tiêu đề và biểu tượng -->
+                <div class="flex flex-col items-center text-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-500 text-4xl fill-emerald-500/10">verified</span>
+                    <h2 class="text-xl font-bold text-app-text">{{ __('Xác nhận thanh toán') }}</h2>
+                    <p class="text-app-muted text-xs">{{ __('Vui lòng kiểm tra thông tin bên dưới') }}</p>
+                </div>
+
+                <!-- Bảng thông tin dịch vụ -->
+                <div class="bg-app-main/10 border border-app-border/60 rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="flex items-center justify-between gap-4 py-1 border-b border-app-border/40">
+                        <span class="text-xs text-app-muted font-medium">{{ __('Gói dịch vụ') }}</span>
+                        <span class="text-xs font-bold text-app-text text-right line-clamp-1" x-text="selectedGift?.title"></span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 py-1 border-b border-app-border/40">
+                        <span class="text-xs text-app-muted font-medium">{{ __('Thời hạn') }}</span>
+                        <span class="text-xs font-bold text-app-text">{{ __('Vĩnh viễn') }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 py-1">
+                        <span class="text-xs text-app-muted font-medium">{{ __('Trang quà tặng') }}</span>
+                        <span class="text-xs font-bold text-app-text text-right line-clamp-1 max-w-[200px]">{{ __('Bạn nhận được món quà từ...') }}</span>
+                    </div>
+                </div>
+
+                <!-- Ô nhập mã giảm giá -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold text-emerald-500 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-base">local_offer</span>
+                        {{ __('Mã giảm giá') }}
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" x-model="couponCode" placeholder="NHẬP MÃ GIẢM GIÁ (NẾU CÓ)..."
+                               :disabled="isApplyingCoupon || couponDiscount > 0"
+                               class="flex-1 h-10 px-3 bg-app-main/20 border border-app-border rounded-xl text-xs text-app-text font-mono uppercase tracking-wider focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 outline-none transition-all disabled:opacity-60" />
+                        <button type="button" @click="applyCoupon()" :disabled="isApplyingCoupon || !couponCode.trim() || couponDiscount > 0"
+                                class="h-10 px-4 bg-emerald-600 hover:bg-emerald-600/90 disabled:opacity-50 text-white text-xs font-bold rounded-xl flex items-center gap-1 transition-all active:scale-[0.98]">
+                            <span x-show="isApplyingCoupon" class="animate-spin border-2 border-white/30 border-t-white rounded-full size-3.5 inline-block"></span>
+                            <span class="material-symbols-outlined text-base" x-show="!isApplyingCoupon">check</span>
+                            <span>{{ __('Áp dụng') }}</span>
+                        </button>
+                    </div>
+                    <!-- Thông báo lỗi hoặc thành công của Coupon -->
+                    <div class="text-[10px] font-semibold mt-0.5" 
+                         :class="couponError ? 'text-red-500' : 'text-emerald-500'" 
+                         x-show="couponError || couponSuccessMessage">
+                        <span x-text="couponError || couponSuccessMessage"></span>
+                    </div>
+                </div>
+
+                <!-- Tổng thanh toán -->
+                <div class="flex items-center justify-between border-t border-app-border/40 pt-4 mt-2">
+                    <span class="text-sm font-bold text-app-text">{{ __('Tổng thanh toán') }}</span>
+                    <span class="text-lg font-extrabold text-emerald-500" 
+                          x-text="new Intl.NumberFormat('vi-VN').format(totalPayment) + 'đ'"></span>
+                </div>
+
+                <!-- Chú thích trừ tiền -->
+                <p class="text-[10px] text-app-muted text-center flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-xs select-none">info</span>
+                    {{ __('Số tiền sẽ được trừ trực tiếp từ số dư tài khoản của bạn.') }}
+                </p>
+
+                <!-- Hủy và Xác nhận thanh toán -->
+                <div class="grid grid-cols-2 gap-3 mt-2">
+                    <button type="button" @click="closePaymentModal()"
+                            class="py-2.5 px-4 bg-app-main/20 hover:bg-app-main/30 text-app-text text-xs font-bold rounded-xl transition-all active:scale-[0.98]">
+                        {{ __('Hủy') }}
+                    </button>
+                    <button type="button" @click="submitPayment()" :disabled="isSubmittingPayment"
+                            class="py-2.5 px-4 bg-gradient-to-r from-emerald-500 via-emerald-600 to-indigo-600 hover:opacity-95 disabled:opacity-50 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-[0.98]">
+                        <span x-show="isSubmittingPayment" class="animate-spin border-2 border-white/30 border-t-white rounded-full size-3.5 inline-block"></span>
+                        <span class="material-symbols-outlined text-base">credit_card</span>
+                        <span>{{ __('Xác nhận thanh toán') }}</span>
+                    </button>
+                </div>
+
+                <!-- Số dư tài khoản dưới cùng -->
+                <div class="flex items-center justify-center gap-1 mt-2 text-xs font-medium text-app-muted border-t border-app-border/40 pt-3">
+                    <span class="material-symbols-outlined text-[16px] text-app-muted">account_balance_wallet</span>
+                    <span>{{ __('Số dư khả dụng:') }}</span>
+                    <span class="font-bold text-app-text" 
+                          x-text="new Intl.NumberFormat('vi-VN').format(userBalance) + 'đ'"></span>
+                </div>
+
+            </div>
+        </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('giftPage', () => ({
+                    activeCategory: 'all',
+                    searchQuery: '',
+                    categories: [
+                        { id: 'all', label: '{{ __('All') }}', icon: 'grid_view' },
+                        @foreach($categories as $category)
+                            { id: '{{ $category->slug }}', label: '{{ __($category->name) }}', icon: '{{ $category->icon }}' },
+                        @endforeach
+                    ],
+                    gifts: [
+                        { 
+                            id: 1, 
+                            title: '{{ __('Birthday special - Bánh sinh nhật 3D thổi nến cắt bánh') }}', 
+                            category: 'birthday', 
+                            sold: 12, 
+                            stars: 1200,
+                            is_hot: true,
+                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
+                            old_price: 69998.6, 
+                            price: 49999, 
+                            discount: 40,
+                            demo_url: '#',
+                            guide_url: '#',
+                            video_url: '#'
+                        },
+                        { 
+                            id: 2, 
+                            title: '{{ __('Web Trái Tim 3D – Gửi Yêu Thương Bay Lên 💖') }}', 
+                            category: 'love', 
+                            sold: 389, 
+                            stars: 35000,
+                            is_hot: true,
+                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
+                            old_price: 55998.6, 
+                            price: 39999, 
+                            discount: 40,
+                            demo_url: '#',
+                            guide_url: '#',
+                            video_url: '#'
+                        },
+                        { 
+                            id: 3, 
+                            title: '{{ __('Thiệp Sinh Nhật 3D Lung Linh') }}', 
+                            category: 'birthday', 
+                            sold: 154, 
+                            stars: 950,
+                            is_hot: false,
+                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
+                            old_price: 79998.6, 
+                            price: 49999, 
+                            discount: 37,
+                            demo_url: '#',
+                            guide_url: '#',
+                            video_url: '#'
+                        },
+                        { 
+                            id: 4, 
+                            title: '{{ __('Thư Tình Yêu 3D Lãng Mạn') }}', 
+                            category: 'love', 
+                            sold: 840, 
+                            stars: 105000,
+                            is_hot: true,
+                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
+                            old_price: 65998.6, 
+                            price: 39999, 
+                            discount: 39,
+                            demo_url: '#',
+                            guide_url: '#',
+                            video_url: '#'
+                        },
+                        { 
+                            id: 5, 
+                            title: '{{ __('Lời Cảm Ơn 3D Sâu Sắc') }}', 
+                            category: 'thank', 
+                            sold: 92, 
+                            stars: 84,
+                            is_hot: false,
+                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
+                            old_price: 49998.6, 
+                            price: 29999, 
+                            discount: 40,
+                            demo_url: '#',
+                            guide_url: '#',
+                            video_url: '#'
+                        },
+                        { 
+                            id: 6, 
+                            title: '{{ __('Kỷ Niệm Ngày Chung Đôi 3D') }}', 
+                            category: 'anniversary', 
+                            sold: 215, 
+                            stars: 1500,
+                            is_hot: true,
+                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
+                            old_price: 79998.6, 
+                            price: 49999, 
+                            discount: 37,
+                            demo_url: '#',
+                            guide_url: '#',
+                            video_url: '#'
+                        },
+                        { 
+                            id: 7, 
+                            title: '{{ __('Giáng Sinh Ấm Áp 3D') }}', 
+                            category: 'christmas', 
+                            sold: 312, 
+                            stars: 3100,
+                            is_hot: false,
+                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}', 
+                            old_price: 89998.6, 
+                            price: 59999, 
+                            discount: 33,
+                            demo_url: '#',
+                            guide_url: '#',
+                            video_url: '#'
+                        },
+                        { 
+                            id: 8, 
+                            title: '{{ __('Hộp Quà Bí Mật 3D') }}', 
+                            category: 'birthday', 
+                            sold: 450, 
+                            stars: 12000,
+                            is_hot: true,
+                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}', 
+                            old_price: 59998.6, 
+                            price: 39999, 
+                            discount: 33,
+                            demo_url: '#',
+                            guide_url: '#',
+                            video_url: '#'
+                        }
+                    ],
+                    formatNumber(num) {
+                        if (num >= 1000) {
+                            let formatted = (num / 1000).toFixed(1);
+                            return formatted.endsWith('.0') ? formatted.slice(0, -2) + 'k' : formatted + 'k';
+                        }
+                        return num;
+                    },
+                    get filteredGifts() {
+                        return this.gifts.filter(gift => {
+                            const matchesCategory = this.activeCategory === 'all' || gift.category === this.activeCategory;
+                            const matchesSearch = gift.title.toLowerCase().includes(this.searchQuery.toLowerCase());
+                            return matchesCategory && matchesSearch;
+                        });
+                    },
+                    // Trạng thái modal thanh toán quà tặng
+                    showPaymentModal: false,
+                    selectedGift: null,
+                    couponCode: '',
+                    couponDiscount: 0,
+                    couponError: '',
+                    couponSuccessMessage: '',
+                    isApplyingCoupon: false,
+                    isSubmittingPayment: false,
+                    userBalance: {{ auth()->check() ? auth()->user()->balance : 0 }},
+                    isLoggedIn: {{ auth()->check() ? 'true' : 'false' }},
+                    get totalPayment() {
+                        if (!this.selectedGift) return 0;
+                        return Math.max(0, this.selectedGift.price - this.couponDiscount);
+                    },
+                    openPaymentModal(gift) {
+                        if (!this.isLoggedIn) {
+                            // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+                            window.location.href = "{{ route('login', ['locale' => app()->getLocale()]) }}";
+                            return;
+                        }
+                        this.selectedGift = gift;
+                        this.couponCode = '';
+                        this.couponDiscount = 0;
+                        this.couponError = '';
+                        this.couponSuccessMessage = '';
+                        this.showPaymentModal = true;
+                    },
+                    closePaymentModal() {
+                        this.showPaymentModal = false;
+                        // Tránh nhấp nháy giao diện khi ẩn modal
+                        setTimeout(() => {
+                            this.selectedGift = null;
+                            this.couponCode = '';
+                            this.couponDiscount = 0;
+                            this.couponError = '';
+                            this.couponSuccessMessage = '';
+                        }, 300);
+                    },
+                    async applyCoupon() {
+                        if (!this.couponCode.trim()) return;
+                        this.isApplyingCoupon = true;
+                        this.couponError = '';
+                        this.couponSuccessMessage = '';
+
+                        try {
+                            const response = await fetch('{{ route('api.apply-coupon', ['locale' => app()->getLocale()]) }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    code: this.couponCode,
+                                    subtotal: this.selectedGift.price
+                                })
+                            });
+
+                            const data = await response.json();
+
+                            if (response.ok && data.success) {
+                                this.couponDiscount = parseFloat(data.discount);
+                                this.couponSuccessMessage = data.message || 'Áp dụng mã giảm giá thành công!';
+                                window.dispatchEvent(new CustomEvent('toast', {
+                                    detail: {
+                                        type: 'success',
+                                        title: 'Thành công',
+                                        message: data.message
+                                    }
+                                }));
+                            } else {
+                                this.couponDiscount = 0;
+                                this.couponError = data.message || 'Mã giảm giá không hợp lệ hoặc đã hết hạn.';
+                                window.dispatchEvent(new CustomEvent('toast', {
+                                    detail: {
+                                        type: 'error',
+                                        title: 'Thất bại',
+                                        message: this.couponError
+                                    }
+                                }));
+                            }
+                        } catch (error) {
+                            console.error('Lỗi khi áp dụng coupon:', error);
+                            this.couponError = 'Lỗi kết nối máy chủ.';
+                        } finally {
+                            this.isApplyingCoupon = false;
+                        }
+                    },
+                    async submitPayment() {
+                        if (this.userBalance < this.totalPayment) {
+                            window.dispatchEvent(new CustomEvent('toast', {
+                                detail: {
+                                    type: 'error',
+                                    title: 'Số dư không đủ',
+                                    message: 'Vui lòng nạp thêm tiền vào tài khoản để thực hiện giao dịch này.'
+                                }
+                            }));
+                            return;
+                        }
+
+                        this.isSubmittingPayment = true;
+                        
+                        try {
+                            // Mô phỏng xử lý thanh toán 1.5s
+                            await new Promise(resolve => setTimeout(resolve, 1500));
+                            
+                            this.userBalance -= this.totalPayment;
+                            
+                            window.dispatchEvent(new CustomEvent('toast', {
+                                detail: {
+                                    type: 'success',
+                                    title: 'Thành công',
+                                    message: 'Cảm ơn bạn đã mua món quà tặng này!'
+                                }
+                            }));
+
+                            this.closePaymentModal();
+                            
+                            // Tải lại trang sau khi thanh toán thành công
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2000);
+
+                        } catch (error) {
+                            console.error('Lỗi thanh toán:', error);
+                        } finally {
+                            this.isSubmittingPayment = false;
+                        }
+                    }
+                }));
+            });
+        </script>
+    @endpush
 </x-app-layout>

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\GiftCategory;
 use Illuminate\Database\Seeder;
 
 class GiftCategorySeeder extends Seeder
@@ -77,10 +77,18 @@ class GiftCategorySeeder extends Seeder
                 'sort_order' => 8,
                 'is_active' => true,
             ],
+            [
+                'name' => 'Khác',
+                'slug' => 'others',
+                'description' => 'Các mẫu quà khác.',
+                'icon' => 'more_horiz',
+                'sort_order' => 99,
+                'is_active' => true,
+            ],
         ];
 
         foreach ($categories as $cat) {
-            \App\Models\GiftCategory::updateOrCreate(
+            GiftCategory::updateOrCreate(
                 ['slug' => $cat['slug']],
                 $cat
             );
