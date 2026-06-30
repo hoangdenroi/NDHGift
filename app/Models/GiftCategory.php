@@ -40,6 +40,20 @@ class GiftCategory extends Model
         'deleted_at' => 'datetime',
     ];
 
+    /**
+     * Tự động xóa cache của danh mục quà tặng khi có bất kỳ thay đổi nào (thêm, sửa, xóa).
+     */
+    protected static function booted(): void
+    {
+        static::saved(static function (): void {
+            \Illuminate\Support\Facades\Cache::forget('gift_categories_active');
+        });
+
+        static::deleted(static function (): void {
+            \Illuminate\Support\Facades\Cache::forget('gift_categories_active');
+        });
+    }
+
     // ===== SCOPES =====
 
     /**

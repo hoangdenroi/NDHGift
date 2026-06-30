@@ -7,6 +7,7 @@ namespace App\Http\Controllers\App\gift;
 use App\Http\Controllers\Controller;
 use App\Models\GiftCategory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
 
 class GiftController extends Controller
 {
@@ -15,10 +16,10 @@ class GiftController extends Controller
      */
     public function index(): View
     {
-        $categories = GiftCategory::where('is_deleted', false)
-            ->where('is_active', true)
-            ->orderBy('sort_order', 'asc')
-            ->get();
+        // Lưu cache danh sách danh mục quà tặng hoạt động trong 24 giờ (86400 giây)
+        $categories = Cache::remember('gift_categories_active', 86400, static function () {
+            return GiftCategory::active()->get();
+        });
 
         return view('components.pages.app.gift.gift-index', compact('categories'));
     }
