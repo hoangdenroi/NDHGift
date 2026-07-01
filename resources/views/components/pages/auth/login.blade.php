@@ -40,7 +40,7 @@
                             for="password">{{ __('Password') }}</label>
                         @if (Route::has('password.request'))
                             <a class="text-sm font-semibold text-primary hover:text-blue-600 dark:hover:text-blue-400"
-                                href="{{ route('password.request') }}">{{ __('Forgot Password?') }}</a>
+                                tabindex="-1" href="{{ route('password.request') }}">{{ __('Forgot Password?') }}</a>
                         @endif
                     </div>
                     <div class="relative">

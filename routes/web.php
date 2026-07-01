@@ -114,4 +114,9 @@ Route::get('/auth/{provider}', [SocialiteController::class, 'redirect'])
 Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback'])
     ->where('provider', 'google|facebook');
 
+// --- TRÌNH PHÁT QUÀ TẶNG (GIFT PLAYER) & DEMO ---
+use App\Http\Controllers\App\gift\UserGiftController;
+Route::get('/gift/{slug}', [UserGiftController::class, 'play'])->name('app.gift.play');
+Route::get('/gift/demo/{code}', [GiftController::class, 'demo'])->name('app.gift.demo');
+
 require __DIR__.'/auth.php';

@@ -81,4 +81,48 @@ class GiftController extends Controller
 
         return view('components.pages.app.gift.gift-show', compact('giftTemplate', 'imageUrl', 'oldPrice', 'createUrl'));
     }
+
+    /**
+     * Hiển thị trang xem thử (demo) mẫu quà tặng.
+     *
+     * @param string $code
+     * @return View
+     */
+    public function demo(string $code): View
+    {
+        // 1. Tìm template theo code
+        $giftTemplate = GiftTemplate::where('code', $code)
+            ->where('is_active', true)
+            ->where('is_deleted', false)
+            ->firstOrFail();
+
+        // 2. Sinh dữ liệu mockup từ form schema defaults
+        $giftData = [];
+        if (isset($giftTemplate->form_schema['fields']) && is_array($giftTemplate->form_schema['fields'])) {
+            foreach ($giftTemplate->form_schema['fields'] as $field) {
+                $key = $field['key'] ?? $field['name'] ?? null;
+                if ($key) {
+                    $giftData[$key] = $field['default'] ?? '';
+                }
+            }
+        }
+
+        // Tách settings riêng nếu cần thiết (music_url, spiral_texts)
+        $giftData['settings'] = [
+            'music_url' => $giftData['music_url'] ?? 'https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3',
+            'spiral_texts' => $giftData['spiral_texts'] ?? 'Mãi yêu em! 💖, Trọn đời bên nhau 💕, Yêu em nhiều hơn mỗi ngày!'
+        ];
+
+        // Fallback view path nếu file template chưa được định nghĩa
+        $viewPath = "gifts.templates.{$code}";
+        if (! view()->exists($viewPath)) {
+            $viewPath = 'gifts.templates.heart_3d';
+        }
+
+        return view($viewPath, [
+            'giftData' => $giftData,
+            'giftTemplate' => $giftTemplate,
+            'isDemo' => true
+        ]);
+    }
 }

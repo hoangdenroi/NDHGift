@@ -111,7 +111,7 @@
                     </div>
                     @if($giftTemplate->discount > 0)
                         <span
-                            class="px-3 py-1.5 rounded-xl bg-rose-500 text-white text-xs font-black select-none shadow-sm shadow-rose-500/10">
+                            class="px-3 py-1.5 rounded-xl bg-primary text-white text-xs font-black select-none shadow-sm shadow-rose-500/10">
                             -{{ $giftTemplate->discount }}% OFF
                         </span>
                     @endif
