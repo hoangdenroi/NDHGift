@@ -25,7 +25,7 @@
         function initThree(giftData) {
             // Scene
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x0a0f19, 0.005); // Trùng màu nền #0b0f19
+            scene.fog = new THREE.FogExp2(0x000000, 0.005); // Trùng màu nền đen #000000
 
             // Camera
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);

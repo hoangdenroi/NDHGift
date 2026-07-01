@@ -44,7 +44,7 @@
         /* CSS tuỳ chỉnh cho trải nghiệm mượt mà của Player */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0b0f19;
+            background-color: #000000;
             color: #f3f4f6;
             margin: 0;
             padding: 0;
