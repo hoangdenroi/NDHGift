@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\App;
 
 use App\Models\GiftCategory;
+use App\Models\GiftTemplate;
+use App\Services\GiftService;
+use App\Services\Admin\GiftTemplateAdminService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +25,7 @@ class GiftTest extends TestCase
         parent::setUp();
         // Đảm bảo cache sạch trước mỗi test case
         Cache::forget('gift_categories_active');
+        Cache::forget(GiftService::CACHE_KEY);
     }
 
     /**
@@ -71,6 +75,121 @@ class GiftTest extends TestCase
         $response3->assertStatus(200);
         $response3->assertSee('Eloquent Updated Name');
         $response3->assertDontSee('Original Name');
+    }
+
+    /**
+     * Kiểm tra lấy danh sách quà tặng (Gift templates) hoạt động chính xác và có cache.
+     */
+    public function test_gift_templates_are_cached_and_displayed_on_gift_page(): void
+    {
+        $category = GiftCategory::create([
+            'name' => 'Love Category',
+            'slug' => 'love',
+            'description' => 'Love gifts',
+            'icon' => 'favorite',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+        $giftTemplate = GiftTemplate::create([
+            'category_id' => $category->id,
+            'code' => 'heart_3d',
+            'name' => 'Web Heart 3D',
+            'description' => 'Mô tả mẫu trái tim 3D',
+            'price' => 39999.00,
+            'discount' => 10,
+            'sold' => 50,
+            'stars' => 100,
+            'is_hot' => true,
+            'is_active' => true,
+        ]);
+
+        // Lần truy cập đầu tiên - Load vào cache
+        $response = $this->get('/vi/apps/gift');
+        $response->assertStatus(200);
+        $response->assertSee('Web Heart 3D');
+
+        // Kiểm tra cache đã được lưu
+        $this->assertTrue(Cache::has(GiftService::CACHE_KEY));
+
+        // Cập nhật trong DB (bypass cache)
+        DB::table('gift_templates')
+            ->where('id', $giftTemplate->id)
+            ->update(['name' => 'Name Changed Directly']);
+
+        // Truy cập lại - Vẫn nhận giá trị từ cache (tên cũ)
+        $response2 = $this->get('/vi/apps/gift');
+        $response2->assertStatus(200);
+        $response2->assertSee('Web Heart 3D');
+        $response2->assertDontSee('Name Changed Directly');
+    }
+
+    /**
+     * Kiểm tra cache của mẫu quà tặng được xóa khi admin thực hiện các thay đổi.
+     */
+    public function test_gift_templates_cache_is_cleared_on_admin_changes(): void
+    {
+        $category = GiftCategory::create([
+            'name' => 'Love Category',
+            'slug' => 'love',
+            'description' => 'Love gifts',
+            'icon' => 'favorite',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+        $giftTemplate = GiftTemplate::create([
+            'category_id' => $category->id,
+            'code' => 'heart_3d',
+            'name' => 'Web Trái Tim 3D',
+            'description' => 'Mô tả',
+            'price' => 39999.00,
+            'discount' => 10,
+            'sold' => 50,
+            'stars' => 100,
+            'is_hot' => true,
+            'is_active' => true,
+        ]);
+
+        // Tạo cache
+        $giftService = new GiftService();
+        $giftService->getActiveTemplatesForClient();
+        $this->assertTrue(Cache::has(GiftService::CACHE_KEY));
+
+        // 1. Thử cập nhật qua Admin Service -> cache phải bị xóa
+        $adminService = new GiftTemplateAdminService();
+        $adminService->update($giftTemplate->id, ['name' => 'Cập nhật qua Admin']);
+        $this->assertFalse(Cache::has(GiftService::CACHE_KEY));
+
+        // Tạo lại cache
+        $giftService->getActiveTemplatesForClient();
+        $this->assertTrue(Cache::has(GiftService::CACHE_KEY));
+
+        // 2. Thử bật/tắt kích hoạt qua Admin Service -> cache phải bị xóa
+        $adminService->toggleActive($giftTemplate->id);
+        $this->assertFalse(Cache::has(GiftService::CACHE_KEY));
+
+        // Tạo lại cache
+        $giftService->getActiveTemplatesForClient();
+        $this->assertTrue(Cache::has(GiftService::CACHE_KEY));
+
+        // 3. Thử tạo mới qua Admin Service -> cache phải bị xóa
+        $adminService->create([
+            'category_id' => $category->id,
+            'code' => 'new_gift_code',
+            'name' => 'Mẫu quà tặng mới',
+            'price' => 50000.00,
+            'discount' => 0,
+        ]);
+        $this->assertFalse(Cache::has(GiftService::CACHE_KEY));
+
+        // Tạo lại cache
+        $giftService->getActiveTemplatesForClient();
+        $this->assertTrue(Cache::has(GiftService::CACHE_KEY));
+
+        // 4. Thử xóa mềm qua Admin Service -> cache phải bị xóa
+        $adminService->softDelete($giftTemplate->id);
+        $this->assertFalse(Cache::has(GiftService::CACHE_KEY));
     }
 
     /**

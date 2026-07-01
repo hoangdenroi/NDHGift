@@ -271,7 +271,7 @@
                     <div class="flex items-center gap-2">
                         <input type="text" x-model="couponCode" placeholder="NHẬP MÃ GIẢM GIÁ (NẾU CÓ)..."
                             :disabled="isApplyingCoupon || couponDiscount > 0"
-                            class="flex-1 h-10 px-3 bg-app-main/20 border border-app-border rounded-xl text-xs text-app-text font-mono uppercase tracking-wider focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all disabled:opacity-60" />
+                            class="flex-1 h-10 px-3 bg-app-main border border-app-border rounded-xl text-xs text-app-text font-mono uppercase tracking-wider focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all disabled:opacity-60" />
                         <button type="button" @click="applyCoupon()"
                             :disabled="isApplyingCoupon || !couponCode.trim() || couponDiscount > 0"
                             class="h-10 px-4 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white text-xs font-bold rounded-xl flex items-center gap-1 transition-all active:scale-[0.98]">
@@ -296,10 +296,10 @@
                 </div>
 
                 <!-- Chú thích trừ tiền -->
-                <p class="text-[10px] text-app-muted text-center flex items-center justify-center gap-1">
+                {{-- <p class="text-[10px] text-app-muted text-center flex items-center justify-center gap-1">
                     <span class="material-symbols-outlined text-xs select-none">info</span>
                     {{ __('Số tiền sẽ được trừ trực tiếp từ số dư tài khoản của bạn.') }}
-                </p>
+                </p> --}}
 
                 <!-- Hủy và Xác nhận thanh toán -->
                 <div class="grid grid-cols-2 gap-3 mt-2">
@@ -332,136 +332,29 @@
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.data('giftPage', () => ({
-                    activeCategory: 'all',
+                    // Lấy chủ đề mặc định từ URL query parameter (ví dụ: ?category=love) hoặc mặc định là 'all'
+                    activeCategory: new URLSearchParams(window.location.search).get('category') || 'all',
                     searchQuery: '',
                     categories: [
                         { id: 'all', label: '{{ __('All') }}', icon: 'grid_view' },
                         @foreach($categories as $category)
                             { id: '{{ $category->slug }}', label: '{{ __($category->name) }}', icon: '{{ $category->icon }}' },
                         @endforeach
-                            ],
-                    gifts: [
-                        {
-                            id: 1,
-                            title: '{{ __('Birthday special - Bánh sinh nhật 3D thổi nến cắt bánh') }}',
-                            category: 'birthday',
-                            sold: 12,
-                            stars: 1200,
-                            is_hot: true,
-                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}',
-                            old_price: 69998.6,
-                            price: 49999,
-                            discount: 40,
-                            demo_url: '#',
-                            guide_url: '#',
-                            video_url: '#'
-                        },
-                        {
-                            id: 2,
-                            title: '{{ __('Web Trái Tim 3D – Gửi Yêu Thương Bay Lên 💖') }}',
-                            category: 'love',
-                            sold: 389,
-                            stars: 35000,
-                            is_hot: true,
-                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}',
-                            old_price: 55998.6,
-                            price: 39999,
-                            discount: 40,
-                            demo_url: '#',
-                            guide_url: '#',
-                            video_url: '#'
-                        },
-                        {
-                            id: 3,
-                            title: '{{ __('Thiệp Sinh Nhật 3D Lung Linh') }}',
-                            category: 'birthday',
-                            sold: 154,
-                            stars: 950,
-                            is_hot: false,
-                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}',
-                            old_price: 79998.6,
-                            price: 49999,
-                            discount: 37,
-                            demo_url: '#',
-                            guide_url: '#',
-                            video_url: '#'
-                        },
-                        {
-                            id: 4,
-                            title: '{{ __('Thư Tình Yêu 3D Lãng Mạn') }}',
-                            category: 'love',
-                            sold: 840,
-                            stars: 105000,
-                            is_hot: true,
-                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}',
-                            old_price: 65998.6,
-                            price: 39999,
-                            discount: 39,
-                            demo_url: '#',
-                            guide_url: '#',
-                            video_url: '#'
-                        },
-                        {
-                            id: 5,
-                            title: '{{ __('Lời Cảm Ơn 3D Sâu Sắc') }}',
-                            category: 'thank',
-                            sold: 92,
-                            stars: 84,
-                            is_hot: false,
-                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}',
-                            old_price: 49998.6,
-                            price: 29999,
-                            discount: 40,
-                            demo_url: '#',
-                            guide_url: '#',
-                            video_url: '#'
-                        },
-                        {
-                            id: 6,
-                            title: '{{ __('Kỷ Niệm Ngày Chung Đôi 3D') }}',
-                            category: 'anniversary',
-                            sold: 215,
-                            stars: 1500,
-                            is_hot: true,
-                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}',
-                            old_price: 79998.6,
-                            price: 49999,
-                            discount: 37,
-                            demo_url: '#',
-                            guide_url: '#',
-                            video_url: '#'
-                        },
-                        {
-                            id: 7,
-                            title: '{{ __('Giáng Sinh Ấm Áp 3D') }}',
-                            category: 'christmas',
-                            sold: 312,
-                            stars: 3100,
-                            is_hot: false,
-                            image: '{{ asset('assets/images/gifts/heart_3d.png') }}',
-                            old_price: 89998.6,
-                            price: 59999,
-                            discount: 33,
-                            demo_url: '#',
-                            guide_url: '#',
-                            video_url: '#'
-                        },
-                        {
-                            id: 8,
-                            title: '{{ __('Hộp Quà Bí Mật 3D') }}',
-                            category: 'birthday',
-                            sold: 450,
-                            stars: 12000,
-                            is_hot: true,
-                            image: '{{ asset('assets/images/gifts/birthday_cake_3d.png') }}',
-                            old_price: 59998.6,
-                            price: 39999,
-                            discount: 33,
-                            demo_url: '#',
-                            guide_url: '#',
-                            video_url: '#'
-                        }
                     ],
+                    // Danh sách quà tặng được load động từ Database qua GiftService
+                    gifts: @json($gifts),
+                    init() {
+                        // Theo dõi sự thay đổi của chủ đề được chọn để đồng bộ hóa lên URL
+                        this.$watch('activeCategory', (value) => {
+                            const url = new URL(window.location.href);
+                            if (value === 'all') {
+                                url.searchParams.delete('category');
+                            } else {
+                                url.searchParams.set('category', value);
+                            }
+                            window.history.replaceState({}, '', url.toString());
+                        });
+                    },
                     formatNumber(num) {
                         if (num >= 1000) {
                             let formatted = (num / 1000).toFixed(1);

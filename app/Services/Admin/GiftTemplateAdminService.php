@@ -7,6 +7,7 @@ namespace App\Services\Admin;
 use App\Models\GiftTemplate;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class GiftTemplateAdminService
 {
@@ -54,7 +55,12 @@ class GiftTemplateAdminService
      */
     public function create(array $data): GiftTemplate
     {
-        return GiftTemplate::create($data);
+        $template = GiftTemplate::create($data);
+        
+        // Xóa cache danh sách mẫu quà tặng hoạt động ở phía client
+        Cache::forget(\App\Services\GiftService::CACHE_KEY);
+
+        return $template;
     }
 
     /**
@@ -64,6 +70,10 @@ class GiftTemplateAdminService
     {
         $template = GiftTemplate::notDeleted()->findOrFail($id);
         $template->update($data);
+
+        // Xóa cache danh sách mẫu quà tặng hoạt động ở phía client
+        Cache::forget(\App\Services\GiftService::CACHE_KEY);
+
         return $template;
     }
 
@@ -73,7 +83,14 @@ class GiftTemplateAdminService
     public function softDelete(int $id): bool
     {
         $template = GiftTemplate::notDeleted()->findOrFail($id);
-        return $template->softDelete();
+        $result = $template->softDelete();
+
+        if ($result) {
+            // Xóa cache danh sách mẫu quà tặng hoạt động ở phía client
+            Cache::forget(\App\Services\GiftService::CACHE_KEY);
+        }
+
+        return $result;
     }
 
     /**
@@ -83,7 +100,14 @@ class GiftTemplateAdminService
     {
         $template = GiftTemplate::notDeleted()->findOrFail($id);
         $template->is_active = !$template->is_active;
-        return $template->save();
+        $result = $template->save();
+
+        if ($result) {
+            // Xóa cache danh sách mẫu quà tặng hoạt động ở phía client
+            Cache::forget(\App\Services\GiftService::CACHE_KEY);
+        }
+
+        return $result;
     }
 
     /**
