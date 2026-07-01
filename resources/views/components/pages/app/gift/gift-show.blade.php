@@ -9,12 +9,12 @@
         <!-- Breadcrumbs -->
         <nav class="hidden md:flex items-center gap-1 text-xs font-semibold text-app-muted" aria-label="Breadcrumb">
             <a href="{{ route('app.home.index', ['locale' => app()->getLocale()]) }}"
-                class="hover:text-app-main transition-colors">
+                class="hover:text-primary transition-colors">
                 NDHGift
             </a>
             <span class="material-symbols-outlined text-[22px] text-app-muted/40 select-none">chevron_right</span>
             <a href="{{ route('app.gift.index', ['locale' => app()->getLocale()]) }}"
-                class="hover:text-app-main transition-colors">
+                class="hover:text-primary transition-colors">
                 {{ __('Gift') }}
             </a>
             <span class="material-symbols-outlined text-[22px] text-app-muted/40 select-none">chevron_right</span>
@@ -59,7 +59,7 @@
                 
                 {{-- Nhãn danh mục & Thống kê cơ bản --}}
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-app-border/40 pb-4">
-                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-app-main/10 text-app-main text-xs font-bold uppercase tracking-wider">
+                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
                         <span class="material-symbols-outlined text-sm select-none">{{ $giftTemplate->category?->icon ?? 'label' }}</span>
                         <span>{{ __($giftTemplate->category?->name ?? 'Mẫu quà tặng') }}</span>
                     </span>
@@ -91,7 +91,7 @@
                     <div class="flex flex-col gap-0.5">
                         <span class="text-xs text-app-muted font-medium">{{ __('Giá thiết kế mẫu:') }}</span>
                         <div class="flex items-baseline gap-2.5">
-                            <span class="text-2xl sm:text-3xl font-black text-app-main">
+                            <span class="text-2xl sm:text-3xl font-black text-rose-600">
                                 {{ number_format($giftTemplate->price - ($giftTemplate->price * $giftTemplate->discount / 100)) }}đ
                             </span>
                             @if($giftTemplate->discount > 0)
@@ -136,13 +136,13 @@
                     {{-- Nút Tạo Quà Tặng (Kiểm tra Auth) --}}
                     @auth
                         <a href="{{ $createUrl }}"
-                            class="flex items-center justify-center gap-2 py-3.5 px-6 bg-app-main hover:bg-app-main/90 text-white rounded-2xl text-sm font-bold transition-all shadow-md shadow-app-main/10 active:scale-[0.98]">
+                            class="flex items-center justify-center gap-2 py-3.5 px-6 bg-primary hover:bg-primary/90 text-white rounded-2xl text-sm font-bold transition-all shadow-md shadow-primary/10 active:scale-[0.98]">
                             <span class="material-symbols-outlined text-[20px] select-none">celebration</span>
                             <span>{{ __('Tạo quà ngay') }}</span>
                         </a>
                     @else
                         <a href="{{ route('login', ['locale' => app()->getLocale(), 'redirect' => $createUrl]) }}"
-                            class="flex items-center justify-center gap-2 py-3.5 px-6 bg-app-main hover:bg-app-main/90 text-white rounded-2xl text-sm font-bold transition-all shadow-md shadow-app-main/10 active:scale-[0.98]">
+                            class="flex items-center justify-center gap-2 py-3.5 px-6 bg-primary hover:bg-primary/90 text-white rounded-2xl text-sm font-bold transition-all shadow-md shadow-primary/10 active:scale-[0.98]">
                             <span class="material-symbols-outlined text-[20px] select-none">login</span>
                             <span>{{ __('Đăng nhập để tạo') }}</span>
                         </a>
