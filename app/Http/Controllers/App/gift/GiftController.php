@@ -106,6 +106,13 @@ class GiftController extends Controller
                 }
             }
         }
+        if ($code === 'winter_3d') {
+            $giftData['photo_1_1'] = '/assets/images/1-1.png';
+            $giftData['photo_4_3'] = '/assets/images/4-3.png';
+            $giftData['photo_3_2'] = '/assets/images/3-2.png';
+            $giftData['photo_16_9'] = '/assets/images/16-9.png';
+            $giftData['photo_9_16'] = '/assets/images/9-16.png';
+        }
 
         // Tách settings riêng nếu cần thiết (music_url, spiral_texts)
         $giftData['settings'] = [

@@ -218,4 +218,43 @@ class GiftPlayerTest extends TestCase
         $response->assertSee('Tiêu Đề Mẫu');
         $response->assertSee('Lời nhắn mẫu yêu thương');
     }
+
+    /**
+     * Test nhà phát triển/người dùng có thể truy cập trang demo winter_3d.
+     */
+    public function test_dev_can_access_winter_gift_demo(): void
+    {
+        // Tạo template winter_3d
+        GiftTemplate::create([
+            'category_id' => $this->category->id,
+            'code' => 'winter_3d',
+            'name' => 'Mùa Đông Tuyết Rơi 3D – Album Kỷ Niệm ❄️',
+            'description' => 'Mô tả',
+            'price' => 49999.00,
+            'discount' => 20,
+            'is_active' => true,
+            'form_schema' => [
+                'fields' => [
+                    [
+                        'name' => 'receiver_name',
+                        'type' => 'text',
+                        'default' => 'Người Nhận Mùa Đông'
+                    ],
+                    [
+                        'name' => 'sender_name',
+                        'type' => 'text',
+                        'default' => 'Người Gửi Mùa Đông'
+                    ]
+                ]
+            ]
+        ]);
+
+        $response = $this->get('/gift/demo/winter_3d');
+
+        $response->assertStatus(200);
+        $response->assertSee('DEMO MODE');
+        $response->assertSee('Người Nhận Mùa Đông');
+        $response->assertSee('Người Gửi Mùa Đông');
+        $response->assertSee('Cuộn chuột hoặc kéo màn hình để tham quan album');
+    }
 }

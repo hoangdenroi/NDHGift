@@ -211,5 +211,95 @@ class GiftTemplateSeeder extends Seeder
                 ]
             );
         }
+
+        // 4. Tạo mẫu Mùa Đông Tuyết Rơi 3D (Christmas Category)
+        if ($christmasCategory) {
+            GiftTemplate::updateOrCreate(
+                ['code' => 'winter_3d'],
+                [
+                    'category_id' => $christmasCategory->id,
+                    'name' => 'Mùa Đông Tuyết Rơi 3D – Album Kỷ Niệm ❄️',
+                    'description' => 'Không gian tuyết rơi chao liệng nghệ thuật trên nền tuyết trắng tinh khôi, hiển thị album ảnh đa tỷ lệ lơ lửng xoay vòng và tương tác cuộn mượt mà.',
+                    'price' => 49999.00,
+                    'discount' => 20,
+                    'sold' => 156,
+                    'stars' => 1800,
+                    'is_hot' => true,
+                    'is_active' => true,
+                    'demo_url' => '#',
+                    'meta_title' => 'Mùa Đông Tuyết Rơi 3D – Album Kỷ Niệm',
+                    'meta_description' => 'Trải nghiệm không gian tuyết rơi lãng mạn với album ảnh đa tỷ lệ tương tác 3D mượt mà.',
+                    'meta_keywords' => 'quà mùa đông, album 3d, tuyết rơi 3d, threejs winter, album ảnh tương tác',
+                    'form_schema' => [
+                        'fields' => [
+                            [
+                                'key' => 'sender_name',
+                                'type' => 'text',
+                                'label' => 'Tên người gửi',
+                                'placeholder' => 'VD: Anh yêu',
+                                'required' => true,
+                                'max_length' => 50,
+                            ],
+                            [
+                                'key' => 'receiver_name',
+                                'type' => 'text',
+                                'label' => 'Tên người nhận',
+                                'placeholder' => 'VD: Em yêu',
+                                'required' => true,
+                                'max_length' => 50,
+                            ],
+                            [
+                                'key' => 'message',
+                                'type' => 'textarea',
+                                'label' => 'Lời chúc mùa đông',
+                                'placeholder' => 'Gửi những lời ấm áp nhất giữa mùa đông lạnh giá...',
+                                'required' => true,
+                                'max_length' => 500,
+                            ],
+                            [
+                                'key' => 'photo_1_1',
+                                'type' => 'image',
+                                'label' => 'Ảnh vuông (Tỷ lệ 1:1)',
+                                'required' => false,
+                                'max_size_mb' => 5,
+                                'accept' => ['image/jpeg', 'image/png', 'image/webp'],
+                            ],
+                            [
+                                'key' => 'photo_4_3',
+                                'type' => 'image',
+                                'label' => 'Ảnh ngang cổ điển (Tỷ lệ 4:3)',
+                                'required' => false,
+                                'max_size_mb' => 5,
+                                'accept' => ['image/jpeg', 'image/png', 'image/webp'],
+                            ],
+                            [
+                                'key' => 'photo_3_2',
+                                'type' => 'image',
+                                'label' => 'Ảnh ngang phong cảnh (Tỷ lệ 3:2)',
+                                'required' => false,
+                                'max_size_mb' => 5,
+                                'accept' => ['image/jpeg', 'image/png', 'image/webp'],
+                            ],
+                            [
+                                'key' => 'photo_16_9',
+                                'type' => 'image',
+                                'label' => 'Ảnh ngang màn hình rộng (Tỷ lệ 16:9)',
+                                'required' => false,
+                                'max_size_mb' => 5,
+                                'accept' => ['image/jpeg', 'image/png', 'image/webp'],
+                            ],
+                            [
+                                'key' => 'photo_9_16',
+                                'type' => 'image',
+                                'label' => 'Ảnh dọc story (Tỷ lệ 9:16)',
+                                'required' => false,
+                                'max_size_mb' => 5,
+                                'accept' => ['image/jpeg', 'image/png', 'image/webp'],
+                            ],
+                        ],
+                    ],
+                ]
+            );
+        }
     }
 }
