@@ -12,6 +12,178 @@
         </style>
     @endonce
 
+    <script>
+        function giftPage() {
+            return {
+                // Lấy chủ đề mặc định từ URL query parameter (ví dụ: ?category=love) hoặc mặc định là 'all'
+                activeCategory: new URLSearchParams(window.location.search).get('category') || 'all',
+                searchQuery: '',
+                categories: [
+                    { id: 'all', label: '{{ __('All') }}', icon: 'grid_view' },
+                    @foreach($categories as $category)
+                        { id: '{{ $category->slug }}', label: '{{ __($category->name) }}', icon: '{{ $category->icon }}' },
+                    @endforeach
+                    ],
+                // Danh sách quà tặng được load động từ Database qua GiftService
+                gifts: @json($gifts),
+                init() {
+                    // Theo dõi sự thay đổi của chủ đề được chọn để đồng bộ hóa lên URL
+                    this.$watch('activeCategory', (value) => {
+                        const url = new URL(window.location.href);
+                        if (value === 'all') {
+                            url.searchParams.delete('category');
+                        } else {
+                            url.searchParams.set('category', value);
+                        }
+                        window.history.replaceState({}, '', url.toString());
+                    });
+                },
+                formatNumber(num) {
+                    if (num >= 1000) {
+                        let formatted = (num / 1000).toFixed(1);
+                        return formatted.endsWith('.0') ? formatted.slice(0, -2) + 'k' : formatted + 'k';
+                    }
+                    return num;
+                },
+                get filteredGifts() {
+                    return this.gifts.filter(gift => {
+                        const matchesCategory = this.activeCategory === 'all' || gift.category === this.activeCategory;
+                        const matchesSearch = gift.title.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        return matchesCategory && matchesSearch;
+                    });
+                },
+                selectedGift: null,
+                couponCode: '',
+                couponDiscount: 0,
+                couponError: '',
+                couponSuccessMessage: '',
+                isApplyingCoupon: false,
+                isSubmittingPayment: false,
+                userBalance: {{ auth()->check() ? auth()->user()->balance : 0 }},
+                isLoggedIn: {{ auth()->check() ? 'true' : 'false' }},
+                get totalPayment() {
+                    if (!this.selectedGift) return 0;
+                    return Math.max(0, this.selectedGift.price - this.couponDiscount);
+                },
+                openPaymentModal(gift) {
+                    if (!this.isLoggedIn) {
+                        // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+                        window.location.href = "{{ route('login', ['locale' => app()->getLocale()]) }}";
+                        return;
+                    }
+                    this.selectedGift = gift;
+                    this.couponCode = '';
+                    this.couponDiscount = 0;
+                    this.couponError = '';
+                    this.couponSuccessMessage = '';
+                    window.dispatchEvent(new CustomEvent('open-modal', { detail: 'confirm-payment' }));
+                },
+                closePaymentModal() {
+                    window.dispatchEvent(new CustomEvent('close-modal', { detail: 'confirm-payment' }));
+                    // Tránh nhấp nháy giao diện khi ẩn modal
+                    setTimeout(() => {
+                        this.selectedGift = null;
+                        this.couponCode = '';
+                        this.couponDiscount = 0;
+                        this.couponError = '';
+                        this.couponSuccessMessage = '';
+                    }, 300);
+                },
+                async applyCoupon() {
+                    if (!this.couponCode.trim()) return;
+                    this.isApplyingCoupon = true;
+                    this.couponError = '';
+                    this.couponSuccessMessage = '';
+
+                    try {
+                        const response = await fetch('{{ route('api.apply-coupon', ['locale' => app()->getLocale()]) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                code: this.couponCode,
+                                subtotal: this.selectedGift.price
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            this.couponDiscount = parseFloat(data.discount);
+                            this.couponSuccessMessage = data.message || 'Áp dụng mã giảm giá thành công!';
+                            window.dispatchEvent(new CustomEvent('toast', {
+                                detail: {
+                                    type: 'success',
+                                    title: 'Thành công',
+                                    message: data.message
+                                }
+                            }));
+                        } else {
+                            this.couponDiscount = 0;
+                            this.couponError = data.message || 'Mã giảm giá không hợp lệ hoặc đã hết hạn.';
+                            window.dispatchEvent(new CustomEvent('toast', {
+                                detail: {
+                                    type: 'error',
+                                    title: 'Thất bại',
+                                    message: this.couponError
+                                }
+                            }));
+                        }
+                    } catch (error) {
+                        console.error('Lỗi khi áp dụng coupon:', error);
+                        this.couponError = 'Lỗi kết nối máy chủ.';
+                    } finally {
+                        this.isApplyingCoupon = false;
+                    }
+                },
+                async submitPayment() {
+                    if (this.userBalance < this.totalPayment) {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: {
+                                type: 'error',
+                                title: 'Số dư không đủ',
+                                message: 'Vui lòng nạp thêm tiền vào tài khoản để thực hiện giao dịch này.'
+                            }
+                        }));
+                        return;
+                    }
+
+                    this.isSubmittingPayment = true;
+
+                    try {
+                        // Mô phỏng xử lý thanh toán 1.5s
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+
+                        this.userBalance -= this.totalPayment;
+
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: {
+                                type: 'success',
+                                title: 'Thành công',
+                                message: 'Cảm ơn bạn đã mua món quà tặng này!'
+                            }
+                        }));
+
+                        this.closePaymentModal();
+
+                        // Tải lại trang sau khi thanh toán thành công
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+
+                    } catch (error) {
+                        console.error('Lỗi thanh toán:', error);
+                    } finally {
+                        this.isSubmittingPayment = false;
+                    }
+                }
+            };
+        }
+    </script>
+
     {{-- Tiêu đề trang & Breadcrumbs --}}
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-app-border/40 pb-5">
         <div class="flex flex-col gap-1">
@@ -328,177 +500,4 @@
         </x-shared.ui.modal>
     </div>
 
-    @push('scripts')
-        <script>
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('giftPage', () => ({
-                    // Lấy chủ đề mặc định từ URL query parameter (ví dụ: ?category=love) hoặc mặc định là 'all'
-                    activeCategory: new URLSearchParams(window.location.search).get('category') || 'all',
-                    searchQuery: '',
-                    categories: [
-                        { id: 'all', label: '{{ __('All') }}', icon: 'grid_view' },
-                        @foreach($categories as $category)
-                            { id: '{{ $category->slug }}', label: '{{ __($category->name) }}', icon: '{{ $category->icon }}' },
-                        @endforeach
-                        ],
-                    // Danh sách quà tặng được load động từ Database qua GiftService
-                    gifts: @json($gifts),
-                    init() {
-                        // Theo dõi sự thay đổi của chủ đề được chọn để đồng bộ hóa lên URL
-                        this.$watch('activeCategory', (value) => {
-                            const url = new URL(window.location.href);
-                            if (value === 'all') {
-                                url.searchParams.delete('category');
-                            } else {
-                                url.searchParams.set('category', value);
-                            }
-                            window.history.replaceState({}, '', url.toString());
-                        });
-                    },
-                    formatNumber(num) {
-                        if (num >= 1000) {
-                            let formatted = (num / 1000).toFixed(1);
-                            return formatted.endsWith('.0') ? formatted.slice(0, -2) + 'k' : formatted + 'k';
-                        }
-                        return num;
-                    },
-                    get filteredGifts() {
-                        return this.gifts.filter(gift => {
-                            const matchesCategory = this.activeCategory === 'all' || gift.category === this.activeCategory;
-                            const matchesSearch = gift.title.toLowerCase().includes(this.searchQuery.toLowerCase());
-                            return matchesCategory && matchesSearch;
-                        });
-                    },
-                    selectedGift: null,
-                    couponCode: '',
-                    couponDiscount: 0,
-                    couponError: '',
-                    couponSuccessMessage: '',
-                    isApplyingCoupon: false,
-                    isSubmittingPayment: false,
-                    userBalance: {{ auth()->check() ? auth()->user()->balance : 0 }},
-                    isLoggedIn: {{ auth()->check() ? 'true' : 'false' }},
-                    get totalPayment() {
-                        if (!this.selectedGift) return 0;
-                        return Math.max(0, this.selectedGift.price - this.couponDiscount);
-                    },
-                    openPaymentModal(gift) {
-                        if (!this.isLoggedIn) {
-                            // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
-                            window.location.href = "{{ route('login', ['locale' => app()->getLocale()]) }}";
-                            return;
-                        }
-                        this.selectedGift = gift;
-                        this.couponCode = '';
-                        this.couponDiscount = 0;
-                        this.couponError = '';
-                        this.couponSuccessMessage = '';
-                        window.dispatchEvent(new CustomEvent('open-modal', { detail: 'confirm-payment' }));
-                    },
-                    closePaymentModal() {
-                        window.dispatchEvent(new CustomEvent('close-modal', { detail: 'confirm-payment' }));
-                        // Tránh nhấp nháy giao diện khi ẩn modal
-                        setTimeout(() => {
-                            this.selectedGift = null;
-                            this.couponCode = '';
-                            this.couponDiscount = 0;
-                            this.couponError = '';
-                            this.couponSuccessMessage = '';
-                        }, 300);
-                    },
-                    async applyCoupon() {
-                        if (!this.couponCode.trim()) return;
-                        this.isApplyingCoupon = true;
-                        this.couponError = '';
-                        this.couponSuccessMessage = '';
-
-                        try {
-                            const response = await fetch('{{ route('api.apply-coupon', ['locale' => app()->getLocale()]) }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    code: this.couponCode,
-                                    subtotal: this.selectedGift.price
-                                })
-                            });
-
-                            const data = await response.json();
-
-                            if (response.ok && data.success) {
-                                this.couponDiscount = parseFloat(data.discount);
-                                this.couponSuccessMessage = data.message || 'Áp dụng mã giảm giá thành công!';
-                                window.dispatchEvent(new CustomEvent('toast', {
-                                    detail: {
-                                        type: 'success',
-                                        title: 'Thành công',
-                                        message: data.message
-                                    }
-                                }));
-                            } else {
-                                this.couponDiscount = 0;
-                                this.couponError = data.message || 'Mã giảm giá không hợp lệ hoặc đã hết hạn.';
-                                window.dispatchEvent(new CustomEvent('toast', {
-                                    detail: {
-                                        type: 'error',
-                                        title: 'Thất bại',
-                                        message: this.couponError
-                                    }
-                                }));
-                            }
-                        } catch (error) {
-                            console.error('Lỗi khi áp dụng coupon:', error);
-                            this.couponError = 'Lỗi kết nối máy chủ.';
-                        } finally {
-                            this.isApplyingCoupon = false;
-                        }
-                    },
-                    async submitPayment() {
-                        if (this.userBalance < this.totalPayment) {
-                            window.dispatchEvent(new CustomEvent('toast', {
-                                detail: {
-                                    type: 'error',
-                                    title: 'Số dư không đủ',
-                                    message: 'Vui lòng nạp thêm tiền vào tài khoản để thực hiện giao dịch này.'
-                                }
-                            }));
-                            return;
-                        }
-
-                        this.isSubmittingPayment = true;
-
-                        try {
-                            // Mô phỏng xử lý thanh toán 1.5s
-                            await new Promise(resolve => setTimeout(resolve, 1500));
-
-                            this.userBalance -= this.totalPayment;
-
-                            window.dispatchEvent(new CustomEvent('toast', {
-                                detail: {
-                                    type: 'success',
-                                    title: 'Thành công',
-                                    message: 'Cảm ơn bạn đã mua món quà tặng này!'
-                                }
-                            }));
-
-                            this.closePaymentModal();
-
-                            // Tải lại trang sau khi thanh toán thành công
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 2000);
-
-                        } catch (error) {
-                            console.error('Lỗi thanh toán:', error);
-                        } finally {
-                            this.isSubmittingPayment = false;
-                        }
-                    }
-                }));
-            });
-        </script>
-    @endpush
 </x-app-layout>
