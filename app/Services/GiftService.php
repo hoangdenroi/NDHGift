@@ -64,6 +64,10 @@ class GiftService
                             'locale' => app()->getLocale(),
                             'giftTemplate' => $gift->unitcode,
                         ]),
+                        'show_url' => route('app.gift.show', [
+                            'locale' => app()->getLocale(),
+                            'giftTemplate' => $gift->unitcode,
+                        ]),
                     ];
                 });
         });

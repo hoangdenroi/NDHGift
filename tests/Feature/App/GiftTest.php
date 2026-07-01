@@ -213,4 +213,117 @@ class GiftTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('NDHGift');
     }
+
+    /**
+     * Kiểm tra khách (guest) truy cập trang chi tiết quà tặng hợp lệ.
+     */
+    public function test_guest_can_access_gift_detail_page(): void
+    {
+        $category = GiftCategory::create([
+            'name' => 'Love Category',
+            'slug' => 'love',
+            'description' => 'Love gifts',
+            'icon' => 'favorite',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+        $giftTemplate = GiftTemplate::create([
+            'category_id' => $category->id,
+            'code' => 'heart_3d',
+            'name' => 'Web Heart 3D Detail Test',
+            'description' => 'Mô tả chi tiết mẫu trái tim 3D',
+            'price' => 39999.00,
+            'discount' => 10,
+            'sold' => 50,
+            'stars' => 100,
+            'is_hot' => true,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get("/vi/apps/gift/{$giftTemplate->unitcode}");
+        $response->assertStatus(200);
+        $response->assertSee('Web Heart 3D Detail Test');
+        $response->assertSee('Mô tả chi tiết mẫu trái tim 3D');
+        // Vì chưa đăng nhập, nút hành động phải hiển thị đăng nhập để tạo
+        $response->assertSee('Đăng nhập để tạo');
+        $response->assertDontSee('Tạo quà ngay');
+    }
+
+    /**
+     * Kiểm tra người dùng đã đăng nhập truy cập trang chi tiết quà tặng và thấy nút tạo ngay.
+     */
+    public function test_authenticated_user_can_access_gift_detail_page_and_sees_create_button(): void
+    {
+        $user = \App\Models\User::factory()->create();
+
+        $category = GiftCategory::create([
+            'name' => 'Love Category',
+            'slug' => 'love',
+            'description' => 'Love gifts',
+            'icon' => 'favorite',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+        $giftTemplate = GiftTemplate::create([
+            'category_id' => $category->id,
+            'code' => 'heart_3d',
+            'name' => 'Web Heart 3D Detail Test',
+            'description' => 'Mô tả chi tiết mẫu trái tim 3D',
+            'price' => 39999.00,
+            'discount' => 10,
+            'sold' => 50,
+            'stars' => 100,
+            'is_hot' => true,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($user)->get("/vi/apps/gift/{$giftTemplate->unitcode}");
+        $response->assertStatus(200);
+        $response->assertSee('Tạo quà ngay');
+        $response->assertDontSee('Đăng nhập để tạo');
+    }
+
+    /**
+     * Kiểm tra truy cập trang chi tiết quà tặng trả về 404 nếu template bị ẩn hoặc xóa mềm.
+     */
+    public function test_gift_detail_page_returns_404_for_inactive_or_deleted_template(): void
+    {
+        $category = GiftCategory::create([
+            'name' => 'Love Category',
+            'slug' => 'love',
+            'description' => 'Love gifts',
+            'icon' => 'favorite',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+        // Trường hợp 1: Template không active
+        $giftTemplateInactive = GiftTemplate::create([
+            'category_id' => $category->id,
+            'code' => 'heart_3d_inactive',
+            'name' => 'Web Heart 3D Inactive',
+            'price' => 39999.00,
+            'is_active' => false,
+        ]);
+
+        $response = $this->get("/vi/apps/gift/{$giftTemplateInactive->unitcode}");
+        $response->assertStatus(404);
+
+        // Trường hợp 2: Template bị xóa mềm
+        $giftTemplateDeleted = GiftTemplate::create([
+            'category_id' => $category->id,
+            'code' => 'heart_3d_deleted',
+            'name' => 'Web Heart 3D Deleted',
+            'price' => 39999.00,
+            'is_active' => true,
+        ]);
+        $giftTemplateDeleted->is_deleted = true;
+        $giftTemplateDeleted->save();
+
+        $response2 = $this->get("/vi/apps/gift/{$giftTemplateDeleted->unitcode}");
+        $response2->assertStatus(404);
+    }
 }
+

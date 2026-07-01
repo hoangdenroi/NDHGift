@@ -299,7 +299,7 @@
                         <div
                             class="absolute inset-0 bg-black/40 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                             <!-- Nút Xem mẫu ở giữa ảnh -->
-                            <a :href="gift.demo_url"
+                            <a :href="gift.show_url"
                                 class="flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/50 text-white rounded-full text-[10px] sm:text-xs font-bold transform scale-90 group-hover:scale-100 transition-all duration-300 shadow-md">
                                 <span
                                     class="material-symbols-outlined text-[14px] sm:text-[16px] select-none">visibility</span>
@@ -363,11 +363,12 @@
                                 class="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-2 px-1 sm:px-3 bg-primary hover:bg-primary/95 text-white rounded-xl text-[9px] sm:text-xs font-bold transition-all shadow-sm shadow-primary/10 active:scale-[0.97] whitespace-nowrap">
                                 <span
                                     class="material-symbols-outlined text-[12px] sm:text-[16px] select-none">edit</span>
-                                <span>{{ __('Tạo quà tặng') }}</span>
+                                <span>{{ __('Tạo ngay') }}</span>
                             </a>
                             <!-- Nút Xem demo -->
                             <a :href="gift.demo_url"
-                                class="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-2 px-1 sm:px-3 bg-app-surface hover:bg-app-main/5 border border-app-border text-app-text rounded-xl text-[9px] sm:text-xs font-bold transition-all active:scale-[0.97] whitespace-nowrap">
+                                class="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-2 px-1 sm:px-3 bg-app-surface hover:bg-app-main/5 border border-app-border text-app-text rounded-xl text-[9px] sm:text-xs font-bold transition-all active:scale-[0.97] whitespace-nowrap"
+                                target="_blank">
                                 <span
                                     class="material-symbols-outlined text-[12px] sm:text-[16px] select-none">open_in_new</span>
                                 <span>{{ __('Xem demo') }}</span>

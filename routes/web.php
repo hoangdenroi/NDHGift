@@ -49,6 +49,7 @@ Route::prefix('{locale}')
 
         Route::prefix('apps')->group(function () {
             Route::get('/gift', [GiftController::class, 'index'])->name('app.gift.index');
+            Route::get('/gift/{giftTemplate}', [GiftController::class, 'show'])->name('app.gift.show');
 
             Route::get('/support', [SupportController::class, 'index'])->name('app.support.index');
 
