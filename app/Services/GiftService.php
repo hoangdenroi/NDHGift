@@ -60,6 +60,10 @@ class GiftService
                         'demo_url' => $gift->demo_url ?? '#',
                         'guide_url' => $gift->guide_url ?? '#',
                         'video_url' => $gift->video_url ?? '#',
+                        'create_url' => route('app.gift.create', [
+                            'locale' => app()->getLocale(),
+                            'giftTemplate' => $gift->unitcode,
+                        ]),
                     ];
                 });
         });

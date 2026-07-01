@@ -8,6 +8,7 @@ use App\Models\Traits\HasBaseColumns;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -24,6 +25,14 @@ class GiftTemplate extends Model
      * @var string
      */
     protected $table = 'gift_templates';
+
+    /**
+     * Dùng unitcode (ULID) thay vì id cho route model binding — ẩn primary key khỏi URL.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'unitcode';
+    }
 
     /**
      * Thuộc tính có thể gán giá trị hàng loạt (mass assignment).
@@ -47,6 +56,7 @@ class GiftTemplate extends Model
         'meta_title',
         'meta_description',
         'meta_keywords',
+        'form_schema',
     ];
 
     /**
@@ -61,6 +71,7 @@ class GiftTemplate extends Model
         'discount' => 'integer',
         'sold' => 'integer',
         'stars' => 'integer',
+        'form_schema' => 'array',
     ];
 
     // ==========================================
@@ -73,6 +84,14 @@ class GiftTemplate extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(GiftCategory::class, 'category_id');
+    }
+
+    /**
+     * Một template được dùng bởi nhiều quà tặng của user.
+     */
+    public function userGifts(): HasMany
+    {
+        return $this->hasMany(UserGift::class, 'template_id');
     }
 
     // ==========================================

@@ -62,6 +62,9 @@ Route::prefix('{locale}')
             // Các route yêu cầu đăng nhập sẽ được thêm tại đây
             Route::post('/profile', [ProfileController::class, 'update'])->name('app.profile.update');
 
+            // --- QUÀ TẶNG (GIFT) — Trang chỉnh sửa nội dung trước khi thanh toán ---
+            Route::get('/gift/{giftTemplate}/create', [GiftController::class, 'create'])->name('app.gift.create');
+
             // --- NẠP TIỀN (TOPUP) ---
             Route::get('/topup', [TopupController::class, 'index'])->name('app.topup');
 

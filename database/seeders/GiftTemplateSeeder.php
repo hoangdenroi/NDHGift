@@ -41,6 +41,48 @@ class GiftTemplateSeeder extends Seeder
                     'meta_title' => 'Web Trái Tim 3D Tương Tác Cực Đẹp',
                     'meta_description' => 'Mẫu quà tặng tình yêu lãng mạn với hiệu ứng hạt particles trái tim 3D chuyển động mượt mà và vòng chữ tùy biến lời chúc.',
                     'meta_keywords' => 'trái tim 3d, threejs heart, web 3d love, quà tặng người yêu',
+                    'form_schema' => [
+                        'fields' => [
+                            [
+                                'key' => 'sender_name',
+                                'type' => 'text',
+                                'label' => 'Tên người gửi',
+                                'placeholder' => 'VD: Anh yêu',
+                                'required' => true,
+                                'max_length' => 50,
+                            ],
+                            [
+                                'key' => 'receiver_name',
+                                'type' => 'text',
+                                'label' => 'Tên người nhận',
+                                'placeholder' => 'VD: Em yêu',
+                                'required' => true,
+                                'max_length' => 50,
+                            ],
+                            [
+                                'key' => 'message',
+                                'type' => 'textarea',
+                                'label' => 'Lời nhắn yêu thương',
+                                'placeholder' => 'Viết lời yêu thương gửi đến người ấy...',
+                                'required' => true,
+                                'max_length' => 500,
+                            ],
+                            [
+                                'key' => 'anniversary_date',
+                                'type' => 'date',
+                                'label' => 'Ngày kỷ niệm',
+                                'required' => false,
+                            ],
+                            [
+                                'key' => 'photo',
+                                'type' => 'image',
+                                'label' => 'Ảnh đôi',
+                                'required' => false,
+                                'max_size_mb' => 5,
+                                'accept' => ['image/jpeg', 'image/png', 'image/webp'],
+                            ],
+                        ],
+                    ],
                 ]
             );
         }
@@ -63,6 +105,51 @@ class GiftTemplateSeeder extends Seeder
                     'meta_title' => 'Bánh Sinh Nhật 3D Thổi Nến Ảo',
                     'meta_description' => 'Mẫu thiệp quà tặng sinh nhật 3D tương tác thổi nến và cắt bánh ngọt ngào gửi tặng bạn bè.',
                     'meta_keywords' => 'bánh sinh nhật 3d, thổi nến ảo, quà tặng sinh nhật, thiệp sinh nhật 3d',
+                    'form_schema' => [
+                        'fields' => [
+                            [
+                                'key' => 'receiver_name',
+                                'type' => 'text',
+                                'label' => 'Tên người nhận',
+                                'placeholder' => 'VD: Minh Anh',
+                                'required' => true,
+                                'max_length' => 50,
+                            ],
+                            [
+                                'key' => 'age',
+                                'type' => 'number',
+                                'label' => 'Tuổi',
+                                'placeholder' => 'VD: 25',
+                                'required' => false,
+                                'min' => 1,
+                                'max' => 150,
+                            ],
+                            [
+                                'key' => 'message',
+                                'type' => 'textarea',
+                                'label' => 'Lời chúc sinh nhật',
+                                'placeholder' => 'Viết lời chúc sinh nhật...',
+                                'required' => true,
+                                'max_length' => 500,
+                            ],
+                            [
+                                'key' => 'photo',
+                                'type' => 'image',
+                                'label' => 'Ảnh người nhận',
+                                'required' => false,
+                                'max_size_mb' => 5,
+                                'accept' => ['image/jpeg', 'image/png', 'image/webp'],
+                            ],
+                            [
+                                'key' => 'background_music',
+                                'type' => 'music',
+                                'label' => 'Nhạc nền',
+                                'required' => false,
+                                'max_size_mb' => 10,
+                                'accept' => ['audio/mpeg', 'audio/wav'],
+                            ],
+                        ],
+                    ],
                 ]
             );
         }
@@ -85,6 +172,42 @@ class GiftTemplateSeeder extends Seeder
                     'meta_title' => 'Quà Tặng Giáng Sinh 3D Kỳ Ảo',
                     'meta_description' => 'Trải nghiệm không gian đêm Noel ấm áp với tuyết rơi thực tế ảo mượt mà.',
                     'meta_keywords' => 'quà giáng sinh 3d, thiệp noel 3d, tuyết rơi 3d, threejs christmas',
+                    'form_schema' => [
+                        'fields' => [
+                            [
+                                'key' => 'sender_name',
+                                'type' => 'text',
+                                'label' => 'Người gửi',
+                                'placeholder' => 'VD: Santa Claus',
+                                'required' => false,
+                                'max_length' => 50,
+                            ],
+                            [
+                                'key' => 'receiver_name',
+                                'type' => 'text',
+                                'label' => 'Gửi đến',
+                                'placeholder' => 'VD: Bạn thân yêu',
+                                'required' => true,
+                                'max_length' => 50,
+                            ],
+                            [
+                                'key' => 'message',
+                                'type' => 'textarea',
+                                'label' => 'Lời chúc Giáng Sinh',
+                                'placeholder' => 'Merry Christmas! ...',
+                                'required' => true,
+                                'max_length' => 300,
+                            ],
+                            [
+                                'key' => 'photo',
+                                'type' => 'image',
+                                'label' => 'Ảnh đính kèm',
+                                'required' => false,
+                                'max_size_mb' => 5,
+                                'accept' => ['image/jpeg', 'image/png', 'image/webp'],
+                            ],
+                        ],
+                    ],
                 ]
             );
         }

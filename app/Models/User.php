@@ -134,6 +134,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Mối quan hệ: Một người dùng có nhiều quà tặng đã tạo.
+     */
+    public function userGifts(): HasMany
+    {
+        return $this->hasMany(UserGift::class);
+    }
+
+    /**
      * Mối quan hệ: Một người dùng có thể sử dụng nhiều mã giảm giá/quà tặng.
      */
     public function coupons(): BelongsToMany

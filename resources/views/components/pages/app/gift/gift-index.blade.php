@@ -186,13 +186,13 @@
 
                         <!-- Nhóm nút hành động: Mua ngay & Xem demo -->
                         <div class="grid grid-cols-2 gap-1.5 sm:gap-2 mt-2">
-                            <!-- Nút Mua ngay -->
-                            <button @click="openPaymentModal(gift)"
+                            <!-- Nút Mua ngay — chuyển đến trang chỉnh sửa nội dung -->
+                            <a :href="gift.create_url"
                                 class="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-2 px-1 sm:px-3 bg-primary hover:bg-primary/95 text-white rounded-xl text-[9px] sm:text-xs font-bold transition-all shadow-sm shadow-primary/10 active:scale-[0.97] whitespace-nowrap">
                                 <span
-                                    class="material-symbols-outlined text-[12px] sm:text-[16px] select-none">credit_card</span>
-                                <span>{{ __('Mua ngay') }}</span>
-                            </button>
+                                    class="material-symbols-outlined text-[12px] sm:text-[16px] select-none">edit</span>
+                                <span>{{ __('Tạo quà tặng') }}</span>
+                            </a>
                             <!-- Nút Xem demo -->
                             <a :href="gift.demo_url"
                                 class="flex items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-2 px-1 sm:px-3 bg-app-surface hover:bg-app-main/5 border border-app-border text-app-text rounded-xl text-[9px] sm:text-xs font-bold transition-all active:scale-[0.97] whitespace-nowrap">
@@ -340,7 +340,7 @@
                         @foreach($categories as $category)
                             { id: '{{ $category->slug }}', label: '{{ __($category->name) }}', icon: '{{ $category->icon }}' },
                         @endforeach
-                    ],
+                        ],
                     // Danh sách quà tặng được load động từ Database qua GiftService
                     gifts: @json($gifts),
                     init() {

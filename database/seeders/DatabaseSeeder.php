@@ -76,7 +76,13 @@ class DatabaseSeeder extends Seeder
         // 4. Tạo các danh mục quà tặng mẫu
         $this->call(GiftCategorySeeder::class);
 
-        // 5. Tạo các mẫu quà tặng 3D mẫu
+        // 5. Tạo các gói thời hạn quà tặng (15d, 30d, 90d, vĩnh viễn)
+        $this->call(GiftDurationPlanSeeder::class);
+
+        // 6. Tạo các hiệu ứng premium
+        $this->call(GiftEffectSeeder::class);
+
+        // 7. Tạo các mẫu quà tặng 3D mẫu (với form_schema)
         $this->call(GiftTemplateSeeder::class);
     }
 }

@@ -20,3 +20,5 @@ php artisan lang:translate
 
 php artisan db:seed
 php artisan db:seed 2>&1
+
+php artisan migrate:fresh --seed
