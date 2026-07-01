@@ -9,18 +9,16 @@
 
 @section('effect-content')
     <script>
-        // Khi SDK báo sẵn sàng (sau khi click Mở Quà)
-        window.NDHGift.onReady((giftData) => {
-            initThree(giftData);
-            animate();
-        });
-
         // --- ENGINE THREE.JS ---
         let scene, camera, renderer, controls;
         let heartPoints, starfield, textCylinder, dustPoints;
         let heartGeometry, starGeometry;
         const container = document.getElementById('canvas-container');
         const clock = new THREE.Clock();
+
+        // Khởi chạy Three.js ngay lập tức để render scene tĩnh phía sau
+        initThree(window.giftData);
+        animate();
 
         function initThree(giftData) {
             // Scene
@@ -252,38 +250,56 @@
             return new THREE.CanvasTexture(canvas);
         }
 
+        // Thời điểm bắt đầu chạy hiệu ứng (reset khi mở quà)
+        let activeStartTime = null;
+
         // Animation Loop
         function animate() {
             requestAnimationFrame(animate);
 
-            const elapsedTime = clock.getElapsedTime();
+            const active = window.NDHGift.isOpened;
+            
+            // Khi vừa chuyển sang active, ghi nhận thời điểm bắt đầu
+            if (active && activeStartTime === null) {
+                activeStartTime = performance.now();
+            }
+
+            // Tính thời gian trôi qua kể từ khi mở quà (giây)
+            const elapsedTime = active ? (performance.now() - activeStartTime) / 1000 : 0;
 
             // Nhịp đập trái tim
-            const pulse = 1.0 + 0.08 * Math.pow(Math.sin(elapsedTime * 2.8), 4);
-            const doublePulse = pulse + 0.03 * Math.pow(Math.sin(elapsedTime * 5.6), 2);
+            const pulse = active ? (1.0 + 0.08 * Math.pow(Math.sin(elapsedTime * 2.8), 4)) : 1.0;
+            const doublePulse = active ? (pulse + 0.03 * Math.pow(Math.sin(elapsedTime * 5.6), 2)) : 1.0;
             if (heartPoints) {
                 heartPoints.scale.set(doublePulse, doublePulse, doublePulse);
-                heartPoints.rotation.y = elapsedTime * 0.12;
+                if (active) {
+                    heartPoints.rotation.y = elapsedTime * 0.12;
+                }
             }
 
             // Chữ chạy xoay tròn
             if (textCylinder) {
-                textCylinder.rotation.y = -elapsedTime * 0.22;
-                textCylinder.material.map.offset.x = elapsedTime * 0.04;
+                if (active) {
+                    textCylinder.rotation.y = -elapsedTime * 0.22;
+                    textCylinder.material.map.offset.x = elapsedTime * 0.04;
+                }
             }
 
             // Bụi galaxy xoay
-            if (dustPoints) {
+            if (dustPoints && active) {
                 dustPoints.rotation.y = elapsedTime * 0.32;
             }
 
             // Sao nền bay chậm
-            if (starfield) {
+            if (starfield && active) {
                 starfield.rotation.y = elapsedTime * 0.015;
                 starfield.rotation.x = elapsedTime * 0.008;
             }
 
-            controls.update();
+            if (controls) {
+                controls.autoRotate = active;
+                controls.update();
+            }
             renderer.render(scene, camera);
         }
 

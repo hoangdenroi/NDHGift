@@ -11,15 +11,20 @@
     <style>
         /* --- STYLE THEME MÙA ĐÔNG NỀN SÁNG --- */
         body {
-            background: linear-gradient(to bottom, #8fa9c4 0%, #eef2f7 100%) !important; /* Xanh xám lạnh chuyển sang trắng tuyết */
-            color: #0f172a !important; /* Chữ tối để dễ đọc trên nền sáng */
+            background: linear-gradient(to bottom, #8fa9c4 0%, #eef2f7 100%) !important;
+            /* Xanh xám lạnh chuyển sang trắng tuyết */
+            color: #0f172a !important;
+            /* Chữ tối để dễ đọc trên nền sáng */
         }
 
         /* Mở đầu */
         #opening-screen {
             background: radial-gradient(circle at center, #ffffff 0%, #bdcedf 100%) !important;
         }
-        #opening-screen h2, #opening-screen p, #opening-screen span {
+
+        #opening-screen h2,
+        #opening-screen p,
+        #opening-screen span {
             color: #0f172a !important;
         }
 
@@ -35,12 +40,15 @@
 
         /* Card lời chúc */
         #text-overlay h1 {
-            color: #0d59f2 !important; /* Màu xanh tuyết */
+            color: #0d59f2 !important;
+            /* Màu xanh tuyết */
             text-shadow: 0 0 15px rgba(13, 89, 242, 0.1) !important;
         }
+
         #text-overlay h2 {
             color: #0f172a !important;
         }
+
         #text-overlay p {
             color: #334155 !important;
         }
@@ -49,12 +57,15 @@
         #control-center button {
             color: #0f172a !important;
         }
+
         #control-center span {
             color: #334155 !important;
         }
+
         #control-center button:hover {
             background-color: rgba(13, 89, 242, 0.05) !important;
         }
+
         #control-center .border-b {
             border-bottom-color: rgba(0, 0, 0, 0.08) !important;
         }
@@ -82,37 +93,40 @@
             font-weight: 600;
             color: #475569;
             pointer-events: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
             animation: pulse-hint 2s infinite ease-in-out;
         }
 
         @keyframes pulse-hint {
-            0%, 100% { opacity: 0.6; transform: translateY(0); }
-            50% { opacity: 0.9; transform: translateY(-3px); }
+
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: translateY(0);
+            }
+
+            50% {
+                opacity: 0.9;
+                transform: translateY(-3px);
+            }
         }
     </style>
 
     @if($isDemo ?? false)
-    <style>
-        /* Watermark Demo màu thẫm mờ */
-        .fixed.inset-0.flex.items-center.justify-center.pointer-events-none span {
-            color: rgba(15, 23, 42, 0.03) !important;
-        }
-    </style>
+        <style>
+            /* Watermark Demo màu thẫm mờ */
+            .fixed.inset-0.flex.items-center.justify-center.pointer-events-none span {
+                color: rgba(15, 23, 42, 0.03) !important;
+            }
+        </style>
     @endif
 
     <div id="scroll-hint">
-        <span class="material-symbols-outlined text-[16px]">swap_vertical</span>
+        <span class="material-symbols-outlined text-[16px]">mouse</span>
         Cuộn chuột hoặc kéo màn hình để tham quan album ❄️
     </div>
 
     <script>
-        // Khi SDK báo sẵn sàng (sau khi click Mở Quà)
-        window.NDHGift.onReady((giftData) => {
-            initThree(giftData);
-            animate();
-        });
-
         // --- ENGINE THREE.JS ---
         let scene, camera, renderer, controls;
         let snowParticles, albumGroup;
@@ -128,6 +142,10 @@
         // Biến phục vụ Mouse Parallax
         let mouseX = 0;
         let mouseY = 0;
+
+        // Khởi chạy Three.js ngay lập tức để render scene tĩnh phía sau
+        initThree(window.giftData);
+        animate();
 
         function initThree(giftData) {
             // 1. Scene & Fog sáng tuyết
@@ -168,9 +186,10 @@
 
             // 8. Đăng ký sự kiện
             window.addEventListener('resize', onWindowResize, false);
-            
+
             // Lắng nghe sự kiện cuộn chuột (Scroll)
             window.addEventListener('wheel', (e) => {
+                if (!window.NDHGift.isOpened) return;
                 targetZ += e.deltaY * 0.05;
                 targetZ = Math.max(-10, Math.min(40, targetZ)); // Giới hạn di chuyển sâu
 
@@ -181,23 +200,26 @@
             // Lắng nghe sự kiện vuốt chạm (Mobile Touch Scroll)
             let touchStartY = 0;
             window.addEventListener('touchstart', (e) => {
+                if (!window.NDHGift.isOpened) return;
                 touchStartY = e.touches[0].clientY;
             }, { passive: true });
 
             window.addEventListener('touchmove', (e) => {
+                if (!window.NDHGift.isOpened) return;
                 let touchY = e.touches[0].clientY;
                 let deltaY = touchStartY - touchY;
                 touchStartY = touchY;
-                
+
                 targetZ += deltaY * 0.1;
                 targetZ = Math.max(-10, Math.min(40, targetZ));
-                
+
                 targetY -= deltaY * 0.02;
                 targetY = Math.max(-6, Math.min(6, targetY));
             }, { passive: true });
 
             // Lắng nghe di chuột (Mouse Move Parallax)
             window.addEventListener('mousemove', (e) => {
+                if (!window.NDHGift.isOpened) return;
                 mouseX = (e.clientX / window.innerWidth) - 0.5;
                 mouseY = (e.clientY / window.innerHeight) - 0.5;
             }, { passive: true });
@@ -209,17 +231,17 @@
             canvas.width = 16;
             canvas.height = 16;
             const ctx = canvas.getContext('2d');
-            
+
             const grad = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
             grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
             grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)');
             grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-            
+
             ctx.fillStyle = grad;
             ctx.beginPath();
             ctx.arc(8, 8, 8, 0, Math.PI * 2);
             ctx.fill();
-            
+
             return new THREE.CanvasTexture(canvas);
         }
 
@@ -311,7 +333,7 @@
 
                 loader.load(imgPath, (texture) => {
                     texture.minFilter = THREE.LinearFilter;
-                    
+
                     // Group riêng cho mỗi khung ảnh (giúp xử lý hiệu ứng chao nghiêng cục bộ)
                     const frameGroup = new THREE.Group();
                     frameGroup.position.copy(cfg.pos);
@@ -329,7 +351,7 @@
                     // 2. Viền trắng xung quanh (Passpartout) và khung sau
                     const borderSize = 0.25;
                     const frameGeom = new THREE.PlaneGeometry(cfg.w + borderSize, cfg.h + borderSize);
-                    
+
                     // Màu xám tuyết / bạc mờ sang trọng
                     const frameMat = new THREE.MeshStandardMaterial({
                         color: 0xffffff,
@@ -344,7 +366,7 @@
                     // 3. Khung viền kim loại dày (Màu xanh thẫm)
                     const borderThickness = 0.08;
                     const backFrameGeom = new THREE.PlaneGeometry(
-                        cfg.w + borderSize + borderThickness, 
+                        cfg.w + borderSize + borderThickness,
                         cfg.h + borderSize + borderThickness
                     );
                     const backFrameMat = new THREE.MeshStandardMaterial({
@@ -368,22 +390,32 @@
             });
         }
 
+        // Thời điểm bắt đầu chạy hiệu ứng (reset khi mở quà)
+        let activeStartTime = null;
+
         function animate() {
             requestAnimationFrame(animate);
 
-            const time = clock.getElapsedTime();
+            const active = window.NDHGift.isOpened;
+            
+            // Khi vừa chuyển sang active, ghi nhận thời điểm bắt đầu
+            if (active && activeStartTime === null) {
+                activeStartTime = performance.now();
+            }
+
+            const time = active ? (performance.now() - activeStartTime) / 1000 : 0;
 
             // 1. Xoay/cập nhật controls mượt mà
             controls.update();
 
             // 2. Di chuyển các bông tuyết rơi chao liệng sinh động
-            if (snowParticles) {
+            if (snowParticles && active) {
                 const positions = snowParticles.geometry.attributes.position.array;
                 const velocities = snowParticles.userData.velocities;
 
                 for (let i = 0; i < velocities.length; i++) {
                     const vel = velocities[i];
-                    
+
                     // Rơi Y
                     positions[i * 3 + 1] -= vel.y;
 
@@ -402,23 +434,27 @@
             }
 
             // 3. Scroll Lerp (Cuộn mượt mà tịnh tiến vị trí Album)
-            currentZ += (targetZ - currentZ) * 0.05;
-            currentY += (targetY - currentY) * 0.05;
+            if (active) {
+                currentZ += (targetZ - currentZ) * 0.05;
+                currentY += (targetY - currentY) * 0.05;
+            }
             if (albumGroup) {
                 albumGroup.position.z = currentZ;
                 albumGroup.position.y = currentY;
 
-                // 4. Mouse Parallax (Chao nghiêng nhẹ album theo tọa độ di chuột)
-                albumGroup.rotation.y += (mouseX * 0.15 - albumGroup.rotation.y) * 0.04;
-                albumGroup.rotation.x += (mouseY * 0.1 - albumGroup.rotation.x) * 0.04;
+                if (active) {
+                    // 4. Mouse Parallax (Chao nghiêng nhẹ album theo tọa độ di chuột)
+                    albumGroup.rotation.y += (mouseX * 0.15 - albumGroup.rotation.y) * 0.04;
+                    albumGroup.rotation.x += (mouseY * 0.1 - albumGroup.rotation.x) * 0.04;
 
-                // Chao nghiêng nhẹ từng khung ảnh độc lập tạo chiều sâu lập thể
-                albumGroup.children.forEach((frame) => {
-                    if (frame.userData) {
-                        frame.rotation.y = frame.userData.baseRotY + (mouseX * 0.08);
-                        frame.rotation.x = frame.userData.baseRotX + (mouseY * 0.05);
-                    }
-                });
+                    // Chao nghiêng nhẹ từng khung ảnh độc lập tạo chiều sâu lập thể
+                    albumGroup.children.forEach((frame) => {
+                        if (frame.userData) {
+                            frame.rotation.y = frame.userData.baseRotY + (mouseX * 0.08);
+                            frame.rotation.x = frame.userData.baseRotX + (mouseY * 0.05);
+                        }
+                    });
+                }
             }
 
             renderer.render(scene, camera);

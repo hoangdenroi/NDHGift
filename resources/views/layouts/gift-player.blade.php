@@ -124,6 +124,54 @@
         ::-webkit-scrollbar {
             display: none;
         }
+
+        /* Progress Bar cho Auto Load */
+        .progress-container {
+            width: 240px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #ec4899, #f43f5e); /* Hồng đỏ ngọt ngào */
+            border-radius: 4px;
+            transition: width 0.08s linear;
+        }
+        .theme-blue .progress-bar-fill {
+            background: linear-gradient(to right, #38bdf8, #0d59f2); /* Xanh tuyết */
+        }
+        
+        /* Hiệu ứng bay lên */
+        .floating-icon {
+            animation: floatUp 3s infinite ease-in-out;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(20px) scale(0.8); opacity: 0; }
+            50% { transform: translateY(-10px) scale(1.1); opacity: 0.9; }
+            100% { transform: translateY(-40px) scale(0.8); opacity: 0; }
+        }
+
+        /* Press Hold Button */
+        .hold-btn-wrapper {
+            position: absolute;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 110;
+        }
+        .hold-btn-circle {
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .hold-btn-active {
+            transform: scale(1.15) !important;
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            border-color: rgba(255, 255, 255, 0.4) !important;
+        }
     </style>
 
     {{-- Script SDK khai báo trước để template con sử dụng --}}
@@ -173,41 +221,69 @@
     <div id="canvas-container" class="absolute inset-0 z-0"></div>
 
     {{-- 1. LOADING SCREEN / OPENING SCREEN --}}
-    <div id="opening-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md transition-all duration-1000 ease-out">
-        <div class="max-w-md w-full px-6 text-center space-y-8 animate-fade-in">
-            <!-- Icon hộp quà đập nhẹ -->
-            <div class="relative w-36 h-36 mx-auto flex items-center justify-center">
-                <div class="absolute inset-0 bg-primary/10 rounded-full animate-ping duration-1000"></div>
-                <div class="absolute -inset-2 bg-primary/5 rounded-full animate-pulse"></div>
-                <div class="relative z-10 text-[72px] animate-bounce select-none">🎁</div>
-            </div>
+    @php
+        $openingType = $giftTemplate->opening_type ?? 'auto_load';
+        $themeClass = ($giftTemplate->code === 'winter_3d') ? 'theme-blue' : 'theme-rose';
+        $loadingTitle = ($giftTemplate->code === 'heart_3d') ? 'Đang chuẩn bị yêu thương...' : 'Đang chuẩn bị quà tặng...';
+    @endphp
 
-            <!-- Tiêu đề mở đầu -->
-            <div class="space-y-3">
-                @if($receiver)
-                    <h2 class="text-xl font-bold font-outfit text-white leading-normal">
-                        Chào <span class="text-primary text-glow-primary">{{ $receiver }}</span>,
-                    </h2>
-                @endif
-                <p class="text-slate-300 text-sm font-medium tracking-wide">
-                    Có một món quà chứa đựng lời yêu thương ngọt ngào đang chờ bạn khám phá.
-                </p>
-                @if($sender)
-                    <p class="text-xs text-slate-400 italic">
-                        — Gửi từ <span class="font-bold text-slate-300">{{ $sender }}</span> —
-                    </p>
-                @endif
-            </div>
+    <div id="opening-screen" 
+         class="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-all duration-1000 ease-out {{ $themeClass }} {{ $openingType === 'press_hold' ? 'bg-black/30 backdrop-blur-[2px]' : 'bg-slate-950/95 backdrop-blur-md' }}">
+        
+        @if($openingType === 'auto_load')
+            {{-- CHẾ ĐỘ 1: AUTO LOAD --}}
+            <div class="max-w-md w-full px-6 flex flex-col items-center space-y-6 animate-fade-in text-center">
+                <!-- Tiêu đề lãng mạn -->
+                <h2 class="text-xl font-bold font-outfit tracking-wide text-glow"
+                    style="color: {{ $giftTemplate->code === 'heart_3d' ? '#f43f5e' : '#0d59f2' }}; text-shadow: 0 0 15px rgba(244, 63, 94, 0.2)">
+                    {{ $loadingTitle }}
+                </h2>
 
-            <!-- Nút Mở Quà với hiệu ứng sang trọng -->
-            <button id="btn-open-gift" onclick="openGift()" class="relative group overflow-hidden w-full py-4 bg-gradient-to-r from-primary to-blue-600 rounded-2xl text-white font-extrabold text-sm tracking-wider uppercase shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all duration-300">
-                <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer"></span>
-                <span class="flex items-center justify-center gap-2">
-                    Mở Quà Ngay
-                    <span class="material-symbols-outlined text-[18px]">key</span>
+                <!-- Icon nổi hoặc bay lên -->
+                <div class="relative w-20 h-20 flex items-center justify-center select-none pointer-events-none">
+                    @if($giftTemplate->code === 'heart_3d')
+                        <span class="absolute text-5xl floating-icon" style="animation-delay: 0s;">💖</span>
+                        <span class="absolute text-3xl floating-icon" style="animation-delay: 1.5s; left: 10px; top: 10px;">💕</span>
+                    @else
+                        <span class="absolute text-5xl floating-icon" style="animation-delay: 0s;">❄️</span>
+                        <span class="absolute text-3xl floating-icon" style="animation-delay: 1.5s; left: 10px; top: 10px;">❅</span>
+                    @endif
+                </div>
+
+                <div class="flex flex-col items-center space-y-2.5">
+                    <span class="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">ĐANG CHUẨN BỊ QUÀ TẶNG...</span>
+                    <!-- Thanh tiến trình loading -->
+                    <div class="progress-container">
+                        <div id="loading-progress-bar" class="progress-bar-fill"></div>
+                    </div>
+                    <!-- Số phần trăm -->
+                    <span id="loading-progress-text" class="text-xs font-black text-slate-300 font-outfit">0%</span>
+                </div>
+            </div>
+        @else
+            {{-- CHẾ ĐỘ 2: PRESS HOLD --}}
+            <div class="hold-btn-wrapper flex flex-col items-center space-y-4 pointer-events-auto">
+                <span class="text-xs font-extrabold tracking-widest uppercase text-glow animate-pulse"
+                      style="color: {{ $giftTemplate->code === 'heart_3d' ? '#ff85a2' : '#7dd3fc' }}; text-shadow: 0 0 10px {{ $giftTemplate->code === 'heart_3d' ? 'rgba(255,133,162,0.4)' : 'rgba(125,211,252,0.4)' }}">
+                    Giữ để bắt đầu
                 </span>
-            </button>
-        </div>
+                
+                <div class="relative w-24 h-24 flex items-center justify-center cursor-pointer select-none" id="btn-hold-trigger">
+                    <!-- SVG tiến trình viền tròn -->
+                    <svg class="absolute inset-0 w-full h-full transform -rotate-90">
+                        <circle cx="48" cy="48" r="42" stroke="rgba(255,255,255,0.15)" stroke-width="4" fill="transparent" />
+                        <circle id="hold-progress-circle" cx="48" cy="48" r="42" 
+                                stroke="{{ $giftTemplate->code === 'heart_3d' ? '#f43f5e' : '#0d59f2' }}" 
+                                stroke-width="4" fill="transparent" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264" 
+                                style="transition: stroke-dashoffset 0.05s linear;" />
+                    </svg>
+                    <!-- Nút tròn trung tâm -->
+                    <div class="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition-all active:scale-95 shadow-lg hold-btn-circle">
+                        <span class="material-symbols-outlined text-[28px] animate-pulse">touch_app</span>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 
     {{-- 2. CONTROL CENTER (SETTINGS MENU) --}}
@@ -391,8 +467,14 @@
             }
         }
 
+        window.NDHGift.openingType = "{{ $openingType }}";
+        window.NDHGift.isOpened = false;
+
         // Mở Quà 🎁
         function openGift() {
+            if (window.NDHGift.isOpened) return;
+            window.NDHGift.isOpened = true;
+
             // 1. Chạy nhạc nền (Bypass Autoplay)
             playMusic();
 
@@ -404,6 +486,91 @@
 
             // 3. Trigger SDK callback chạy hiệu ứng 3D
             window.NDHGift.triggerReady();
+        }
+
+        // Logic Auto Load
+        if (window.NDHGift.openingType === 'auto_load') {
+            let progress = 0;
+            const progressBar = document.getElementById('loading-progress-bar');
+            const progressText = document.getElementById('loading-progress-text');
+            
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 4) + 2; // Tăng ngẫu nhiên 2-5%
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        openGift();
+                    }, 400);
+                }
+                if (progressBar) progressBar.style.width = progress + '%';
+                if (progressText) progressText.innerText = progress + '%';
+            }, 80);
+        }
+
+        // Logic Press Hold
+        if (window.NDHGift.openingType === 'press_hold') {
+            const btnHold = document.getElementById('btn-hold-trigger');
+            const progressCircle = document.getElementById('hold-progress-circle');
+            const innerBtn = btnHold ? btnHold.querySelector('.hold-btn-circle') : null;
+            let holdProgress = 0;
+            let holdInterval = null;
+            let releaseInterval = null;
+            const maxOffset = 264;
+
+            function updateCircle() {
+                if (progressCircle) {
+                    const offset = maxOffset - (holdProgress / 100) * maxOffset;
+                    progressCircle.style.strokeDashoffset = offset;
+                }
+            }
+
+            function startHolding(e) {
+                if (e) e.preventDefault();
+                if (window.NDHGift.isOpened) return;
+                
+                clearInterval(releaseInterval);
+                if (innerBtn) innerBtn.classList.add('hold-btn-active');
+
+                holdInterval = setInterval(() => {
+                    holdProgress += 2.5; // Mất 1.2 giây để nạp đầy (40 * 30ms)
+                    if (holdProgress >= 100) {
+                        holdProgress = 100;
+                        clearInterval(holdInterval);
+                        if (innerBtn) innerBtn.classList.remove('hold-btn-active');
+                        openGift();
+                    }
+                    updateCircle();
+                }, 30);
+            }
+
+            function stopHolding() {
+                clearInterval(holdInterval);
+                if (innerBtn) innerBtn.classList.remove('hold-btn-active');
+                if (window.NDHGift.isOpened) return;
+
+                // Xả năng lượng nhanh về 0
+                releaseInterval = setInterval(() => {
+                    holdProgress -= 5;
+                    if (holdProgress <= 0) {
+                        holdProgress = 0;
+                        clearInterval(releaseInterval);
+                    }
+                    updateCircle();
+                }, 20);
+            }
+
+            if (btnHold) {
+                // Sự kiện chuột
+                btnHold.addEventListener('mousedown', startHolding);
+                btnHold.addEventListener('mouseup', stopHolding);
+                btnHold.addEventListener('mouseleave', stopHolding);
+
+                // Sự kiện cảm ứng mobile
+                btnHold.addEventListener('touchstart', startHolding, { passive: false });
+                btnHold.addEventListener('touchend', stopHolding);
+                btnHold.addEventListener('touchcancel', stopHolding);
+            }
         }
 
         // Ẩn lớp phủ lời chúc

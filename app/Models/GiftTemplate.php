@@ -57,6 +57,7 @@ class GiftTemplate extends Model
         'meta_description',
         'meta_keywords',
         'form_schema',
+        'opening_type',
     ];
 
     /**
