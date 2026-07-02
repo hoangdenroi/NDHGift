@@ -57,7 +57,7 @@ class GiftService
                         'old_price' => round((float) $oldPrice, 2),
                         'price' => (float) $gift->price,
                         'discount' => $gift->discount,
-                        'demo_url' => $gift->demo_url ?? '#',
+                        'demo_url' => ($gift->demo_url && $gift->demo_url !== '#') ? $gift->demo_url : route('app.gift.demo', ['code' => $gift->code]),
                         'guide_url' => $gift->guide_url ?? '#',
                         'video_url' => $gift->video_url ?? '#',
                         'create_url' => route('app.gift.create', [

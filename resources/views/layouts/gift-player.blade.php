@@ -254,9 +254,7 @@
     {{-- WATERMARK DEMO (Hiển thị khi ở chế độ xem thử) --}}
     @if($isDemo ?? false)
         <div class="fixed inset-0 flex items-center justify-center pointer-events-none select-none z-[1] overflow-hidden">
-            <span
-                class="text-[10vw] md:text-[10vw] lg:text-[8vw] font-black text-white/5 tracking-widest rotate-[-45deg] uppercase font-outfit select-none whitespace-nowrap">DEMO
-                MODE</span>
+            <span class="text-[8vw] md:text-[6vw] lg:text-[5vw] font-black text-white/5 tracking-widest rotate-[-45deg] uppercase font-outfit select-none whitespace-nowrap">{{ 'DEMO MODE' }}</span>
         </div>
     @endif
 

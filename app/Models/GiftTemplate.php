@@ -134,4 +134,15 @@ class GiftTemplate extends Model
         $this->deleted_at = null;
         return $this->save();
     }
+
+    /**
+     * Accessor cho demo_url để tự động sinh route demo nội bộ nếu trống hoặc bằng '#'.
+     */
+    public function getDemoUrlAttribute(?string $value): string
+    {
+        if (empty($value) || $value === '#') {
+            return route('app.gift.demo', ['code' => $this->code]);
+        }
+        return $value;
+    }
 }
