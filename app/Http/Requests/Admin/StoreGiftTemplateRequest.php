@@ -30,6 +30,8 @@ class StoreGiftTemplateRequest extends FormRequest
             'discount' => 'nullable|integer|min:0|max:100',
             'is_hot' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
+            'opening_type' => 'required|in:auto_load,press_hold',
+            'form_schema' => 'nullable|array',
             'demo_url' => 'nullable|string|max:255',
             'guide_url' => 'nullable|string|max:255',
             'video_url' => 'nullable|string|max:255',
@@ -56,6 +58,9 @@ class StoreGiftTemplateRequest extends FormRequest
             'price.min' => 'Giá tiền không được nhỏ hơn 0.',
             'discount.min' => 'Chiết khấu không được nhỏ hơn 0%.',
             'discount.max' => 'Chiết khấu không được lớn hơn 100%.',
+            'opening_type.required' => 'Kiểu mở quà bắt buộc phải chọn.',
+            'opening_type.in' => 'Kiểu mở quà chỉ chấp nhận: auto_load hoặc press_hold.',
+            'form_schema.array' => 'Schema form phải là dữ liệu dạng JSON hợp lệ.',
         ];
     }
 
@@ -72,9 +77,20 @@ class StoreGiftTemplateRequest extends FormRequest
             'is_hot' => $this->has('is_hot') ? 1 : 0,
             'is_active' => $this->has('is_active') ? 1 : 0,
             'discount' => $this->filled('discount') ? (int) $this->input('discount') : 0,
+            'opening_type' => $this->input('opening_type', 'auto_load'),
             'meta_title' => $this->filled('meta_title') ? strip_tags((string) $this->input('meta_title')) : null,
             'meta_description' => $this->filled('meta_description') ? strip_tags((string) $this->input('meta_description')) : null,
             'meta_keywords' => $this->filled('meta_keywords') ? strip_tags((string) $this->input('meta_keywords')) : null,
         ]);
+
+        // Chuyển đổi form_schema từ chuỗi JSON thành mảng (nếu có)
+        $formSchema = $this->input('form_schema');
+        if (is_string($formSchema) && !empty($formSchema)) {
+            $decoded = json_decode($formSchema, true);
+            // Nếu JSON hợp lệ thì gán mảng, còn không thì để nguyên chuỗi để validation bắt lỗi
+            $this->merge(['form_schema' => is_array($decoded) ? $decoded : $formSchema]);
+        } elseif (empty($formSchema)) {
+            $this->merge(['form_schema' => null]);
+        }
     }
 }

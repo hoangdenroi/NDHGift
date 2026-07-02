@@ -114,6 +114,17 @@ class GiftTemplateControllerTest extends TestCase
             'meta_title' => 'Thư tình 3D đẹp nhất',
             'meta_description' => 'Mẫu thư tình 3D gửi tặng người ấy.',
             'meta_keywords' => 'thư tình 3d, tình yêu',
+            'opening_type' => 'press_hold',
+            'form_schema' => [
+                'fields' => [
+                    [
+                        'name' => 'receiver_name',
+                        'type' => 'text',
+                        'label' => 'Tên người nhận',
+                        'default' => 'Người Nhận'
+                    ]
+                ]
+            ],
         ];
 
         $response = $this->actingAs($this->admin)->post(route('admin.gift-templates.store'), $templateData);
@@ -126,7 +137,12 @@ class GiftTemplateControllerTest extends TestCase
             'discount' => 10,
             'is_hot' => true,
             'is_deleted' => false,
+            'opening_type' => 'press_hold',
         ]);
+
+        $latest = GiftTemplate::where('code', 'love_letter_3d')->first();
+        $this->assertIsArray($latest->form_schema);
+        $this->assertEquals('receiver_name', $latest->form_schema['fields'][0]['name']);
     }
 
     /** @test */
@@ -156,6 +172,7 @@ class GiftTemplateControllerTest extends TestCase
             'code' => 'old_code',
             'name' => 'Mẫu quà cũ',
             'price' => 15000,
+            'opening_type' => 'auto_load',
         ]);
 
         $response = $this->actingAs($this->admin)->put(route('admin.gift-templates.update', $template->id), [
@@ -166,6 +183,10 @@ class GiftTemplateControllerTest extends TestCase
             'discount' => 20,
             'is_hot' => false,
             'is_active' => true,
+            'opening_type' => 'press_hold',
+            'form_schema' => [
+                'fields' => []
+            ],
         ]);
 
         $response->assertRedirect(route('admin.gift-templates.index'));
@@ -175,7 +196,37 @@ class GiftTemplateControllerTest extends TestCase
             'name' => 'Mẫu quà mới',
             'price' => 20000.00,
             'discount' => 20,
+            'opening_type' => 'press_hold',
         ]);
+
+        $template->refresh();
+        $this->assertIsArray($template->form_schema);
+        $this->assertEmpty($template->form_schema['fields']);
+    }
+
+    /** @test */
+    public function validate_opening_type_va_form_schema_invalid(): void
+    {
+        // 1. Test opening_type invalid
+        $response = $this->actingAs($this->admin)->post(route('admin.gift-templates.store'), [
+            'category_id' => $this->category->id,
+            'code' => 'invalid_opening',
+            'name' => 'Invalid Opening Type',
+            'price' => 10000,
+            'opening_type' => 'wrong_value', // Phải là auto_load hoặc press_hold
+        ]);
+        $response->assertSessionHasErrors('opening_type');
+
+        // 2. Test form_schema invalid (không phải JSON/array)
+        $response = $this->actingAs($this->admin)->post(route('admin.gift-templates.store'), [
+            'category_id' => $this->category->id,
+            'code' => 'invalid_schema',
+            'name' => 'Invalid Schema',
+            'price' => 10000,
+            'opening_type' => 'auto_load',
+            'form_schema' => 'chuoi-khong-phai-json-array', // FormRequest tự chuẩn bị validation, nếu truyền chuỗi thường không phải JSON thì chuẩn bị decode sẽ trả về string và validation 'array' sẽ fail.
+        ]);
+        $response->assertSessionHasErrors('form_schema');
     }
 
     // ===== DELETE (SOFT DELETE) =====

@@ -52,29 +52,35 @@ class GiftTemplateAdminService
 
     /**
      * Tạo mới một mẫu quà tặng.
+     * Sử dụng transaction để đảm bảo rollback nếu có lỗi phát sinh.
      */
     public function create(array $data): GiftTemplate
     {
-        $template = GiftTemplate::create($data);
-        
-        // Xóa cache danh sách mẫu quà tặng hoạt động ở phía client
-        Cache::forget(\App\Services\GiftService::CACHE_KEY);
+        return DB::transaction(function () use ($data) {
+            $template = GiftTemplate::create($data);
 
-        return $template;
+            // Xóa cache danh sách mẫu quà tặng hoạt động ở phía client
+            Cache::forget(\App\Services\GiftService::CACHE_KEY);
+
+            return $template;
+        });
     }
 
     /**
      * Cập nhật thông tin mẫu quà tặng.
+     * Sử dụng transaction để đảm bảo rollback nếu có lỗi phát sinh.
      */
     public function update(int $id, array $data): GiftTemplate
     {
-        $template = GiftTemplate::notDeleted()->findOrFail($id);
-        $template->update($data);
+        return DB::transaction(function () use ($id, $data) {
+            $template = GiftTemplate::notDeleted()->findOrFail($id);
+            $template->update($data);
 
-        // Xóa cache danh sách mẫu quà tặng hoạt động ở phía client
-        Cache::forget(\App\Services\GiftService::CACHE_KEY);
+            // Xóa cache danh sách mẫu quà tặng hoạt động ở phía client
+            Cache::forget(\App\Services\GiftService::CACHE_KEY);
 
-        return $template;
+            return $template;
+        });
     }
 
     /**
