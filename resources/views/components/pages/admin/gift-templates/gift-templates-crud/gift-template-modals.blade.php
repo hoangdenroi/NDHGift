@@ -41,8 +41,8 @@
                 </div>
 
                 {{-- THANH CHUYỂN TAB --}}
-                <div class="border-b border-slate-200 dark:border-border-dark mb-6">
-                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                <div class="border-b border-slate-200 dark:border-border-dark mb-6 overflow-x-auto overflow-y-hidden scrollbar-none">
+                    <nav class="-mb-px flex space-x-6 min-w-max" aria-label="Tabs">
                         <button type="button" @click="activeTab = 'general'"
                             :class="activeTab === 'general' ? 'border-primary text-primary font-bold' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
                             class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-all flex items-center gap-1.5 focus:outline-none">
@@ -319,8 +319,8 @@
                 </div>
 
                 {{-- THANH CHUYỂN TAB --}}
-                <div class="border-b border-slate-200 dark:border-border-dark mb-6">
-                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                <div class="border-b border-slate-200 dark:border-border-dark mb-6 overflow-x-auto overflow-y-hidden scrollbar-none">
+                    <nav class="-mb-px flex space-x-6 min-w-max" aria-label="Tabs">
                         <button type="button" @click="activeTab = 'general'"
                             :class="activeTab === 'general' ? 'border-primary text-primary font-bold' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
                             class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-all flex items-center gap-1.5 focus:outline-none">
